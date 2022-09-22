@@ -1,9 +1,12 @@
 package com.example.zygos.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -27,30 +30,36 @@ fun PieChart(
     modifier: Modifier = Modifier,
     stroke: Dp = 10.dp,
 ) {
-    val strokePx = with(LocalDensity.current) { Stroke(stroke.toPx()) }
-    Canvas(modifier) {
-        val innerRadius = (size.minDimension - strokePx.width) / 2
-        val halfSize = size / 2.0f
-        val topLeft = Offset(
-            halfSize.width - innerRadius,
-            halfSize.height - innerRadius
-        )
-        val size = Size(innerRadius * 2, innerRadius * 2)
-        var startAngle = -90f
-        val totalAngle = 360f
-        values.forEachIndexed { index, value ->
-            val sweep = value * totalAngle
-            drawArc(
-                color = colors[index],
-                startAngle = startAngle + DividerLengthInDegrees / 2,
-                sweepAngle = sweep - DividerLengthInDegrees,
-                topLeft = topLeft,
-                size = size,
-                useCenter = false,
-                style = strokePx
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
+    ) {
+        val strokePx = with(LocalDensity.current) { Stroke(stroke.toPx()) }
+        Canvas(modifier) {
+            val innerRadius = (size.minDimension - strokePx.width) / 2
+            val halfSize = size / 2.0f
+            val topLeft = Offset(
+                halfSize.width - innerRadius,
+                halfSize.height - innerRadius
             )
-            startAngle += sweep
+            val size = Size(innerRadius * 2, innerRadius * 2)
+            var startAngle = -90f
+            val totalAngle = 360f
+            values.forEachIndexed { index, value ->
+                val sweep = value * totalAngle
+                drawArc(
+                    color = colors[index],
+                    startAngle = startAngle + DividerLengthInDegrees / 2,
+                    sweepAngle = sweep - DividerLengthInDegrees,
+                    topLeft = topLeft,
+                    size = size,
+                    useCenter = false,
+                    style = strokePx
+                )
+                startAngle += sweep
+            }
         }
+        Text("Hello!")
     }
 }
 
@@ -68,7 +77,7 @@ fun DefaultPreview() {
                     Color(0xFF04B97F),
                     Color(0xFF37EFBA)
                 ),
-                modifier = Modifier.size(100.dp),
+                modifier = Modifier.size(300.dp),
             )
         }
     }
