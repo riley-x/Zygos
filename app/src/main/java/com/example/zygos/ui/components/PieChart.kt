@@ -58,7 +58,8 @@ fun PieChart(
             .pointerInteropFilter { motionEvent ->
                 if (motionEvent.action == MotionEvent.ACTION_UP) {
                     centerText = formatDollar(total)
-                } else {
+                } else if (motionEvent.action == MotionEvent.ACTION_MOVE ||
+                        motionEvent.action == MotionEvent.ACTION_DOWN) {
                     val x = motionEvent.x - boxSize.width / 2
                     val y = motionEvent.y - boxSize.height / 2
 

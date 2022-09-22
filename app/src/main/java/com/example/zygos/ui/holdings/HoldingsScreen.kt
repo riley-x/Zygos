@@ -3,7 +3,9 @@ package com.example.zygos.ui.holdings
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,17 +27,24 @@ fun HoldingsScreen(
             .fillMaxWidth(),
     ) {
         Surface(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(0.dp, 300.dp)
         ) {
             PieChart(
                 tickers = positions.map { it.ticker },
                 values = positions.map { it.value },
                 colors = positions.map { it.color },
                 modifier = Modifier
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 30.dp)
                     .fillMaxSize(),
                 stroke = 30.dp,
             )
+        }
+        Surface(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text("TODO")
         }
     }
 }
