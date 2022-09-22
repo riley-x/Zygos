@@ -36,9 +36,9 @@ fun AccountSelection(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(currentAccount,
-                    style = MaterialTheme.typography.h6,
+                    style = MaterialTheme.typography.h4,
                     modifier = Modifier
-                        .padding(start = 10.dp),
+                    //    .padding(start = 10.dp),
                 )
                 ExposedDropdownMenuDefaults.TrailingIcon(
                     expanded = expanded,

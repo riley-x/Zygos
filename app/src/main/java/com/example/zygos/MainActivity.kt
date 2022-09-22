@@ -48,7 +48,8 @@ fun ZygosApp(
             topBar = { AccountSelection(
                 accounts = accounts,
                 currentAccount = currentAccount,
-                onAccountSelected = { currentAccount = it }
+                onAccountSelected = { currentAccount = it },
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
             ) },
             bottomBar = {
                 ZygosNav(

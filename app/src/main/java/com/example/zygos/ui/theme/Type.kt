@@ -18,6 +18,10 @@ private val RobotoCondensed = FontFamily(
     Font(R.font.robotocondensed_light, FontWeight.Light),
     Font(R.font.robotocondensed_bold, FontWeight.Bold)
 )
+private val Roboto = FontFamily(
+    Font(R.font.roboto_regular),
+    Font(R.font.roboto_bold, FontWeight.Bold)
+)
 
 val Typography = Typography(
     defaultFontFamily = RobotoCondensed,
@@ -37,11 +41,13 @@ val Typography = Typography(
     ),
     h4 = TextStyle(
         fontWeight = FontWeight.W700,
-        fontSize = 34.sp
+        fontSize = 34.sp,
+        fontFamily = Roboto,
     ),
     h5 = TextStyle(
         fontWeight = FontWeight.W700,
-        fontSize = 24.sp
+        fontSize = 24.sp,
+        fontFamily = Roboto,
     ),
     h6 = TextStyle(
         fontWeight = FontWeight.Normal,
