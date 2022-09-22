@@ -1,4 +1,4 @@
-package com.example.zygos.components
+package com.example.zygos.ui.components
 
 fun <E> List<E>.normalized(selector: (E) -> Float): List<Float> {
     val total = this.sumOf { selector(it).toDouble() }

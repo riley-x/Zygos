@@ -1,4 +1,4 @@
-package com.example.zygos.components
+package com.example.zygos.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box

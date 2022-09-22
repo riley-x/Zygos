@@ -5,20 +5,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.zygos.components.PieChart
+import com.example.zygos.ui.chart.ChartScreen
+import com.example.zygos.ui.components.PieChart
+import com.example.zygos.ui.holdings.HoldingsScreen
+import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.theme.ZygosTheme
 
 class MainActivity : ComponentActivity() {
@@ -31,12 +31,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ZygosApp() {
+fun ZygosApp(
+    preview: String = "",
+) {
     ZygosTheme {
         val navController = rememberNavController()
         val currentBackStack by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStack?.destination
-        var currentTab = zygosTabs.find { it.route == currentDestination?.route } ?: Performance
+        val currentTab = zygosTabs.find { it.route == currentDestination?.route } ?: Performance
 
         Scaffold(
             bottomBar = {
@@ -44,83 +46,34 @@ fun ZygosApp() {
                     tabs = zygosTabs,
                     currentTab = currentTab.route,
                     onTabSelected = { tab ->
-                        if (tab.route != currentTab.route) navController.navigateSingleTopTo(tab.route)
+                        if (tab.route != currentTab.route) navController.navigateSingleScreenTo(tab.route)
                     },
                 )
             },
         ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = Performance.route,
-                modifier = Modifier.padding(innerPadding),
-            ) {
-                composable(route = Performance.route) {
-                    PerformanceScreen(innerPadding)
-                }
-                composable(route = Holdings.route) {
-                    HoldingsScreen(innerPadding)
-                }
-                composable(route = Chart.route) {
-                    ChartScreen(innerPadding)
+            if (preview == Performance.route) {
+                PerformanceScreen(innerPadding)
+            } else {
+                NavHost(
+                    navController = navController,
+                    startDestination = Performance.route,
+                    modifier = Modifier.padding(innerPadding),
+                ) {
+                    composable(route = Performance.route) {
+                        PerformanceScreen(innerPadding)
+                    }
+                    composable(route = Holdings.route) {
+                        HoldingsScreen(innerPadding)
+                    }
+                    composable(route = Chart.route) {
+                        ChartScreen(innerPadding)
+                    }
                 }
             }
         }
     }
 }
 
-
-
-
-@Composable
-fun PerformanceScreen(
-    innerPadding: PaddingValues,
-) {
-    Surface(
-        modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize(),
-        color = MaterialTheme.colors.background
-    ) {
-        Text("Performance Screen")
-    }
-}
-
-@Composable
-fun HoldingsScreen(
-    innerPadding: PaddingValues,
-) {
-    Surface(
-        modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize(),
-        color = MaterialTheme.colors.background
-    ) {
-        PieChart(
-            values = listOf(0.2f, 0.3f, 0.4f, 0.1f),
-            colors = listOf(
-                Color(0xFF004940),
-                Color(0xFF005D57),
-                Color(0xFF04B97F),
-                Color(0xFF37EFBA)
-            ),
-            modifier = Modifier.size(100.dp),
-        )
-    }
-}
-
-@Composable
-fun ChartScreen(
-    innerPadding: PaddingValues,
-) {
-    Surface(
-        modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize(),
-        color = MaterialTheme.colors.background
-    ) {
-        Text("Chart Screen")
-    }
-}
 
 @Composable
 fun ZygosNav(
@@ -149,7 +102,7 @@ fun ZygosNav(
     }
 }
 
-fun NavHostController.navigateSingleTopTo(route: String) {
+fun NavHostController.navigateSingleScreenTo(route: String) {
     backQueue.removeIf { it.destination.route == route }
     navigate(route) {
 //        popUpTo(
@@ -165,5 +118,7 @@ fun NavHostController.navigateSingleTopTo(route: String) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun DefaultPreview() {
-    ZygosApp()
+    ZygosApp(
+        preview = Performance.route
+    )
 }
