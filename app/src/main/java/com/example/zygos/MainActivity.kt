@@ -66,25 +66,36 @@ fun ZygosApp(
             },
         ) { innerPadding ->
             /** Pick the tab to show **/
-            if (preview == Performance.route) {
-                PerformanceScreen(innerPadding)
-            } else {
-                NavHost(
-                    navController = navController,
-                    startDestination = Performance.route,
-                    modifier = Modifier.padding(innerPadding),
-                ) {
-                    composable(route = Performance.route) {
-                        PerformanceScreen(innerPadding)
-                    }
-                    composable(route = Holdings.route) {
-                        HoldingsScreen(
-                            positions = viewModel.positions,
-                            innerPadding = innerPadding
-                        )
-                    }
-                    composable(route = Chart.route) {
-                        ChartScreen(innerPadding)
+            when (preview) {
+                /** Previews **/
+                Performance.route -> {
+                    PerformanceScreen(innerPadding)
+                }
+                Holdings.route -> {
+                    HoldingsScreen(
+                        positions = viewModel.positions,
+                        innerPadding = innerPadding
+                    )
+                }
+                /** Actual run code, with Navigation Host **/
+                else -> {
+                    NavHost(
+                        navController = navController,
+                        startDestination = Performance.route,
+                        modifier = Modifier.padding(innerPadding),
+                    ) {
+                        composable(route = Performance.route) {
+                            PerformanceScreen(innerPadding)
+                        }
+                        composable(route = Holdings.route) {
+                            HoldingsScreen(
+                                positions = viewModel.positions,
+                                innerPadding = innerPadding
+                            )
+                        }
+                        composable(route = Chart.route) {
+                            ChartScreen(innerPadding)
+                        }
                     }
                 }
             }
@@ -129,8 +140,16 @@ fun NavHostController.navigateSingleScreenTo(route: String) {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun DefaultPreview() {
+fun PreviewTabPerformance() {
     ZygosApp(
         preview = Performance.route
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PreviewTabHoldings() {
+    ZygosApp(
+        preview = Holdings.route
     )
 }
