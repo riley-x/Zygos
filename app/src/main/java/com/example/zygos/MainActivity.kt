@@ -3,9 +3,7 @@ package com.example.zygos
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.*
@@ -56,13 +54,20 @@ fun ZygosApp() {
 @Composable
 fun ZygosNav() {
     var selectedItem by remember { mutableStateOf(0) }
-    val items = listOf(Icons.Sharp.ShowChart, Icons.Sharp.PieChart)
+    val items = listOf(Icons.Sharp.ShowChart, Icons.Sharp.PieChart, Icons.Sharp.CandlestickChart)
     BottomNavigation(
+        modifier = Modifier.height(48.dp)
         //elevation = 0.dp,
     ) {
         items.forEachIndexed { index, item ->
             BottomNavigationItem(
-                icon = { Icon(item, contentDescription = null) },
+                icon = { Icon(
+                    item,
+                    contentDescription = null,
+                    modifier = Modifier.size(30.dp)
+                    // For some reason height can't make the icon larger than some fixed value
+                    // (maybe to do with the fixed BottomNavigationHeight = 56.dp), but size can.
+                ) },
                 selected = selectedItem == index,
                 onClick = { selectedItem = index }
             )
