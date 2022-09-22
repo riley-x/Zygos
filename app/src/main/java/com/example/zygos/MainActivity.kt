@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.zygos.ui.chart.ChartScreen
+import com.example.zygos.ui.components.AccountSelection
 import com.example.zygos.ui.components.PieChart
 import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.ui.performance.PerformanceScreen
@@ -34,6 +35,9 @@ class MainActivity : ComponentActivity() {
 fun ZygosApp(
     preview: String = "",
 ) {
+    val accounts = listOf("Robinhood", "Arista", "TD Ameritrade", "Alhena")
+    var currentAccount by remember { mutableStateOf(accounts[0]) }
+
     ZygosTheme {
         val navController = rememberNavController()
         val currentBackStack by navController.currentBackStackEntryAsState()
@@ -41,6 +45,11 @@ fun ZygosApp(
         val currentTab = zygosTabs.find { it.route == currentDestination?.route } ?: Performance
 
         Scaffold(
+            topBar = { AccountSelection(
+                accounts = accounts,
+                currentAccount = currentAccount,
+                onAccountSelected = { currentAccount = it }
+            ) },
             bottomBar = {
                 ZygosNav(
                     tabs = zygosTabs,
