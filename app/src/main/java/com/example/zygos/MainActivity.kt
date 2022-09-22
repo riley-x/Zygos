@@ -41,13 +41,13 @@ fun ZygosApp(
     viewModel : ZygosViewModel = viewModel(),
 ) {
     ZygosTheme {
-        /// Get the nav controller ///
+        /** Get the nav controller **/
         val navController = rememberNavController()
         val currentBackStack by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStack?.destination
         val currentTab = zygosTabs.find { it.route == currentDestination?.route } ?: Performance
 
-        /// Set the top and bottom bars ///
+        /** Set the top and bottom bars **/
         Scaffold(
             topBar = { AccountSelection(
                 accounts = viewModel.accounts,
@@ -65,7 +65,7 @@ fun ZygosApp(
                 )
             },
         ) { innerPadding ->
-            /// Pick the tab to show ///
+            /** Pick the tab to show **/
             if (preview == Performance.route) {
                 PerformanceScreen(innerPadding)
             } else {
@@ -78,7 +78,10 @@ fun ZygosApp(
                         PerformanceScreen(innerPadding)
                     }
                     composable(route = Holdings.route) {
-                        HoldingsScreen(innerPadding)
+                        HoldingsScreen(
+                            positions = viewModel.positions,
+                            innerPadding = innerPadding
+                        )
                     }
                     composable(route = Chart.route) {
                         ChartScreen(innerPadding)
@@ -120,12 +123,6 @@ fun ZygosNav(
 fun NavHostController.navigateSingleScreenTo(route: String) {
     backQueue.removeIf { it.destination.route == route }
     navigate(route) {
-//        popUpTo(
-//            this@navigateSingleTopTo.graph.findStartDestination().id
-//        ) {
-//            saveState = true
-//        }
-//        launchSingleTop = true
         restoreState = true
     }
 }
