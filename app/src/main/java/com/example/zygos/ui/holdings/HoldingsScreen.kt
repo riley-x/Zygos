@@ -1,9 +1,6 @@
 package com.example.zygos.ui.holdings
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
@@ -22,17 +19,24 @@ fun HoldingsScreen(
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
+    Column(
         modifier = modifier
             .padding(innerPadding)
-            .fillMaxSize(),
-        color = MaterialTheme.colors.background
+            .fillMaxWidth(),
     ) {
-        PieChart(
-            values = positions.map { it.value },
-            colors = positions.map { it.color },
-            modifier = Modifier.size(100.dp),
-        )
+        Surface(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            PieChart(
+                tickers = positions.map { it.ticker },
+                values = positions.map { it.value },
+                colors = positions.map { it.color },
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .fillMaxSize(),
+                stroke = 30.dp,
+            )
+        }
     }
 }
 
