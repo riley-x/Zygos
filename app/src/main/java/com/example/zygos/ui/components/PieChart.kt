@@ -1,5 +1,6 @@
 package com.example.zygos.ui.components
 
+import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -44,27 +45,32 @@ fun PieChart(
     if (tickers.isEmpty()) return
 
     val total = values.sum()
-    val angles = FloatArray(values.size + 1)
-    for (index in 0..values.size) {
+    val angles = FloatArray(values.size + 1) // first entry is 0, last entry is 360
+    for (index in values.indices) {
         angles[index + 1] = angles[index] + 360f * values[index] / total
     }
 
-    var centerText by remember { mutableStateOf(tickers[0]) }
+    var centerText by remember { mutableStateOf(formatDollar(total)) }
     var boxSize by remember { mutableStateOf(IntSize(10, 10)) } // 960 x 1644
 
     Box(
         modifier = modifier
             .pointerInteropFilter { motionEvent ->
-                val x = motionEvent.x - boxSize.width / 2
-                val y = motionEvent.y - boxSize.height / 2
+                if (motionEvent.action == MotionEvent.ACTION_UP) {
+                    centerText = formatDollar(total)
+                } else {
+                    val x = motionEvent.x - boxSize.width / 2
+                    val y = motionEvent.y - boxSize.height / 2
 
-                // Here we map y -> (Right = +x) and x -> (Up = -y)
-                // since we start at the top and move clockwise
-                var phi = toDegrees(kotlin.math.atan2(x, -y).toDouble())
-                if (phi < 0) phi += 360
+                    // Here we map y -> (Right = +x) and x -> (Up = -y)
+                    // since we start at the top and move clockwise
+                    var phi = toDegrees(kotlin.math.atan2(x, -y).toDouble())
+                    if (phi < 0) phi += 360
 
-                val index = angles.indexOfFirst { it > phi }
-                centerText = tickers[index - 1]
+                    var index = angles.indexOfFirst { it > phi }
+                    if (index == -1) index = angles.size // Can occur normally when phi == 360f
+                    centerText = tickers[index - 1]
+                }
                 true
             }
             .onGloballyPositioned { boxSize = it.size },
@@ -82,7 +88,7 @@ fun PieChart(
             var startAngle = -90f
             val totalAngle = 360f
             values.forEachIndexed { index, value ->
-                val sweep = value * totalAngle
+                val sweep = value / total * totalAngle
                 drawArc(
                     color = colors[index],
                     startAngle = startAngle + DividerLengthInDegrees / 2,
@@ -107,7 +113,7 @@ fun DefaultPreview() {
         Surface() {
             PieChart(
                 tickers = listOf("A", "B", "C", "D"),
-                values = listOf(0.2f, 0.3f, 0.4f, 0.1f),
+                values = listOf(2f, 3f, 4f, 1f),
                 colors = listOf(
                     Color(0xFF004940),
                     Color(0xFF005D57),
