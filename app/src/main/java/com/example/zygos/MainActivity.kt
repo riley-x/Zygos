@@ -6,21 +6,25 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.zygos.ui.*
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.AccountSelection
 import com.example.zygos.ui.components.PieChart
 import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.viewModel.ZygosViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,21 +38,21 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ZygosApp(
     preview: String = "",
+    viewModel : ZygosViewModel = viewModel(),
 ) {
-    val accounts = listOf("Robinhood", "Arista", "TD Ameritrade", "Alhena")
-    var currentAccount by remember { mutableStateOf(accounts[0]) }
-
     ZygosTheme {
+        /// Get the nav controller ///
         val navController = rememberNavController()
         val currentBackStack by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStack?.destination
         val currentTab = zygosTabs.find { it.route == currentDestination?.route } ?: Performance
 
+        /// Set the top and bottom bars ///
         Scaffold(
             topBar = { AccountSelection(
-                accounts = accounts,
-                currentAccount = currentAccount,
-                onAccountSelected = { currentAccount = it },
+                accounts = viewModel.accounts,
+                currentAccount = viewModel.currentAccount,
+                onAccountSelected = { viewModel.setAccount(it) },
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
             ) },
             bottomBar = {
@@ -61,6 +65,7 @@ fun ZygosApp(
                 )
             },
         ) { innerPadding ->
+            /// Pick the tab to show ///
             if (preview == Performance.route) {
                 PerformanceScreen(innerPadding)
             } else {

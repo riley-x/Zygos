@@ -1,4 +1,4 @@
-package com.example.zygos
+package com.example.zygos.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.CandlestickChart
