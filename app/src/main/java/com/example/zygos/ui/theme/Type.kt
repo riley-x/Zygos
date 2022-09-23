@@ -46,8 +46,8 @@ val Typography = Typography(
         fontFamily = Roboto,
     ),
     h5 = TextStyle(
-        fontWeight = FontWeight.W700,
-        fontSize = 24.sp,
+        fontWeight = FontWeight.W500,
+        fontSize = 18.sp,
         fontFamily = Roboto,
     ),
     h6 = TextStyle(

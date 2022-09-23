@@ -1,6 +1,8 @@
 package com.example.zygos.ui.holdings
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -44,7 +46,19 @@ fun HoldingsScreen(
         Surface(
             modifier = Modifier.fillMaxSize()
         ) {
-            Text("TODO")
+            LazyColumn(
+                Modifier.padding(6.dp)
+            ) {
+                items(positions) {
+                    HoldingsRow(
+                        ticker = it.ticker,
+                        color = it.color,
+                        value = it.value,
+                        shares = 17f,
+                        gain = -134.13f,
+                    )
+                }
+            }
         }
     }
 }
