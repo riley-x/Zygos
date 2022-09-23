@@ -35,26 +35,27 @@ fun HoldingsScreen(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(0.dp, 300.dp)
-        ) {
-            PieChart(
-                tickers = positions.map { it.ticker },
-                values = positions.map { it.value },
-                colors = positions.map { it.color },
-                modifier = Modifier
-                    .padding(horizontal = 30.dp)
-                    .fillMaxSize(),
-                stroke = 30.dp,
-            )
-        }
-        Surface(
-            modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
-                Modifier.padding(start = 6.dp, end = 6.dp, top = 6.dp)
+                //Modifier.padding(start = 6.dp, end = 6.dp, top = 6.dp)
             ) {
+                item("pie_chart") {
+                    PieChart(
+                        tickers = positions.map { it.ticker },
+                        values = positions.map { it.value },
+                        colors = positions.map { it.color },
+                        modifier = Modifier
+                            .padding(horizontal = 30.dp)
+                            .heightIn(0.dp, 300.dp)
+                            .fillMaxWidth(),
+                        stroke = 30.dp,
+                    )
+                }
+
                 itemsIndexed(positions) { index, pos ->
-                    Column() {
+                    Column(
+                        Modifier.padding(start = 6.dp, end = 6.dp)
+                    ) {
                         if (index > 0) Divider(
                             color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                             thickness = 1.dp,

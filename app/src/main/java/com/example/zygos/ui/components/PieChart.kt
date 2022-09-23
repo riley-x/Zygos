@@ -18,6 +18,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.RequestDisallowInterceptTouchEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -54,14 +55,16 @@ fun PieChart(
 
     var centerText by remember { mutableStateOf("Total\n" + formatDollar(total)) }
     var boxSize by remember { mutableStateOf(IntSize(10, 10)) } // 960 x 1644
+    val disallowIntercept = RequestDisallowInterceptTouchEvent()
 
     Box(
         modifier = modifier
-            .pointerInteropFilter { motionEvent ->
-                if (motionEvent.action == MotionEvent.ACTION_UP) {
-                    centerText = "Total\n" + formatDollar(total)
-                } else if (motionEvent.action == MotionEvent.ACTION_MOVE ||
-                        motionEvent.action == MotionEvent.ACTION_DOWN) {
+            .pointerInteropFilter(
+                requestDisallowInterceptTouchEvent = disallowIntercept
+            ) { motionEvent ->
+                if (motionEvent.action == MotionEvent.ACTION_MOVE ||
+                    motionEvent.action == MotionEvent.ACTION_DOWN) {
+                    disallowIntercept(true)
                     val x = motionEvent.x - boxSize.width / 2
                     val y = motionEvent.y - boxSize.height / 2
 
@@ -73,8 +76,11 @@ fun PieChart(
                     var index = angles.indexOfFirst { it > phi }
                     if (index == -1) index = angles.size // Can occur normally when phi == 360f
                     centerText = tickers[index - 1] + "\n" + formatDollar(values[index - 1])
+                } else {
+                    disallowIntercept(false)
+                    centerText = "Total\n" + formatDollar(total)
                 }
-                true
+            true
             }
             .onGloballyPositioned { boxSize = it.size },
         contentAlignment = Alignment.Center,
