@@ -3,6 +3,8 @@ package com.example.zygos.ui.holdings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -49,14 +51,22 @@ fun HoldingsScreen(
             LazyColumn(
                 Modifier.padding(6.dp)
             ) {
-                items(positions) {
-                    HoldingsRow(
-                        ticker = it.ticker,
-                        color = it.color,
-                        value = it.value,
-                        shares = 17f,
-                        gain = -134.13f,
-                    )
+                itemsIndexed(positions) { index, pos ->
+                    Column() {
+                        if (index > 0) Divider(
+                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                            thickness = 1.dp,
+                            modifier = Modifier
+                                .padding(start = 12.dp, top = 2.dp, bottom = 2.dp)
+                        )
+                        HoldingsRow(
+                            ticker = pos.ticker,
+                            color = pos.color,
+                            value = pos.value,
+                            shares = 17f,
+                            gain = -134.13f,
+                        )
+                    }
                 }
             }
         }
