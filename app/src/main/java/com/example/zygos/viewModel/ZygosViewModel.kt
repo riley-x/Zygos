@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel
 import com.example.zygos.data.Position
 
 class ZygosViewModel : ViewModel() {
-    private val _accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena")
+    private val _accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
     val accounts: List<String> = _accounts
 
     var currentAccount by mutableStateOf(accounts[0])

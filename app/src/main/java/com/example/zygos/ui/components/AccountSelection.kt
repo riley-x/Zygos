@@ -30,7 +30,7 @@ fun AccountSelection(
         modifier = modifier.fillMaxWidth()
     ) {
         Surface(
-            modifier = modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -44,37 +44,30 @@ fun AccountSelection(
                     expanded = expanded,
                 )
             }
-//        TextField(
-//            readOnly = true,
-//            value = selectedOptionText,
-//            onValueChange = { /* TODO */ },
-//            //label = { Text("Account") },
-//            trailingIcon = {
-//                ExposedDropdownMenuDefaults.TrailingIcon(
-//                    expanded = expanded
-//                )
-//            },
-//            colors = ExposedDropdownMenuDefaults.textFieldColors(
-//                textColor = MaterialTheme.colors.onBackground,
-//                backgroundColor = MaterialTheme.colors.background,
-//                unfocusedLabelColor = MaterialTheme.colors.primary,
-//            ),
-//            modifier = Modifier.fillMaxWidth()
-//        )
+
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = {
                     expanded = false
                 }
             ) {
-                accounts.forEach { selectionOption ->
+                accounts.forEach { account ->
+                    if (account == "All Accounts") {
+                        Divider(
+                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                            thickness = 1.dp,
+                            modifier = Modifier
+                                .padding(horizontal = 0.dp)
+                        )
+                    }
+
                     DropdownMenuItem(
                         onClick = {
-                            onAccountSelected(selectionOption)
+                            onAccountSelected(account)
                             expanded = false
                         }
                     ) {
-                        Text(text = selectionOption)
+                        Text(text = account)
                     }
                 }
             }
@@ -87,7 +80,7 @@ fun AccountSelection(
 @Preview(showBackground = true)
 @Composable
 fun AccountSelectionPreview() {
-    val accounts = listOf("Robinhood", "Arista", "TD Ameritrade", "Alhena")
+    val accounts = listOf("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
     ZygosTheme {
         AccountSelection(
             accounts = accounts,
