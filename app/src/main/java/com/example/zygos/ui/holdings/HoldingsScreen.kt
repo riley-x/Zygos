@@ -55,9 +55,7 @@ fun HoldingsScreen(
                 }
 
                 itemsIndexed(positions) { index, pos ->
-                    Column(
-                        Modifier.padding(start = 6.dp, end = 6.dp)
-                    ) {
+                    Column {
                         if (index > 0) Divider(
                             color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                             thickness = 1.dp,
@@ -72,7 +70,7 @@ fun HoldingsScreen(
                             gain = -134.13f,
                             modifier = Modifier.clickable {
                                 onPositionClick(pos)
-                            }
+                            }.padding(horizontal = 6.dp)
                         )
                     }
                 }
