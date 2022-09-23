@@ -27,7 +27,9 @@ fun HoldingsScreen(
 ) {
     Column(
         modifier = modifier
-            .padding(innerPadding)
+            //.padding(innerPadding)
+            // For some reason, innerPadding.bottom is non-zero (equal to the size of the bottom bar?)
+            // But it's not needed, because this column doesn't overlap it anyways?
             .fillMaxWidth(),
     ) {
         Surface(
@@ -49,7 +51,7 @@ fun HoldingsScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
-                Modifier.padding(6.dp)
+                Modifier.padding(start = 6.dp, end = 6.dp, top = 6.dp)
             ) {
                 itemsIndexed(positions) { index, pos ->
                     Column() {
@@ -85,7 +87,7 @@ fun PreviewHoldingsScreen() {
     val p2 = Position("p2", 0.3f, Color(0xFF005D57))
     val p3 = Position("p3", 0.4f, Color(0xFF04B97F))
     val p4 = Position("p4", 0.1f, Color(0xFF37EFBA))
-    val positions = listOf(p1, p2, p3, p4)
+    val positions = listOf(p1, p2, p3, p4, p1, p2, p3, p4)
     ZygosTheme {
         HoldingsScreen(
             positions,

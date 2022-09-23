@@ -20,6 +20,10 @@ class ZygosViewModel : ViewModel() {
         Position("p1", 0.2f, Color(0xFF004940)),
         Position("p2", 0.3f, Color(0xFF005D57)),
         Position("p3", 0.4f, Color(0xFF04B97F)),
+        Position("p4", 0.1f, Color(0xFF37EFBA)),
+        Position("p1", 0.2f, Color(0xFF004940)),
+        Position("p2", 0.3f, Color(0xFF005D57)),
+        Position("p3", 0.4f, Color(0xFF04B97F)),
         Position("p4", 0.1f, Color(0xFF37EFBA))
     )
     val positions: List<Position> = _positions
