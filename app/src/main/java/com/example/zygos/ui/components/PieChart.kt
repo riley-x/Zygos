@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -21,6 +22,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -50,14 +52,14 @@ fun PieChart(
         angles[index + 1] = angles[index] + 360f * values[index] / total
     }
 
-    var centerText by remember { mutableStateOf(formatDollar(total)) }
+    var centerText by remember { mutableStateOf("Total\n" + formatDollar(total)) }
     var boxSize by remember { mutableStateOf(IntSize(10, 10)) } // 960 x 1644
 
     Box(
         modifier = modifier
             .pointerInteropFilter { motionEvent ->
                 if (motionEvent.action == MotionEvent.ACTION_UP) {
-                    centerText = formatDollar(total)
+                    centerText = "Total\n" + formatDollar(total)
                 } else if (motionEvent.action == MotionEvent.ACTION_MOVE ||
                         motionEvent.action == MotionEvent.ACTION_DOWN) {
                     val x = motionEvent.x - boxSize.width / 2
@@ -70,7 +72,7 @@ fun PieChart(
 
                     var index = angles.indexOfFirst { it > phi }
                     if (index == -1) index = angles.size // Can occur normally when phi == 360f
-                    centerText = tickers[index - 1]
+                    centerText = tickers[index - 1] + "\n" + formatDollar(values[index - 1])
                 }
                 true
             }
@@ -102,7 +104,10 @@ fun PieChart(
                 startAngle += sweep
             }
         }
-        Text(centerText)
+        Text(centerText,
+            style = MaterialTheme.typography.h2,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 

@@ -31,9 +31,10 @@ val Typography = Typography(
     ),
     h2 = TextStyle(
         fontWeight = FontWeight.SemiBold,
-        fontSize = 44.sp,
+        fontSize = 26.sp,
         fontFamily = EczarFontFamily,
-        letterSpacing = 1.5.sp
+        letterSpacing = 1.5.sp,
+        lineHeight = 26.sp,
     ),
     h3 = TextStyle(
         fontWeight = FontWeight.W400,

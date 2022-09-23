@@ -24,6 +24,7 @@ import com.example.zygos.ui.components.PieChart
 import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.ui.transactions.TransactionsScreen
 import com.example.zygos.viewModel.ZygosViewModel
 
 class MainActivity : ComponentActivity() {
@@ -95,6 +96,9 @@ fun ZygosApp(
                         }
                         composable(route = Chart.route) {
                             ChartScreen(innerPadding)
+                        }
+                        composable(route = Transactions.route) {
+                            TransactionsScreen(innerPadding)
                         }
                     }
                 }

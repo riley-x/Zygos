@@ -36,7 +36,7 @@ fun AccountSelection(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(currentAccount,
-                    style = MaterialTheme.typography.h4,
+                    style = MaterialTheme.typography.h2,
                     modifier = Modifier
                     //    .padding(start = 10.dp),
                 )
@@ -44,7 +44,6 @@ fun AccountSelection(
                     expanded = expanded,
                 )
             }
-
 //        TextField(
 //            readOnly = true,
 //            value = selectedOptionText,

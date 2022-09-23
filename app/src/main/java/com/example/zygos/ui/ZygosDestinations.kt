@@ -3,6 +3,7 @@ package com.example.zygos.ui
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.CandlestickChart
 import androidx.compose.material.icons.sharp.PieChart
+import androidx.compose.material.icons.sharp.Receipt
 import androidx.compose.material.icons.sharp.ShowChart
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -28,4 +29,9 @@ object Chart : ZygosDestination {
     override val route = "chart"
 }
 
-val zygosTabs = listOf(Performance, Holdings, Chart)
+object Transactions : ZygosDestination {
+    override val icon = Icons.Sharp.Receipt
+    override val route = "transactions"
+}
+
+val zygosTabs = listOf(Performance, Holdings, Chart, Transactions)
