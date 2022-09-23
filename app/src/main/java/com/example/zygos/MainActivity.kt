@@ -67,8 +67,8 @@ fun ZygosApp(
                     currentTab = currentTab.route,
                     onTabSelected = { tab ->
                         if (tab.route != currentDestination?.route) {
-                            if (tab.route == currentTab.route) { // Return to tab home
-                                navController.navigateSingleTopTo(tab.route)
+                            if (tab.route == currentTab.route) { // Return to tab home, clear the tab's back stack
+                                navController.navigateSingleTopTo(tab.route, shouldSaveState = false)
                             } else {
                                 navController.navigateSingleTopTo(tab.graph)
                             }
@@ -177,12 +177,12 @@ fun NavHostController.navigateSingleScreenTo(route: String) {
     }
 }
 
-fun NavHostController.navigateSingleTopTo(route: String) =
+fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolean = true) =
     this.navigate(route) {
         popUpTo(
             this@navigateSingleTopTo.graph.findStartDestination().id
         ) {
-            saveState = true
+            saveState = shouldSaveState
         }
         launchSingleTop = true
         restoreState = true
