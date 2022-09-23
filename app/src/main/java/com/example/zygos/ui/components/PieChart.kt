@@ -43,7 +43,7 @@ fun PieChart(
     values: List<Float>,
     colors: List<Color>,
     modifier: Modifier = Modifier,
-    stroke: Dp = 10.dp,
+    stroke: Dp = 30.dp,
 ) {
     if (tickers.isEmpty()) return
 
@@ -53,7 +53,7 @@ fun PieChart(
         angles[index + 1] = angles[index] + 360f * values[index] / total
     }
 
-    var centerText by remember { mutableStateOf("Total\n" + formatDollar(total)) }
+    var focusIndex by remember { mutableStateOf(-1) }
     var boxSize by remember { mutableStateOf(IntSize(10, 10)) } // 960 x 1644
     val disallowIntercept = RequestDisallowInterceptTouchEvent()
 
@@ -73,21 +73,21 @@ fun PieChart(
                     var phi = toDegrees(kotlin.math.atan2(x, -y).toDouble())
                     if (phi < 0) phi += 360
 
-                    var index = angles.indexOfFirst { it > phi }
-                    if (index == -1) index = angles.size // Can occur normally when phi == 360f
-                    centerText = tickers[index - 1] + "\n" + formatDollar(values[index - 1])
+                    val index = angles.indexOfFirst { it > phi }
+                    focusIndex = index - 1
                 } else {
                     disallowIntercept(false)
-                    centerText = "Total\n" + formatDollar(total)
+                    focusIndex = -1
                 }
             true
             }
             .onGloballyPositioned { boxSize = it.size },
         contentAlignment = Alignment.Center,
     ) {
-        val strokePx = with(LocalDensity.current) { Stroke(stroke.toPx()) }
+        val strokeNormalPx = with(LocalDensity.current) { Stroke(stroke.toPx()) }
+        val strokeFocusPx = with(LocalDensity.current) { Stroke((10.dp + stroke).toPx()) }
         Canvas(Modifier.fillMaxSize()) {
-            val innerRadius = (size.minDimension - strokePx.width) / 2
+            val innerRadius = (size.minDimension - strokeFocusPx.width) / 2
             val halfSize = size / 2.0f
             val topLeft = Offset(
                 halfSize.width - innerRadius,
@@ -105,10 +105,15 @@ fun PieChart(
                     topLeft = topLeft,
                     size = size,
                     useCenter = false,
-                    style = strokePx
+                    style = if (focusIndex == index) strokeFocusPx  else strokeNormalPx
                 )
                 startAngle += sweep
             }
+        }
+        val centerText = if (focusIndex < 0 || focusIndex >= tickers.size) {
+            "Total\n" + formatDollar(total)
+        } else {
+            tickers[focusIndex] + "\n" + formatDollar(values[focusIndex])
         }
         Text(centerText,
             style = MaterialTheme.typography.h2,

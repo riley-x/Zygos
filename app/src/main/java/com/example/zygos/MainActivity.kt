@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -135,12 +136,27 @@ fun ZygosNav(
     }
 }
 
+// Not sure if this is causing bugs when switching screens too fast
+// Maybe replace with singleTopTo below?
 fun NavHostController.navigateSingleScreenTo(route: String) {
     backQueue.removeIf { it.destination.route == route }
     navigate(route) {
         restoreState = true
     }
 }
+
+fun NavHostController.navigateSingleTopTo(route: String) =
+    this.navigate(route) {
+        popUpTo(
+            this@navigateSingleTopTo.graph.findStartDestination().id
+        ) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
+    }
+
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
