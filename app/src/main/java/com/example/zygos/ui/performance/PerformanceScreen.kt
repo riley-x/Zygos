@@ -1,8 +1,6 @@
 package com.example.zygos.ui.performance
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -10,19 +8,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.zygos.data.Position
 import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
 fun PerformanceScreen(
     innerPadding: PaddingValues,
+    modifier: Modifier = Modifier,
+    onTickerClick: (String) -> Unit = { },
+    accountBar: @Composable () -> Unit = { },
 ) {
-    Surface(
-        modifier = Modifier
-            .padding(innerPadding)
-            .fillMaxSize(),
-        color = MaterialTheme.colors.background
+    Column(
+        modifier = modifier
+            //.padding(innerPadding)
+            // For some reason, innerPadding.bottom is non-zero (equal to the size of the bottom bar?)
+            // But it's not needed, because this column doesn't overlap it anyways?
+            .fillMaxWidth(),
     ) {
-        Text("Performance Screen")
+        accountBar()
+
+        Surface(
+            modifier = Modifier
+                .fillMaxSize(),
+            color = MaterialTheme.colors.background
+        ) {
+            Text("Performance Screen")
+        }
     }
 }
 

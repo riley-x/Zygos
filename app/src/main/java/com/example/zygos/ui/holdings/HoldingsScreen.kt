@@ -26,6 +26,7 @@ fun HoldingsScreen(
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
     onPositionClick: (Position) -> Unit = { },
+    accountBar: @Composable () -> Unit = { },
 ) {
     Column(
         modifier = modifier
@@ -34,13 +35,13 @@ fun HoldingsScreen(
             // But it's not needed, because this column doesn't overlap it anyways?
             .fillMaxWidth(),
     ) {
+        accountBar()
+
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            LazyColumn(
-                //Modifier.padding(start = 6.dp, end = 6.dp, top = 6.dp)
-            ) {
+            LazyColumn {
                 item("pie_chart") {
                     PieChart(
                         tickers = positions.map { it.ticker },

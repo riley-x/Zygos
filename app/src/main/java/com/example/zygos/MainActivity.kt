@@ -55,12 +55,6 @@ fun ZygosApp(
 
         /** Set the top and bottom bars **/
         Scaffold(
-            topBar = { AccountSelection(
-                accounts = viewModel.accounts,
-                currentAccount = viewModel.currentAccount,
-                onAccountSelected = { viewModel.setAccount(it) },
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
-            ) },
             bottomBar = {
                 ZygosNav(
                     tabs = zygosTabs,
@@ -81,12 +75,24 @@ fun ZygosApp(
             when (preview) {
                 /** Previews **/
                 Performance.route -> {
-                    PerformanceScreen(innerPadding)
+                    PerformanceScreen(
+                        innerPadding = innerPadding,
+                        accountBar = { AccountSelection(
+                            accounts = listOf("Robinhood", "Test"),
+                            currentAccount = "Robinhood",
+                            modifier = Modifier.topBar(),
+                        ) }
+                    )
                 }
                 Holdings.route -> {
                     HoldingsScreen(
                         positions = viewModel.positions,
-                        innerPadding = innerPadding
+                        innerPadding = innerPadding,
+                        accountBar = { AccountSelection(
+                            accounts = listOf("Robinhood", "Test"),
+                            currentAccount = "Robinhood",
+                            modifier = Modifier.topBar(),
+                        ) }
                     )
                 }
                 /** Actual run code, with Navigation Host **/
@@ -98,7 +104,15 @@ fun ZygosApp(
                     ) {
                         navigation(startDestination = Performance.route, route = Performance.graph) {
                             composable(route = Performance.route) {
-                                PerformanceScreen(innerPadding)
+                                PerformanceScreen(
+                                    innerPadding = innerPadding,
+                                    accountBar = { AccountSelection(
+                                        accounts = viewModel.accounts,
+                                        currentAccount = viewModel.currentAccount,
+                                        onAccountSelected = { viewModel.setAccount(it) },
+                                        modifier = Modifier.topBar(),
+                                    ) },
+                                )
                             }
                         }
 
@@ -109,7 +123,13 @@ fun ZygosApp(
                                     innerPadding = innerPadding,
                                     onPositionClick = {
                                         navController.navigateToPosition(it)
-                                    }
+                                    },
+                                    accountBar = { AccountSelection(
+                                        accounts = viewModel.accounts,
+                                        currentAccount = viewModel.currentAccount,
+                                        onAccountSelected = { viewModel.setAccount(it) },
+                                        modifier = Modifier.topBar(),
+                                    ) },
                                 )
                             }
                             composable(
@@ -141,32 +161,11 @@ fun ZygosApp(
 }
 
 
-@Composable
-fun ZygosNav(
-    tabs: List<ZygosTab>,
-    currentTab: String,
-    onTabSelected: (ZygosTab) -> Unit,
-) {
-    BottomNavigation(
-        modifier = Modifier.height(48.dp)
-        //elevation = 0.dp,
-    ) {
-        tabs.forEach { item ->
-            BottomNavigationItem(
-                icon = { Icon(
-                    item.icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(30.dp)
-                    // For some reason height can't make the icon larger than some fixed value
-                    // (maybe to do with the fixed BottomNavigationHeight = 56.dp), but size can.
-                    // Or maybe the preview is just buggy.
-                ) },
-                selected = currentTab == item.route,
-                onClick = { onTabSelected(item) },
-            )
-        }
-    }
+
+fun Modifier.topBar(): Modifier {
+    return this.padding(horizontal = 8.dp, vertical = 6.dp)
 }
+
 
 // Not sure if this is causing bugs when switching screens too fast
 // Maybe replace with singleTopTo below?
@@ -188,7 +187,7 @@ fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolea
         restoreState = true
     }
 
-private fun NavHostController.navigateToPosition(position: Position) {
+fun NavHostController.navigateToPosition(position: Position) {
     this.navigate("${PositionDetails.route}/${position.ticker}") {
         launchSingleTop = true
         restoreState = true
