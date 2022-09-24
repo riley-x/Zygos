@@ -37,8 +37,9 @@ val Typography = Typography(
         lineHeight = 26.sp,
     ),
     h3 = TextStyle(
-        fontWeight = FontWeight.W400,
-        fontSize = 14.sp
+        fontWeight = FontWeight.W100,
+        fontSize = 20.sp,
+        fontFamily = EczarFontFamily,
     ),
     h4 = TextStyle(
         fontWeight = FontWeight.W700,

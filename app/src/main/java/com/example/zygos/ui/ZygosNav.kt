@@ -2,13 +2,12 @@ package com.example.zygos.ui
 
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
 fun ZygosNav(
@@ -32,6 +31,7 @@ fun ZygosNav(
                 ) },
                 selected = currentTab == item.route,
                 onClick = { onTabSelected(item) },
+                unselectedContentColor = LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
             )
         }
     }
@@ -41,8 +41,10 @@ fun ZygosNav(
 @Preview
 @Composable
 fun PreviewZygosNav() {
-    ZygosNav(
-        tabs = zygosTabs,
-        currentTab = zygosTabs[0].route,
-    )
+    ZygosTheme {
+        ZygosNav(
+            tabs = zygosTabs,
+            currentTab = zygosTabs[0].route,
+        )
+    }
 }

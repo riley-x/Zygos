@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,8 +18,10 @@ import androidx.compose.ui.unit.dp
 import com.example.zygos.data.Position
 import com.example.zygos.ui.components.PieChart
 import com.example.zygos.ui.theme.ZygosTheme
+import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HoldingsScreen(
     positions: List<Position>,
@@ -28,6 +30,11 @@ fun HoldingsScreen(
     onPositionClick: (Position) -> Unit = { },
     accountBar: @Composable () -> Unit = { },
 ) {
+    val bottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+    )
+    val scope = rememberCoroutineScope()
+
     Column(
         modifier = modifier
             //.padding(innerPadding)
@@ -48,11 +55,26 @@ fun HoldingsScreen(
                         values = positions.map { it.value },
                         colors = positions.map { it.color },
                         modifier = Modifier
-                            .padding(start = 30.dp, end = 30.dp, bottom = 12.dp)
-                            .heightIn(0.dp, 300.dp)
-                            .fillMaxWidth(),
+                            .padding(start = 30.dp, end = 30.dp)
+                            .fillMaxWidth()
+                            .heightIn(0.dp, 300.dp),
                         stroke = 30.dp,
                     )
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier.padding(start = 22.dp, top = 12.dp, bottom = 12.dp)
+                    ) {
+                        Text(
+                            text = "Holdings",
+                            style = MaterialTheme.typography.h3,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Button(onClick = { scope.launch { bottomSheetState.show() } }) {
+                            Text("Click to show sheet")
+                        }
+                    }
                 }
 
                 itemsIndexed(positions) { index, pos ->
@@ -69,15 +91,30 @@ fun HoldingsScreen(
                             value = pos.value,
                             shares = 17f,
                             gain = -134.13f,
-                            modifier = Modifier.clickable {
-                                onPositionClick(pos)
-                            }.padding(horizontal = 6.dp)
+                            modifier = Modifier
+                                .clickable {
+                                    onPositionClick(pos)
+                                }
+                                .padding(horizontal = 6.dp)
                         )
                     }
                 }
             }
         }
     }
+
+    ModalBottomSheetLayout(
+        scrimColor = Color.Black.copy(alpha = 0.6f),
+        sheetState = bottomSheetState,
+        sheetContent = {
+        Row {
+            Text("Item 1")
+            Icon(
+                    Icons.Default.Favorite,
+                    contentDescription = "Localized description"
+                )
+        }
+    } ) {  }
 }
 
 

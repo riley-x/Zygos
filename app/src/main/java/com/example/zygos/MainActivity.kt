@@ -161,19 +161,8 @@ fun ZygosApp(
 }
 
 
-
 fun Modifier.topBar(): Modifier {
     return this.padding(horizontal = 8.dp, vertical = 6.dp)
-}
-
-
-// Not sure if this is causing bugs when switching screens too fast
-// Maybe replace with singleTopTo below?
-fun NavHostController.navigateSingleScreenTo(route: String) {
-    backQueue.removeIf { it.destination.route == route }
-    navigate(route) {
-        restoreState = true
-    }
 }
 
 fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolean = true) =
