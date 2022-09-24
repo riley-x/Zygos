@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.data.Position
+import com.example.zygos.ui.components.LogCompositions
 import com.example.zygos.ui.components.PieChart
 import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.theme.ZygosTheme
@@ -21,7 +22,6 @@ import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
 fun HoldingsScreen(
-    innerPadding: PaddingValues,
     positions: List<Position>,
     displayOption: String,
     modifier: Modifier = Modifier,
@@ -29,20 +29,18 @@ fun HoldingsScreen(
     onPositionClick: (Position) -> Unit = { },
     holdingsListOptionsCallback: () -> Unit = { },
     ) {
-
+    LogCompositions("Zygos", "HoldingsScreen")
     Column(
         modifier = modifier
             .recomposeHighlighter()
-            //.padding(innerPadding)
-            // For some reason, innerPadding.bottom is non-zero (equal to the size of the bottom bar?)
-            // But it's not needed, because this column doesn't overlap it anyways?
             .fillMaxWidth(),
     ) {
         accountBar()
 
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
+                .recomposeHighlighter()
+                .fillMaxSize()
         ) {
             LazyColumn {
                 item("pie_chart") {
@@ -73,6 +71,7 @@ fun HoldingsScreen(
                             top = 0.dp,
                             bottom = 0.dp
                         )
+                            .recomposeHighlighter()
                     ) {
                         Text(
                             text = "Holdings",
@@ -104,6 +103,7 @@ fun HoldingsScreen(
                             subvalue = -134.13f,
                             isSubvalueDollar = (displayOption == "Returns"),
                             modifier = Modifier
+                                .recomposeHighlighter()
                                 .clickable {
                                     onPositionClick(pos)
                                 }
@@ -133,7 +133,6 @@ fun PreviewHoldingsScreen() {
         HoldingsScreen(
             positions = positions,
             displayOption = "Returns",
-            innerPadding = PaddingValues(0.dp),
         )
     }
 }

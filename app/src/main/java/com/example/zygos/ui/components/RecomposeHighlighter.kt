@@ -16,10 +16,8 @@
 
 package com.example.zygos.ui.components
 
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import android.util.Log
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithCache
@@ -33,8 +31,25 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import com.example.zygos.BuildConfig
 import kotlin.math.min
 import kotlinx.coroutines.delay
+
+
+class Ref(var value: Int)
+
+// Note the inline function below which ensures that this function is essentially
+// copied at the call site to ensure that its logging only recompositions from the
+// original call site.
+@Composable
+inline fun LogCompositions(tag: String, msg: String) {
+    if (BuildConfig.DEBUG) {
+        val ref = remember { Ref(0) }
+        SideEffect { ref.value++ }
+        Log.d(tag, "Compositions: $msg ${ref.value}")
+    }
+}
+
 
 /**
  * A [Modifier] that draws a border around elements that are recomposing. The border increases in

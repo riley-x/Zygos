@@ -14,11 +14,9 @@ import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
 fun PositionDetailsScreen(
-    innerPadding: PaddingValues,
 ) {
     Surface(
         modifier = Modifier
-            .padding(innerPadding)
             .fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
@@ -36,7 +34,6 @@ fun PositionDetailsScreen(
 fun PreviewPositionDetailsScreen() {
     ZygosTheme {
         PositionDetailsScreen(
-            PaddingValues(0.dp)
         )
     }
 }

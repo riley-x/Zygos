@@ -1,28 +1,36 @@
 package com.example.zygos.ui.transactions
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.zygos.ui.components.LogCompositions
+import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
 fun TransactionsScreen(
-    innerPadding: PaddingValues,
+    testState: String = "",
 ) {
+    LogCompositions("Zygos", "TransactionsScreen")
+
     Surface(
         modifier = Modifier
-            .padding(innerPadding)
+            .recomposeHighlighter()
             .fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
-        Text("Transactions Screen")
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.requiredSize(200.dp).recomposeHighlighter()
+        ) {
+            Text("Transactions Screen$testState")
+        }
     }
 
     // TODO: Use a floating button here for adding transactions?
@@ -40,7 +48,6 @@ fun TransactionsScreen(
 fun PreviewTransactionsScreen() {
     ZygosTheme {
         TransactionsScreen(
-            PaddingValues(0.dp)
         )
     }
 }

@@ -1,5 +1,6 @@
 package com.example.zygos
 
+import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -20,6 +21,8 @@ import com.example.zygos.data.Position
 import com.example.zygos.ui.*
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.AccountSelection
+import com.example.zygos.ui.components.LogCompositions
+import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.ui.holdings.holdingsListOptionsSheet
 import com.example.zygos.ui.performance.PerformanceScreen
@@ -45,6 +48,10 @@ fun ZygosApp(
     viewModel: ZygosViewModel = viewModel(),
 ) {
     ZygosTheme {
+        LogCompositions("Zygos", "ZygosApp")
+
+        var testState by remember { mutableStateOf("test") }
+
         /** Get the coroutine scope for the entire app **/
         val appScope = rememberCoroutineScope()
 
@@ -103,13 +110,13 @@ fun ZygosApp(
             ) {
                 navigation(startDestination = Performance.route, route = Performance.graph) {
                     composable(route = Performance.route) {
+                        LogCompositions("Zygos", "ZygosApp/Scaffold/Performance.route")
                         PerformanceScreen(
-                            innerPadding = innerPadding,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
-                                    onAccountSelected = { viewModel.setAccount(it) },
+                                    onAccountSelected = { viewModel.setAccount(it); testState = it },
                                     modifier = Modifier.topBar(),
                                 )
                             },
@@ -119,10 +126,10 @@ fun ZygosApp(
 
                 navigation(startDestination = Holdings.route, route = Holdings.graph) {
                     composable(route = Holdings.route) {
+                        LogCompositions("Zygos", "ZygosApp/Scaffold/Holdings.route")
                         HoldingsScreen(
                             positions = viewModel.positions,
                             displayOption = viewModel.holdingsDisplayOption,
-                            innerPadding = innerPadding,
                             onPositionClick = {
                                 navController.navigateToPosition(it)
                             },
@@ -143,21 +150,27 @@ fun ZygosApp(
                         route = PositionDetails.routeWithArgs,
                         arguments = PositionDetails.arguments,
                     ) { navBackStackEntry ->
+                        LogCompositions("Zygos", "ZygosApp/Scaffold/PositionDetails.route")
                         val ticker =
                             navBackStackEntry.arguments?.getString(PositionDetails.routeArgName)
-                        PositionDetailsScreen(innerPadding)
                     }
                 }
 
                 navigation(startDestination = Chart.route, route = Chart.graph) {
                     composable(route = Chart.route) {
-                        ChartScreen(innerPadding)
+                        LogCompositions("Zygos", "ZygosApp/Scaffold/Chart.route")
+                        ChartScreen(
+                            testState = testState,
+                        )
                     }
                 }
 
                 navigation(startDestination = Transactions.route, route = Transactions.graph) {
                     composable(route = Transactions.route) {
-                        TransactionsScreen(innerPadding)
+                        LogCompositions("Zygos", "ZygosApp/Scaffold/Transactions.route")
+                        TransactionsScreen(
+                            testState = viewModel.currentAccount,
+                        )
                     }
                 }
 
