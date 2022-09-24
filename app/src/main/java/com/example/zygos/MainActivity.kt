@@ -21,9 +21,7 @@ import com.example.zygos.ui.*
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.AccountSelection
 import com.example.zygos.ui.holdings.HoldingsScreen
-import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListOptionsSheet
-import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.positionDetails.PositionDetailsScreen
 import com.example.zygos.ui.theme.ZygosTheme
@@ -47,6 +45,9 @@ fun ZygosApp(
     viewModel: ZygosViewModel = viewModel(),
 ) {
     ZygosTheme {
+        /** Get the coroutine scope for the entire app **/
+        val appScope = rememberCoroutineScope()
+
         /** Get the nav controller and current tab **/
         val navController = rememberNavController()
         val currentBackStack by navController.currentBackStackEntryAsState()
@@ -61,17 +62,17 @@ fun ZygosApp(
             initialValue = ModalBottomSheetValue.Hidden,
             skipHalfExpanded = true,
             confirmStateChange = {
+                //Log.i("ZygosViewModel", viewModel.holdingsSortOption)
+                // for some reason this causes the lambda to not ever run,
+                // and the bottom sheet can't be opened
+
                 if (it == ModalBottomSheetValue.Hidden) {
                     holdingsListOptionsSheetIsClosing = true
-
-                    //Log.i("ZygosViewModel", viewModel.test)
-                    // for some reason this causes the lambda to not ever run,
-                    // and the bottom sheet can't be opened
+                    //Log.i("ZygosViewModel", "$holdingsListOptionsSheetIsClosing")
                 }
                 true
             }
         )
-        val scope = rememberCoroutineScope()
 
         /** Set the top and bottom bars **/
         Scaffold(
@@ -134,7 +135,7 @@ fun ZygosApp(
                                 )
                             },
                             holdingsListOptionsCallback = {
-                                scope.launch { holdingsListOptionsSheetState.show() }
+                                appScope.launch { holdingsListOptionsSheetState.show() }
                             }
                         )
                     }
@@ -177,9 +178,14 @@ fun ZygosApp(
             )
         ) { }
         if (holdingsListOptionsSheetIsClosing) {
-            holdingsListOptionsSheetIsClosing = false
-            SideEffect {
+            // You could just call the sort function here, but it'll block the thread? Also maybe
+            // recomposition would kill it? In which case you could use SideEffect or DisposableEffect's
+            // onDispose, but they both still block the UI thread when adding a Thread.sleep() call.
+            // Also still not sure why you can't access viewModel from the bottomSheet callback...
+            LaunchedEffect(true) {
+                //delay(3000) // this happens asynchronously! Make sure that all other state is ok with the positions list being modified
                 viewModel.sortHoldingsList()
+                holdingsListOptionsSheetIsClosing = false
             }
         }
     }

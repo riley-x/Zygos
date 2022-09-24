@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.data.Position
 import com.example.zygos.ui.components.PieChart
+import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.theme.ZygosTheme
 
 
@@ -31,6 +32,7 @@ fun HoldingsScreen(
 
     Column(
         modifier = modifier
+            .recomposeHighlighter()
             //.padding(innerPadding)
             // For some reason, innerPadding.bottom is non-zero (equal to the size of the bottom bar?)
             // But it's not needed, because this column doesn't overlap it anyways?

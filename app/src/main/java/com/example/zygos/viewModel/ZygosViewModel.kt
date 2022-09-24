@@ -57,7 +57,9 @@ class ZygosViewModel : ViewModel() {
         else holdingsSortOption = opt
     }
 
+    // This happens asynchronously! Make sure that all other state is ok with the positions list being modified
     fun sortHoldingsList() {
+        //Log.i("ZygosViewModel", "$holdingsSortOption $lastSortOption")
         if (lastSortOption == holdingsSortOption) {
             if (lastSortIsAscending != holdingsSortIsAscending) {
                 _positions.reverse()
