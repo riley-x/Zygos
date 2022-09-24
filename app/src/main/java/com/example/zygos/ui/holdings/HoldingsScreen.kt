@@ -20,8 +20,9 @@ import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
 fun HoldingsScreen(
-    positions: List<Position>,
     innerPadding: PaddingValues,
+    positions: List<Position>,
+    displayOption: String,
     modifier: Modifier = Modifier,
     accountBar: @Composable () -> Unit = { },
     onPositionClick: (Position) -> Unit = { },
@@ -98,7 +99,8 @@ fun HoldingsScreen(
                             color = pos.color,
                             value = pos.value,
                             shares = 17f,
-                            gain = -134.13f,
+                            subvalue = -134.13f,
+                            isSubvalueDollar = (displayOption == "Returns"),
                             modifier = Modifier
                                 .clickable {
                                     onPositionClick(pos)
@@ -127,8 +129,9 @@ fun PreviewHoldingsScreen() {
     val positions = listOf(p1, p2, p3, p4, p1, p2, p3, p4)
     ZygosTheme {
         HoldingsScreen(
-            positions,
-            PaddingValues(0.dp)
+            positions = positions,
+            displayOption = "Returns",
+            innerPadding = PaddingValues(0.dp),
         )
     }
 }

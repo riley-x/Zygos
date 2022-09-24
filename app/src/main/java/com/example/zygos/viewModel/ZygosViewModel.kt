@@ -39,7 +39,7 @@ class ZygosViewModel : ViewModel() {
     val positions: List<Position> = _positions
 
     // These variables are merely the ui state of the options selection menu
-    // The actual sorting is called in sortHoldingsList() via a callback on when
+    // The actual sorting is called in sortHoldingsList() via a callback when
     // the menu is hidden.
     var holdingsSortOption by mutableStateOf(holdingsListSortOptions[0])
         private set
@@ -47,23 +47,36 @@ class ZygosViewModel : ViewModel() {
         private set
     var holdingsDisplayOption by mutableStateOf(holdingsListDisplayOptions[0])
 
+    // Cached sort options to not re-sort if nothing was changed
+    private var lastSortOption = ""
+    private var lastSortIsAscending = true
+
+    // Called from composable onClick callbacks
     fun setHoldingsSortMethod(opt: String) {
         if (holdingsSortOption == opt) holdingsSortIsAscending = !holdingsSortIsAscending
         else holdingsSortOption = opt
     }
 
     fun sortHoldingsList() {
-        if (holdingsSortIsAscending) {
-            when (holdingsSortOption) {
-                "Ticker" -> _positions.sortBy(Position::ticker)
-                else -> _positions.sortBy(Position::value)
+        if (lastSortOption == holdingsSortOption) {
+            if (lastSortIsAscending != holdingsSortIsAscending) {
+                _positions.reverse()
             }
         } else {
-            when (holdingsSortOption) {
-                "Ticker" -> _positions.sortByDescending(Position::ticker)
-                else -> _positions.sortByDescending(Position::value)
+            if (holdingsSortIsAscending) {
+                when (holdingsSortOption) {
+                    "Ticker" -> _positions.sortBy(Position::ticker)
+                    else -> _positions.sortBy(Position::value)
+                }
+            } else {
+                when (holdingsSortOption) {
+                    "Ticker" -> _positions.sortByDescending(Position::ticker)
+                    else -> _positions.sortByDescending(Position::value)
+                }
             }
         }
+        lastSortIsAscending = holdingsSortIsAscending
+        lastSortOption = holdingsSortOption
     }
 
 }

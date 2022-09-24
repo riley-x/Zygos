@@ -44,8 +44,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ZygosApp(
-    preview: String = "",
-    viewModel : ZygosViewModel = viewModel(),
+    viewModel: ZygosViewModel = viewModel(),
 ) {
     ZygosTheme {
         /** Get the nav controller and current tab **/
@@ -57,7 +56,7 @@ fun ZygosApp(
         } ?: zygosTabs[0]
 
         /** ModalBottomSheetLayout state **/
-        var holdingsListOptionsSheetIsClosing by remember{ mutableStateOf(false) }
+        var holdingsListOptionsSheetIsClosing by remember { mutableStateOf(false) }
         val holdingsListOptionsSheetState = rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
             skipHalfExpanded = true,
@@ -83,7 +82,10 @@ fun ZygosApp(
                     onTabSelected = { tab ->
                         if (tab.route != currentDestination?.route) {
                             if (tab.route == currentTab.route) { // Return to tab home, clear the tab's back stack
-                                navController.navigateSingleTopTo(tab.route, shouldSaveState = false)
+                                navController.navigateSingleTopTo(
+                                    tab.route,
+                                    shouldSaveState = false
+                                )
                             } else {
                                 navController.navigateSingleTopTo(tab.graph)
                             }
@@ -93,92 +95,71 @@ fun ZygosApp(
             },
         ) { innerPadding ->
             /** Pick the tab to show **/
-            when (preview) {
-                /** Previews **/
-                Performance.route -> {
-                    PerformanceScreen(
-                        innerPadding = innerPadding,
-                        accountBar = { AccountSelection(
-                            accounts = listOf("Robinhood", "Test"),
-                            currentAccount = "Robinhood",
-                            modifier = Modifier.topBar(),
-                        ) }
-                    )
-                }
-                Holdings.route -> {
-                    HoldingsScreen(
-                        positions = viewModel.positions,
-                        innerPadding = innerPadding,
-                        accountBar = { AccountSelection(
-                            accounts = listOf("Robinhood", "Test"),
-                            currentAccount = "Robinhood",
-                            modifier = Modifier.topBar(),
-                        ) }
-                    )
-                }
-                /** Actual run code, with Navigation Host **/
-                else -> {
-                    NavHost(
-                        navController = navController,
-                        startDestination = Performance.graph,
-                        modifier = Modifier.padding(innerPadding),
-                    ) {
-                        navigation(startDestination = Performance.route, route = Performance.graph) {
-                            composable(route = Performance.route) {
-                                PerformanceScreen(
-                                    innerPadding = innerPadding,
-                                    accountBar = { AccountSelection(
-                                        accounts = viewModel.accounts,
-                                        currentAccount = viewModel.currentAccount,
-                                        onAccountSelected = { viewModel.setAccount(it) },
-                                        modifier = Modifier.topBar(),
-                                    ) },
+            NavHost(
+                navController = navController,
+                startDestination = Performance.graph,
+                modifier = Modifier.padding(innerPadding),
+            ) {
+                navigation(startDestination = Performance.route, route = Performance.graph) {
+                    composable(route = Performance.route) {
+                        PerformanceScreen(
+                            innerPadding = innerPadding,
+                            accountBar = {
+                                AccountSelection(
+                                    accounts = viewModel.accounts,
+                                    currentAccount = viewModel.currentAccount,
+                                    onAccountSelected = { viewModel.setAccount(it) },
+                                    modifier = Modifier.topBar(),
                                 )
-                            }
-                        }
-
-                        navigation(startDestination = Holdings.route, route = Holdings.graph) {
-                            composable(route = Holdings.route) {
-                                HoldingsScreen(
-                                    positions = viewModel.positions,
-                                    innerPadding = innerPadding,
-                                    onPositionClick = {
-                                        navController.navigateToPosition(it)
-                                    },
-                                    accountBar = { AccountSelection(
-                                        accounts = viewModel.accounts,
-                                        currentAccount = viewModel.currentAccount,
-                                        onAccountSelected = { viewModel.setAccount(it) },
-                                        modifier = Modifier.topBar(),
-                                    ) },
-                                    holdingsListOptionsCallback = {
-                                        scope.launch { holdingsListOptionsSheetState.show() }
-                                    }
-                                )
-                            }
-                            composable(
-                                route = PositionDetails.routeWithArgs,
-                                arguments = PositionDetails.arguments,
-                            ) { navBackStackEntry ->
-                                val ticker = navBackStackEntry.arguments?.getString(PositionDetails.routeArgName)
-                                PositionDetailsScreen(innerPadding)
-                            }
-                        }
-
-                        navigation(startDestination = Chart.route, route = Chart.graph) {
-                            composable(route = Chart.route) {
-                                ChartScreen(innerPadding)
-                            }
-                        }
-
-                        navigation(startDestination = Transactions.route, route = Transactions.graph) {
-                            composable(route = Transactions.route) {
-                                TransactionsScreen(innerPadding)
-                            }
-                        }
-
+                            },
+                        )
                     }
                 }
+
+                navigation(startDestination = Holdings.route, route = Holdings.graph) {
+                    composable(route = Holdings.route) {
+                        HoldingsScreen(
+                            positions = viewModel.positions,
+                            displayOption = viewModel.holdingsDisplayOption,
+                            innerPadding = innerPadding,
+                            onPositionClick = {
+                                navController.navigateToPosition(it)
+                            },
+                            accountBar = {
+                                AccountSelection(
+                                    accounts = viewModel.accounts,
+                                    currentAccount = viewModel.currentAccount,
+                                    onAccountSelected = { viewModel.setAccount(it) },
+                                    modifier = Modifier.topBar(),
+                                )
+                            },
+                            holdingsListOptionsCallback = {
+                                scope.launch { holdingsListOptionsSheetState.show() }
+                            }
+                        )
+                    }
+                    composable(
+                        route = PositionDetails.routeWithArgs,
+                        arguments = PositionDetails.arguments,
+                    ) { navBackStackEntry ->
+                        val ticker =
+                            navBackStackEntry.arguments?.getString(PositionDetails.routeArgName)
+                        PositionDetailsScreen(innerPadding)
+                    }
+                }
+
+                navigation(startDestination = Chart.route, route = Chart.graph) {
+                    composable(route = Chart.route) {
+                        ChartScreen(innerPadding)
+                    }
+                }
+
+                navigation(startDestination = Transactions.route, route = Transactions.graph) {
+                    composable(route = Transactions.route) {
+                        TransactionsScreen(innerPadding)
+                    }
+                }
+
             }
         }
 
@@ -228,19 +209,8 @@ fun NavHostController.navigateToPosition(position: Position) {
 }
 
 
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewTabPerformance() {
-    ZygosApp(
-        preview = Performance.route
-    )
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PreviewTabHoldings() {
-    ZygosApp(
-        preview = Holdings.route
-    )
+    ZygosApp()
 }

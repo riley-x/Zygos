@@ -11,3 +11,11 @@ fun formatDollar(value: Float): String {
     val format: NumberFormat = NumberFormat.getCurrencyInstance()
     return format.format(value)
 }
+
+// NOTE: do not pre-multiply by 100!
+fun formatPercent(value: Float): String {
+    val format = NumberFormat.getPercentInstance()
+    format.minimumFractionDigits = 2
+    format.maximumFractionDigits = 2
+    return format.format(value)
+}

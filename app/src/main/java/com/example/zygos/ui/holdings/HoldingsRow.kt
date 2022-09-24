@@ -14,7 +14,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.components.PieChart
 import com.example.zygos.ui.components.formatDollar
+import com.example.zygos.ui.components.formatPercent
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.ui.theme.tickerColors
 
 @Composable
 fun HoldingsRow(
@@ -22,7 +24,8 @@ fun HoldingsRow(
     color: Color,
     shares: Float,
     value: Float,
-    gain: Float,
+    subvalue: Float,
+    isSubvalueDollar: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -55,9 +58,9 @@ fun HoldingsRow(
         Column(Modifier, horizontalAlignment = Alignment.End) {
             Text(text = formatDollar(value), style = typography.body1)
             CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                Text(text = formatDollar(gain),
+                Text(text = if (isSubvalueDollar) formatDollar(subvalue) else formatPercent(subvalue),
                     style = typography.subtitle1,
-                    color = if (gain >= 0) MaterialTheme.colors.onSurface else MaterialTheme.colors.error
+                    color = if (subvalue >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error
                 )
             }
         }
@@ -70,13 +73,27 @@ fun HoldingsRow(
 fun HoldingsRowPreview() {
     ZygosTheme {
         Surface() {
-            HoldingsRow(
-                ticker = "MSFT",
-                color = Color(0xFF0000FF),
-                shares = 27f,
-                value = 4567.32f,
-                gain = -1342.01f,
-            )
+            Column() {
+                HoldingsRow(
+                    ticker = "MSFT",
+                    color = tickerColors.getOrDefault("MSFT", Color.Blue),
+                    shares = 27f,
+                    value = 4567.32f,
+                    subvalue = -1342.01f,
+                    isSubvalueDollar = true,
+                )
+
+                Spacer(modifier = Modifier.padding(vertical = 12.dp))
+
+                HoldingsRow(
+                    ticker = "MSFT",
+                    color = tickerColors.getOrDefault("MSFT", Color.Blue),
+                    shares = 27f,
+                    value = 1357.32f,
+                    subvalue = 0.1234f,
+                    isSubvalueDollar = false,
+                )
+            }
         }
     }
 }

@@ -24,6 +24,10 @@ fun TransactionsScreen(
     ) {
         Text("Transactions Screen")
     }
+
+    // TODO: Use a floating button here for adding transactions?
+    // And click transaction to edit/delete in a separate screen?
+    // Sort by most recent first
 }
 
 
