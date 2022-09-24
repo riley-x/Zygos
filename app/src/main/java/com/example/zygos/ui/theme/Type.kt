@@ -29,6 +29,7 @@ val Typography = Typography(
         fontWeight = FontWeight.W100,
         fontSize = 96.sp,
     ),
+    // Account selection
     h2 = TextStyle(
         fontWeight = FontWeight.SemiBold,
         fontSize = 26.sp,
@@ -36,9 +37,10 @@ val Typography = Typography(
         letterSpacing = 1.5.sp,
         lineHeight = 26.sp,
     ),
+    // List titles
     h3 = TextStyle(
         fontWeight = FontWeight.W100,
-        fontSize = 20.sp,
+        fontSize = 22.sp,
         fontFamily = EczarFontFamily,
     ),
     h4 = TextStyle(
@@ -46,9 +48,10 @@ val Typography = Typography(
         fontSize = 34.sp,
         fontFamily = Roboto,
     ),
+    // Option menu title
     h5 = TextStyle(
         fontWeight = FontWeight.W500,
-        fontSize = 18.sp,
+        fontSize = 22.sp,
         fontFamily = Roboto,
     ),
     h6 = TextStyle(

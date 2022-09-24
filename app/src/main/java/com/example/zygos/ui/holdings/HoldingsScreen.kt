@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.sharp.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -60,15 +61,23 @@ fun HoldingsScreen(
 
                 item {
                     Row(
-                        modifier = Modifier.padding(start = 22.dp, top = 12.dp, bottom = 12.dp)
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(
+                            start = 22.dp,
+                            top = 0.dp,
+                            bottom = 0.dp
+                        )
                     ) {
                         Text(
                             text = "Holdings",
                             style = MaterialTheme.typography.h3,
                             modifier = Modifier.weight(1f),
                         )
-                        Button(onClick = { holdingsListOptionsCallback() }) {
-                            Text("Click to show sheet")
+                        IconButton(onClick = { holdingsListOptionsCallback() }) {
+                            Icon(
+                                imageVector = Icons.Sharp.MoreVert,
+                                contentDescription = null,
+                            )
                         }
                     }
                 }
@@ -100,23 +109,117 @@ fun HoldingsScreen(
     }
 }
 
+@Composable
+fun HoldingsListSortOptionRow(
+    text: String,
+    isActive: Boolean,
+    isSortedAscending: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.heightIn(min = 20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text, modifier = Modifier.weight(1f))
+        if (isActive) {
+            if (isSortedAscending) {
+                Icon(
+                    Icons.Sharp.North,
+                    contentDescription = null
+                )
+            } else {
+                Icon(
+                    Icons.Sharp.South,
+                    contentDescription = null
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun HoldingsListDisplayOptionRow(
+    text: String,
+    isActive: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.heightIn(min = 20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text, modifier = Modifier.weight(1f))
+        if (isActive) {
+            Icon(
+                Icons.Sharp.Check,
+                contentDescription = null
+            )
+        }
+    }
+}
+
+val holdingsListSortOptions = listOf("Ticker", "Equity", "Returns", "% Change")
+val holdingsListDisplayOptions = listOf("Returns", "% Change")
 
 fun holdingsListOptionsSheet(
+    currentSortOption: String,
+    currentDisplayOption: String,
+    isSortedAscending: Boolean,
     onOptionSelection: (String) -> Unit = { },
 ) : (@Composable ColumnScope.() -> Unit) =
     @Composable {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 12.dp, top = 12.dp)
+                .padding(vertical = 24.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Item 1", modifier = Modifier.weight(1f))
-                Icon(
-                    Icons.Default.Favorite,
-                    contentDescription = "Localized description"
+            Text(
+                text = "Display",
+                style = MaterialTheme.typography.h5,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 8.dp)
+            )
+            for ((index, opt) in holdingsListDisplayOptions.withIndex()) {
+                if (index > 0) Divider(
+                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                )
+                HoldingsListDisplayOptionRow(
+                    text = opt,
+                    isActive = (opt == currentSortOption),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .clickable { onOptionSelection(opt) }
+                        .padding(horizontal = 20.dp)
+                )
+            }
+
+            Text(
+                text = "Sorting",
+                style = MaterialTheme.typography.h5,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 8.dp, top = 8.dp)
+            )
+            for ((index, opt) in holdingsListSortOptions.withIndex()) {
+                if (index > 0) Divider(
+                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                )
+                HoldingsListSortOptionRow(
+                    text = opt,
+                    isActive = (opt == currentSortOption),
+                    isSortedAscending = isSortedAscending,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .clickable { onOptionSelection(opt) }
+                        .padding(horizontal = 20.dp)
                 )
             }
         }
@@ -158,7 +261,11 @@ fun PreviewHoldingsListOptionsSheet() {
             verticalArrangement = Arrangement.Bottom,
         ) {
             Surface {
-                holdingsListOptionsSheet()(this)
+                holdingsListOptionsSheet(
+                    currentSortOption = holdingsListSortOptions[0],
+                    currentDisplayOption = holdingsListDisplayOptions[0],
+                    isSortedAscending = true,
+                )(this)
             }
         }
     }

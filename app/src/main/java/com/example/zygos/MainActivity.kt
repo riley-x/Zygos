@@ -21,7 +21,9 @@ import com.example.zygos.ui.*
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.AccountSelection
 import com.example.zygos.ui.holdings.HoldingsScreen
+import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListOptionsSheet
+import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.positionDetails.PositionDetailsScreen
 import com.example.zygos.ui.theme.ZygosTheme
@@ -49,10 +51,6 @@ fun ZygosApp(
         val navController = rememberNavController()
         val currentBackStack by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStack?.destination
-        val x = currentDestination?.hierarchy
-        if (x != null) {
-            for (s in x) Log.w("ZygosHeirarchy", "$s")
-        }
         val currentTab = zygosTabs.drop(1).find { tab ->
             currentDestination?.hierarchy?.any { it.route == tab.graph || it.route == tab.route } == true
         } ?: zygosTabs[0]
@@ -60,6 +58,7 @@ fun ZygosApp(
         /** ModalBottomSheetLayout state **/
         val holdingsListOptionsSheetState = rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
+            skipHalfExpanded = true,
         )
         val scope = rememberCoroutineScope()
 
@@ -176,7 +175,11 @@ fun ZygosApp(
             scrimColor = Color.Black.copy(alpha = 0.6f),
             sheetElevation = 0.dp,
             sheetState = holdingsListOptionsSheetState,
-            sheetContent = holdingsListOptionsSheet {  }
+            sheetContent = holdingsListOptionsSheet(
+                currentSortOption = holdingsListSortOptions[0],
+                currentDisplayOption = holdingsListDisplayOptions[0],
+                isSortedAscending = true,
+            ) {  }
         ) { }
     }
 }
