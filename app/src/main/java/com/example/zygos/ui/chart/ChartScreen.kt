@@ -5,10 +5,13 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.zygos.data.Position
 import com.example.zygos.ui.components.LogCompositions
 import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.theme.ZygosTheme
@@ -16,6 +19,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
 fun ChartScreen(
+    positions: SnapshotStateList<Position> = mutableStateListOf(),
     testState: String = "",
 ) {
     LogCompositions("Zygos", "ChartScreen")
@@ -28,9 +32,17 @@ fun ChartScreen(
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.requiredSize(200.dp).recomposeHighlighter()
+            modifier = Modifier
+                .requiredSize(width = 200.dp, height = 500.dp)
+                .recomposeHighlighter()
         ) {
-            Text("Chart Screen$testState")
+            Column {
+                Text("ChartScreen$testState")
+                for (pos in positions) {
+                    Text(pos.ticker)
+                }
+            }
+
         }
     }
 }

@@ -26,7 +26,7 @@ class ZygosViewModel : ViewModel() {
     }
 
     /** Holdings **/
-    private val _positions = mutableStateListOf<Position>(
+    val _positions = mutableStateListOf<Position>(
         Position("p1", 0.2f, Color(0xFF004940)),
         Position("p2", 0.3f, Color(0xFF005D57)),
         Position("p3", 0.4f, Color(0xFF04B97F)),

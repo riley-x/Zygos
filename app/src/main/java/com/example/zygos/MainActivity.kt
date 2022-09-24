@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,8 +50,6 @@ fun ZygosApp(
 ) {
     ZygosTheme {
         LogCompositions("Zygos", "ZygosApp")
-
-        var testState by remember { mutableStateOf("test") }
 
         /** Get the coroutine scope for the entire app **/
         val appScope = rememberCoroutineScope()
@@ -116,8 +115,8 @@ fun ZygosApp(
                                 AccountSelection(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
-                                    onAccountSelected = { viewModel.setAccount(it); testState = it },
-                                    modifier = Modifier.topBar(),
+                                    onAccountSelected = { viewModel.setAccount(it) },
+                                    modifier = Modifier.recomposeHighlighter().topBar(),
                                 )
                             },
                         )
@@ -160,7 +159,8 @@ fun ZygosApp(
                     composable(route = Chart.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Chart.route")
                         ChartScreen(
-                            testState = testState,
+                            testState = viewModel.currentAccount,
+                            positions = viewModel._positions,
                         )
                     }
                 }
