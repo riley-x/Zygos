@@ -53,8 +53,6 @@ class ZygosViewModel : ViewModel() {
     }
 
     fun sortHoldingsList() {
-        Log.i("ZygosViewModel", "Meessa sort!")
-
         if (holdingsSortIsAscending) {
             when (holdingsSortOption) {
                 "Ticker" -> _positions.sortBy(Position::ticker)

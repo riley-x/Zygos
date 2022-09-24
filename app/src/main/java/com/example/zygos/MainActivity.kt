@@ -56,7 +56,6 @@ fun ZygosApp(
             currentDestination?.hierarchy?.any { it.route == tab.graph || it.route == tab.route } == true
         } ?: zygosTabs[0]
 
-
         /** ModalBottomSheetLayout state **/
         var holdingsListOptionsSheetIsClosing by remember{ mutableStateOf(false) }
         val holdingsListOptionsSheetState = rememberModalBottomSheetState(
@@ -64,7 +63,6 @@ fun ZygosApp(
             skipHalfExpanded = true,
             confirmStateChange = {
                 if (it == ModalBottomSheetValue.Hidden) {
-                    Log.i("ZygosViewModel", "$holdingsListOptionsSheetIsClosing")
                     holdingsListOptionsSheetIsClosing = true
 
                     //Log.i("ZygosViewModel", viewModel.test)
