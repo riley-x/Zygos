@@ -29,6 +29,7 @@ import com.example.zygos.ui.positionDetails.PositionDetailsScreen
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionsScreen
 import com.example.zygos.viewModel.ZygosViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -55,10 +56,23 @@ fun ZygosApp(
             currentDestination?.hierarchy?.any { it.route == tab.graph || it.route == tab.route } == true
         } ?: zygosTabs[0]
 
+
         /** ModalBottomSheetLayout state **/
+        var holdingsListOptionsSheetIsClosing by remember{ mutableStateOf(false) }
         val holdingsListOptionsSheetState = rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
             skipHalfExpanded = true,
+            confirmStateChange = {
+                if (it == ModalBottomSheetValue.Hidden) {
+                    Log.i("ZygosViewModel", "$holdingsListOptionsSheetIsClosing")
+                    holdingsListOptionsSheetIsClosing = true
+
+                    //Log.i("ZygosViewModel", viewModel.test)
+                    // for some reason this causes the lambda to not ever run,
+                    // and the bottom sheet can't be opened
+                }
+                true
+            }
         )
         val scope = rememberCoroutineScope()
 
@@ -176,11 +190,19 @@ fun ZygosApp(
             sheetElevation = 0.dp,
             sheetState = holdingsListOptionsSheetState,
             sheetContent = holdingsListOptionsSheet(
-                currentSortOption = holdingsListSortOptions[0],
-                currentDisplayOption = holdingsListDisplayOptions[0],
-                isSortedAscending = true,
-            ) {  }
+                currentSortOption = viewModel.holdingsSortOption,
+                currentDisplayOption = viewModel.holdingsDisplayOption,
+                isSortedAscending = viewModel.holdingsSortIsAscending,
+                onDisplayOptionSelected = { viewModel.holdingsDisplayOption = it },
+                onSortOptionSelected = { viewModel.setHoldingsSortMethod(it) },
+            )
         ) { }
+        if (holdingsListOptionsSheetIsClosing) {
+            holdingsListOptionsSheetIsClosing = false
+            SideEffect {
+                viewModel.sortHoldingsList()
+            }
+        }
     }
 }
 

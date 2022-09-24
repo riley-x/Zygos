@@ -60,7 +60,6 @@ fun PieChart(
 
     Box(
         modifier = modifier
-            .aspectRatio(1f)
             .pointerInteropFilter(
                 requestDisallowInterceptTouchEvent = disallowIntercept
             ) { motionEvent ->

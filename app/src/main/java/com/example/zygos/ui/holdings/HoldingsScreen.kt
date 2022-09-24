@@ -47,16 +47,23 @@ fun HoldingsScreen(
         ) {
             LazyColumn {
                 item("pie_chart") {
-                    PieChart(
-                        tickers = positions.map { it.ticker },
-                        values = positions.map { it.value },
-                        colors = positions.map { it.color },
+                    Row( // For some reason couldn't just use Modifier.alignment in PieChart
                         modifier = Modifier
                             .padding(start = 30.dp, end = 30.dp)
-                            .fillMaxWidth()
-                            .heightIn(0.dp, 300.dp),
-                        stroke = 30.dp,
-                    )
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        PieChart(
+                            tickers = positions.map { it.ticker },
+                            values = positions.map { it.value },
+                            colors = positions.map { it.color },
+                            modifier = Modifier
+                                .heightIn(0.dp, 300.dp)
+                                .aspectRatio(1f)
+                                .fillMaxWidth(),
+                            stroke = 30.dp,
+                        )
+                    }
                 }
 
                 item {
@@ -160,11 +167,22 @@ fun HoldingsListDisplayOptionRow(
 val holdingsListSortOptions = listOf("Ticker", "Equity", "Returns", "% Change")
 val holdingsListDisplayOptions = listOf("Returns", "% Change")
 
+@Composable
+fun HoldingsListOptionsDivider() {
+    Divider(
+        color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+        thickness = 1.dp,
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+    )
+}
+
 fun holdingsListOptionsSheet(
     currentSortOption: String,
     currentDisplayOption: String,
     isSortedAscending: Boolean,
-    onOptionSelection: (String) -> Unit = { },
+    onDisplayOptionSelected: (String) -> Unit = { },
+    onSortOptionSelected: (String) -> Unit = { },
 ) : (@Composable ColumnScope.() -> Unit) =
     @Composable {
         Column(
@@ -180,19 +198,15 @@ fun holdingsListOptionsSheet(
                     .padding(bottom = 8.dp)
             )
             for ((index, opt) in holdingsListDisplayOptions.withIndex()) {
-                if (index > 0) Divider(
-                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                    thickness = 1.dp,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                )
+                if (index > 0) HoldingsListOptionsDivider()
+
                 HoldingsListDisplayOptionRow(
                     text = opt,
-                    isActive = (opt == currentSortOption),
+                    isActive = (opt == currentDisplayOption),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
-                        .clickable { onOptionSelection(opt) }
+                        .clickable { onDisplayOptionSelected(opt) }
                         .padding(horizontal = 20.dp)
                 )
             }
@@ -205,12 +219,8 @@ fun holdingsListOptionsSheet(
                     .padding(bottom = 8.dp, top = 8.dp)
             )
             for ((index, opt) in holdingsListSortOptions.withIndex()) {
-                if (index > 0) Divider(
-                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                    thickness = 1.dp,
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp)
-                )
+                if (index > 0) HoldingsListOptionsDivider()
+
                 HoldingsListSortOptionRow(
                     text = opt,
                     isActive = (opt == currentSortOption),
@@ -218,7 +228,7 @@ fun holdingsListOptionsSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
-                        .clickable { onOptionSelection(opt) }
+                        .clickable { onSortOptionSelected(opt) }
                         .padding(horizontal = 20.dp)
                 )
             }
