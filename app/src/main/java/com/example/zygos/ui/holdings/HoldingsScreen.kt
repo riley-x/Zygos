@@ -21,19 +21,15 @@ import com.example.zygos.ui.theme.ZygosTheme
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HoldingsScreen(
     positions: List<Position>,
     innerPadding: PaddingValues,
     modifier: Modifier = Modifier,
-    onPositionClick: (Position) -> Unit = { },
     accountBar: @Composable () -> Unit = { },
-) {
-    val bottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-    )
-    val scope = rememberCoroutineScope()
+    onPositionClick: (Position) -> Unit = { },
+    holdingsListOptionsCallback: () -> Unit = { },
+    ) {
 
     Column(
         modifier = modifier
@@ -71,7 +67,7 @@ fun HoldingsScreen(
                             style = MaterialTheme.typography.h3,
                             modifier = Modifier.weight(1f),
                         )
-                        Button(onClick = { scope.launch { bottomSheetState.show() } }) {
+                        Button(onClick = { holdingsListOptionsCallback() }) {
                             Text("Click to show sheet")
                         }
                     }
@@ -102,20 +98,30 @@ fun HoldingsScreen(
             }
         }
     }
+}
 
-    ModalBottomSheetLayout(
-        scrimColor = Color.Black.copy(alpha = 0.6f),
-        sheetState = bottomSheetState,
-        sheetContent = {
-        Row {
-            Text("Item 1")
-            Icon(
+
+fun holdingsListOptionsSheet(
+    onOptionSelection: (String) -> Unit = { },
+) : (@Composable ColumnScope.() -> Unit) =
+    @Composable {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp, top = 12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Item 1", modifier = Modifier.weight(1f))
+                Icon(
                     Icons.Default.Favorite,
                     contentDescription = "Localized description"
                 )
+            }
         }
-    } ) {  }
-}
+    }
+
 
 
 @Preview(
@@ -135,5 +141,25 @@ fun PreviewHoldingsScreen() {
             positions,
             PaddingValues(0.dp)
         )
+    }
+}
+
+@Preview(
+    widthDp = 300,
+    heightDp = 600,
+    showBackground = true,
+    backgroundColor = 0xFF666666,
+)
+@Composable
+fun PreviewHoldingsListOptionsSheet() {
+    ZygosTheme {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.Bottom,
+        ) {
+            Surface {
+                holdingsListOptionsSheet()(this)
+            }
+        }
     }
 }
