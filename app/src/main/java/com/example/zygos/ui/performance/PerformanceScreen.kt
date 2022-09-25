@@ -2,6 +2,7 @@ package com.example.zygos.ui.performance
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -61,6 +62,28 @@ fun PerformanceScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 4.dp)
                             .height(300.dp)
+                    )
+                }
+
+                item {
+                    Divider(
+                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                        thickness = 1.dp,
+                        modifier = Modifier
+                            .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 2.dp)
+                    )
+                }
+
+                item {
+                    // TimeSeriesGraphSelector()
+                }
+
+                item {
+                    Divider(
+                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                        thickness = 1.dp,
+                        modifier = Modifier
+                            .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 2.dp)
                     )
                 }
             }
