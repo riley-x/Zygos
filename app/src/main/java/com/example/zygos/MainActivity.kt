@@ -75,11 +75,14 @@ fun ZygosApp(
             }
         )
 
+        /** Callbacks
+         * These need to be defined here (at viewModel/appScope scope) to enable smart
+         * recomposition of any function that is passed these
+         */
         fun onAccountSelected(account: String) = viewModel.setAccount(account)
         fun onOptionsListShow() = appScope.launch { holdingsListOptionsSheetState.show() }
         fun onHoldingsPositionSelected(pos: Position) = navController.navigateToPosition(pos)
         fun myCallback() = viewModel.setAccount(viewModel.accounts.random())
-
 
         /** Set the top and bottom bars **/
         Scaffold(
@@ -117,7 +120,7 @@ fun ZygosApp(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
                                     onAccountSelected = ::onAccountSelected,
-                                    modifier = Modifier.recomposeHighlighter().topBar(),
+                                    modifier = Modifier.topBar(),
                                 )
                             },
                         )
@@ -135,7 +138,7 @@ fun ZygosApp(
                                 AccountSelection(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
-                                    onAccountSelected = { viewModel.setAccount(it) },
+                                    onAccountSelected = ::onAccountSelected,
                                     modifier = Modifier.topBar(),
                                 )
                             },

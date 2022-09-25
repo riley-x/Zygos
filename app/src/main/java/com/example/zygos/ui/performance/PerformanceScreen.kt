@@ -21,7 +21,6 @@ fun PerformanceScreen(
 ) {
     Column(
         modifier = modifier
-            .recomposeHighlighter()
             .fillMaxWidth(),
     ) {
         LogCompositions("Zygos", "PerformanceScreen")
@@ -30,7 +29,6 @@ fun PerformanceScreen(
 
         Surface(
             modifier = Modifier
-                .recomposeHighlighter()
                 .fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {

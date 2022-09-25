@@ -35,14 +35,12 @@ fun HoldingsScreen(
     LogCompositions("Zygos", "HoldingsScreen")
     Column(
         modifier = modifier
-            .recomposeHighlighter()
             .fillMaxWidth(),
     ) {
         accountBar()
 
         Surface(
             modifier = Modifier
-                .recomposeHighlighter()
                 .fillMaxSize()
         ) {
             LazyColumn {
@@ -69,12 +67,12 @@ fun HoldingsScreen(
                 item {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(
-                            start = 22.dp,
-                            top = 0.dp,
-                            bottom = 0.dp
-                        )
-                            .recomposeHighlighter()
+                        modifier = Modifier
+                            .padding(
+                                start = 22.dp,
+                                top = 0.dp,
+                                bottom = 0.dp
+                            )
                     ) {
                         Text(
                             text = "Holdings",
@@ -106,7 +104,6 @@ fun HoldingsScreen(
                             subvalue = -134.13f,
                             isSubvalueDollar = (displayOption == "Returns"),
                             modifier = Modifier
-                                .recomposeHighlighter()
                                 .clickable {
                                     onPositionClick(pos)
                                 }
