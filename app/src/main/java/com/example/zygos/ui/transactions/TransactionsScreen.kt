@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 @Composable
 fun TransactionsScreen(
     testState: String = "",
+    onClick: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "TransactionsScreen")
 
@@ -29,7 +31,12 @@ fun TransactionsScreen(
             contentAlignment = Alignment.Center,
             modifier = Modifier.requiredSize(200.dp).recomposeHighlighter()
         ) {
-            Text("Transactions Screen$testState")
+            TextButton(
+                onClick = onClick,
+                modifier = Modifier.recomposeHighlighter()
+            ) {
+                Text("Transactions Screen$testState")
+            }
         }
     }
 

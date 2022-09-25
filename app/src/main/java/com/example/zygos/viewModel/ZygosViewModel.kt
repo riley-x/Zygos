@@ -13,8 +13,8 @@ import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
 
 class ZygosViewModel : ViewModel() {
-    private val _accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
-    val accounts: List<String> = _accounts
+    val accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
+    //val accounts: List<String> = _accounts // Warning: these backing vals seem to ruin smart recomposition
 
     var currentAccount by mutableStateOf(accounts[0])
         private set
@@ -26,7 +26,7 @@ class ZygosViewModel : ViewModel() {
     }
 
     /** Holdings **/
-    val _positions = mutableStateListOf<Position>(
+    val positions = mutableStateListOf<Position>(
         Position("p1", 0.2f, Color(0xFF004940)),
         Position("p2", 0.3f, Color(0xFF005D57)),
         Position("p3", 0.4f, Color(0xFF04B97F)),
@@ -36,7 +36,6 @@ class ZygosViewModel : ViewModel() {
         Position("p3", 0.4f, Color(0xFF04B97F)),
         Position("p4", 0.1f, Color(0xFF37EFBA))
     )
-    val positions: List<Position> = _positions
 
     // These variables are merely the ui state of the options selection menu
     // The actual sorting is called in sortHoldingsList() via a callback when
@@ -62,18 +61,18 @@ class ZygosViewModel : ViewModel() {
         //Log.i("ZygosViewModel", "$holdingsSortOption $lastSortOption")
         if (lastSortOption == holdingsSortOption) {
             if (lastSortIsAscending != holdingsSortIsAscending) {
-                _positions.reverse()
+                positions.reverse()
             }
         } else {
             if (holdingsSortIsAscending) {
                 when (holdingsSortOption) {
-                    "Ticker" -> _positions.sortBy(Position::ticker)
-                    else -> _positions.sortBy(Position::value)
+                    "Ticker" -> positions.sortBy(Position::ticker)
+                    else -> positions.sortBy(Position::value)
                 }
             } else {
                 when (holdingsSortOption) {
-                    "Ticker" -> _positions.sortByDescending(Position::ticker)
-                    else -> _positions.sortByDescending(Position::value)
+                    "Ticker" -> positions.sortByDescending(Position::ticker)
+                    else -> positions.sortByDescending(Position::value)
                 }
             }
         }

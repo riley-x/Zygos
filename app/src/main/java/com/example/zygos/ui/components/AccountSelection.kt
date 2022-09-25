@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,7 +16,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 @Composable
 fun AccountSelection(
     currentAccount: String,
-    accounts: List<String>,
+    accounts: SnapshotStateList<String>,
     modifier: Modifier = Modifier,
     onAccountSelected: (String) -> Unit = { },
 ) {
@@ -80,7 +81,9 @@ fun AccountSelection(
 @Preview(showBackground = true)
 @Composable
 fun AccountSelectionPreview() {
-    val accounts = listOf("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
+    val accounts = remember { mutableStateListOf(
+        "Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts"
+    ) }
     ZygosTheme {
         AccountSelection(
             accounts = accounts,

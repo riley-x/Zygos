@@ -1,14 +1,11 @@
 package com.example.zygos
 
-import android.content.ContentValues.TAG
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,11 +24,9 @@ import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.ui.holdings.holdingsListOptionsSheet
 import com.example.zygos.ui.performance.PerformanceScreen
-import com.example.zygos.ui.positionDetails.PositionDetailsScreen
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionsScreen
 import com.example.zygos.viewModel.ZygosViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -80,6 +75,12 @@ fun ZygosApp(
             }
         )
 
+        fun onAccountSelected(account: String) = viewModel.setAccount(account)
+        fun onOptionsListShow() = appScope.launch { holdingsListOptionsSheetState.show() }
+        fun onHoldingsPositionSelected(pos: Position) = navController.navigateToPosition(pos)
+        fun myCallback() = viewModel.setAccount(viewModel.accounts.random())
+
+
         /** Set the top and bottom bars **/
         Scaffold(
             bottomBar = {
@@ -115,7 +116,7 @@ fun ZygosApp(
                                 AccountSelection(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
-                                    onAccountSelected = { viewModel.setAccount(it) },
+                                    onAccountSelected = ::onAccountSelected,
                                     modifier = Modifier.recomposeHighlighter().topBar(),
                                 )
                             },
@@ -129,9 +130,7 @@ fun ZygosApp(
                         HoldingsScreen(
                             positions = viewModel.positions,
                             displayOption = viewModel.holdingsDisplayOption,
-                            onPositionClick = {
-                                navController.navigateToPosition(it)
-                            },
+                            onPositionClick = ::onHoldingsPositionSelected,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,
@@ -140,9 +139,7 @@ fun ZygosApp(
                                     modifier = Modifier.topBar(),
                                 )
                             },
-                            holdingsListOptionsCallback = {
-                                appScope.launch { holdingsListOptionsSheetState.show() }
-                            }
+                            holdingsListOptionsCallback = ::onOptionsListShow
                         )
                     }
                     composable(
@@ -160,7 +157,7 @@ fun ZygosApp(
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Chart.route")
                         ChartScreen(
                             testState = viewModel.currentAccount,
-                            positions = viewModel._positions,
+                            positions = viewModel.positions,
                         )
                     }
                 }
@@ -170,6 +167,7 @@ fun ZygosApp(
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Transactions.route")
                         TransactionsScreen(
                             testState = viewModel.currentAccount,
+                            onClick = ::myCallback,
                         )
                     }
                 }

@@ -8,6 +8,9 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,7 +25,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
 fun HoldingsScreen(
-    positions: List<Position>,
+    positions: SnapshotStateList<Position>,
     displayOption: String,
     modifier: Modifier = Modifier,
     accountBar: @Composable () -> Unit = { },
@@ -128,7 +131,7 @@ fun PreviewHoldingsScreen() {
     val p2 = Position("p2", 0.3f, Color(0xFF005D57))
     val p3 = Position("p3", 0.4f, Color(0xFF04B97F))
     val p4 = Position("p4", 0.1f, Color(0xFF37EFBA))
-    val positions = listOf(p1, p2, p3, p4, p1, p2, p3, p4)
+    val positions = remember { mutableStateListOf(p1, p2, p3, p4, p1, p2, p3, p4) }
     ZygosTheme {
         HoldingsScreen(
             positions = positions,
