@@ -42,8 +42,8 @@ fun TimeSeriesGraph(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colors.onSurface,
     stroke: Dp = 2.dp,
-    labelOffsetY: Dp = 2.dp, // padding left of label
-    labelOffsetX: Dp = 2.dp, // padding top of label
+    labelYOffset: Dp = 8.dp, // padding left of label
+    labelXOffset: Dp = 2.dp, // padding top of label
     onHover: (x: Int, y: Float) -> Unit = { _, _ -> },
 ) {
     if (values.size < 2) return
@@ -63,15 +63,15 @@ fun TimeSeriesGraph(
     val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
     val gridColor = color.copy(alpha = 0.3f)
     val strokeWidthPx = with(LocalDensity.current) { stroke.toPx() }
-    val labelOffsetXPx = with(LocalDensity.current) { labelOffsetX.toPx() }
-    val labelOffsetYPx = with(LocalDensity.current) { labelOffsetY.toPx() }
+    val labelYOffsetPx = with(LocalDensity.current) { labelYOffset.toPx() }
+    val labelXOffsetPx = with(LocalDensity.current) { labelXOffset.toPx() }
 
     Canvas(modifier = modifier
     ) {
         /** user -> pixel conversions **/
-        val endX = size.width - textSize.width - labelOffsetXPx
+        val endX = size.width - textSize.width - labelYOffsetPx
         val deltaX = endX / (values.size - 1)
-        val startY = size.height - textSize.height - labelOffsetYPx
+        val startY = size.height - textSize.height - labelXOffsetPx
         val deltaY = -startY / (maxY - minY)
 
         /** Y Gridlines and Axis Labels **/
