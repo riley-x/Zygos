@@ -6,18 +6,12 @@ import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.toMutableStateList
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.data.Position
-import com.example.zygos.ui.components.LogCompositions
-import com.example.zygos.ui.components.TimeSeriesGraph
-import com.example.zygos.ui.components.TimeSeriesTickX
-import com.example.zygos.ui.components.recomposeHighlighter
+import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
@@ -36,6 +30,9 @@ fun PerformanceScreen(
             TimeSeriesTickX(15, "10/31/21"),
         )
     }
+    val options = remember { mutableStateListOf("1m", "3m", "1y", "5y", "All") }
+    var currentSelection = remember { mutableStateOf("1y") }
+    fun onOptionsSelection(selection: String) { currentSelection.value = selection }
 
     Column(
         modifier = modifier
@@ -70,12 +67,19 @@ fun PerformanceScreen(
                         color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                         thickness = 1.dp,
                         modifier = Modifier
-                            .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 2.dp)
+                            .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp)
                     )
                 }
 
                 item {
-                    // TimeSeriesGraphSelector()
+                    TimeSeriesGraphSelector(
+                        options = options,
+                        currentSelection = currentSelection,
+                        onSelection = ::onOptionsSelection,
+                        modifier = Modifier
+                            .padding(horizontal = 12.dp)
+                            .fillMaxWidth()
+                    )
                 }
 
                 item {
@@ -83,7 +87,7 @@ fun PerformanceScreen(
                         color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                         thickness = 1.dp,
                         modifier = Modifier
-                            .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 2.dp)
+                            .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 6.dp)
                     )
                 }
             }
@@ -93,7 +97,7 @@ fun PerformanceScreen(
 
 
 @Preview(
-    widthDp = 300,
+    widthDp = 330,
     heightDp = 600,
     showBackground = true,
 )
