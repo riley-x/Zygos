@@ -231,6 +231,6 @@ fun NavHostController.navigateToPosition(position: Position) {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun PreviewTabPerformance() {
+fun PreviewZygosApp() {
     ZygosApp()
 }

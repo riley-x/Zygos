@@ -24,6 +24,10 @@ fun ChartScreen(
 ) {
     LogCompositions("Zygos", "ChartScreen")
 
+    // TODO: Replace account bar with a ticker selector
+    // I think vertical only like Robinhood is good
+    // Horizontal doesn't look that nice on narrow phones
+
     Surface(
         modifier = Modifier
             .recomposeHighlighter()
