@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.MoreVert
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,6 +22,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
 fun PerformanceScreen(
+    watchlist: SnapshotStateList<Quote>,
     displayOption: String,
     modifier: Modifier = Modifier,
     onTickerClick: (String) -> Unit = { },
@@ -40,13 +42,6 @@ fun PerformanceScreen(
     val options = remember { mutableStateListOf("1m", "3m", "1y", "5y", "All") }
     var currentSelection = remember { mutableStateOf("1y") }
     fun onOptionsSelection(selection: String) { currentSelection.value = selection }
-
-    val watchlist = remember { mutableStateListOf(
-        Quote("asdf", Color.Blue,  123.23f,  21.20f, 0.123f),
-        Quote("af",   Color.Black, 1263.23f, 3.02f,  -0.123f),
-        Quote("afdf", Color.Green, 1923.23f, 120.69f,0.263f),
-        Quote("lkj",  Color.Cyan,  1423.23f, 0.59f,  1.23f),
-    ) }
 
     Column(
         modifier = modifier
@@ -149,9 +144,15 @@ fun PerformanceScreen(
 )
 @Composable
 fun PreviewPerformanceScreen() {
+    val q1 = Quote("asdf", Color.Blue,  123.23f,  21.20f, 0.123f)
+    val q2 = Quote("af",   Color.Black, 1263.23f, 3.02f,  -0.123f)
+    val q3 = Quote("afdf", Color.Green, 1923.23f, 120.69f,0.263f)
+    val q4 = Quote("lkj",  Color.Cyan,  1423.23f, 0.59f,  1.23f)
+    val watchlist = remember { mutableStateListOf(q1, q2, q3, q4, q1, q2, q3, q4) }
     ZygosTheme {
         PerformanceScreen(
-            displayOption = "% Change"
+            watchlist = watchlist,
+            displayOption = "% Change",
         )
     }
 }

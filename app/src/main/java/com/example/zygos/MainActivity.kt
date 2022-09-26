@@ -115,7 +115,8 @@ fun ZygosApp(
                     composable(route = Performance.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Performance.route")
                         PerformanceScreen(
-                            displayOption = "% Change", // TODO
+                            watchlist = viewModel.watchlist,
+                            displayOption = viewModel.watchlistDisplayOption,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,
@@ -135,6 +136,7 @@ fun ZygosApp(
                             positions = viewModel.positions,
                             displayOption = viewModel.holdingsDisplayOption,
                             onPositionClick = ::onHoldingsPositionSelected,
+                            holdingsListOptionsCallback = ::onOptionsListShow,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,
@@ -143,7 +145,6 @@ fun ZygosApp(
                                     modifier = Modifier.topBar(),
                                 )
                             },
-                            holdingsListOptionsCallback = ::onOptionsListShow
                         )
                     }
                     composable(

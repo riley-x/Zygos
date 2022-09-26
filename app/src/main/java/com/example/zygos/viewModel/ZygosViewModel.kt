@@ -1,16 +1,16 @@
 package com.example.zygos.viewModel
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.example.zygos.data.Position
+import com.example.zygos.data.Quote
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
+import com.example.zygos.ui.performance.watchlistDisplayOptions
+import com.example.zygos.ui.performance.watchlistSortOptions
 
 class ZygosViewModel : ViewModel() {
     val accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
@@ -25,8 +25,24 @@ class ZygosViewModel : ViewModel() {
         currentAccount = account
     }
 
+    /** PerformanceScreen **/
+    val q1 = Quote("asdf", Color.Blue,  123.23f,  21.20f, 0.123f)
+    val q2 = Quote("af",   Color.Black, 1263.23f, 3.02f,  -0.123f)
+    val q3 = Quote("afdf", Color.Green, 1923.23f, 120.69f,0.263f)
+    val q4 = Quote("lkj",  Color.Cyan,  1423.23f, 0.59f,  1.23f)
+    val watchlist = mutableStateListOf(q1, q2, q3, q4, q1, q2, q3, q4)
+
+    // These variables are merely the ui state of the options selection menu
+    // The actual sorting is called in sortWatchlist() via a callback when
+    // the menu is hidden.
+    var watchlistSortOption by mutableStateOf(watchlistSortOptions[0])
+        private set
+    var watchlistSortIsAscending by mutableStateOf(true)
+        private set
+    var watchlistDisplayOption by mutableStateOf(watchlistDisplayOptions[0])
+
     /** Holdings **/
-    val positions = mutableStateListOf<Position>(
+    val positions = mutableStateListOf(
         Position("p1", 0.2f, Color(0xFF004940)),
         Position("p2", 0.3f, Color(0xFF005D57)),
         Position("p3", 0.4f, Color(0xFF04B97F)),

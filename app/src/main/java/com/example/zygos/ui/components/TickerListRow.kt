@@ -69,7 +69,7 @@ fun TickerListDivider(
     Divider(
         color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
         thickness = 1.dp,
-        modifier = Modifier
+        modifier = modifier
             .padding(start = 6.dp, top = 2.dp, bottom = 2.dp)
     )
 }
