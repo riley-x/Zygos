@@ -43,7 +43,9 @@ fun TimeSeriesGraph(
     stroke: Dp = 2.dp,
     labelYOffset: Dp = 8.dp, // padding left of label
     labelXOffset: Dp = 2.dp, // padding top of label
-    onHover: (x: Float, y: Float) -> Unit = { _, _ -> }, // p.s. should use SideEffect instead? probs not
+    onHover: (x: Float, y: Float) -> Unit = { _, _ -> },
+    // WARNING x, y can be out of bounds! Make sure to catch
+    // p.s. should use SideEffect instead? probs not
 ) {
     if (values.size < 2) return
 
@@ -156,18 +158,21 @@ fun TimeSeriesGraph(
         }
 
         /** Hover **/
-        if (hoverPos.x > 0 && hoverPos.y > 0) {
+        if (hoverPos.y > 0 && hoverPos.y < startY) {
+
             drawLine(
                 start = Offset(x = 0f, y = hoverPos.y),
                 end = Offset(x = endX, y = hoverPos.y),
                 color = color,
-                strokeWidth = strokeWidthPx,
+                strokeWidth = 2f,
             )
+        }
+        if (hoverPos.x > 0 && hoverPos.x < endX) {
             drawLine(
                 start = Offset(x = hoverPos.x, y = startY),
                 end = Offset(x = hoverPos.x, y = 0f),
                 color = color,
-                strokeWidth = strokeWidthPx,
+                strokeWidth = 2f,
             )
         }
     }
