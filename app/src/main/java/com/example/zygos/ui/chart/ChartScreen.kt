@@ -21,7 +21,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 @Composable
 fun ChartScreen(
     positions: SnapshotStateList<Position> = mutableStateListOf(),
-    testState: String = "",
+    ticker: State<String>,
 ) {
     LogCompositions("Zygos", "ChartScreen")
 
@@ -41,7 +41,7 @@ fun ChartScreen(
                 .requiredSize(width = 200.dp, height = 500.dp)
                 .recomposeHighlighter()
         ) {
-            Text("Chart Screen!")
+            Text("Chart Screen! ticker = ${ticker.value}")
         }
     }
 }
@@ -54,9 +54,11 @@ fun ChartScreen(
 )
 @Composable
 fun PreviewChartScreen() {
+    val ticker = remember { mutableStateOf("MSFT") }
+
     ZygosTheme {
         ChartScreen(
-
+            ticker = ticker,
         )
     }
 }

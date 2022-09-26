@@ -26,7 +26,7 @@ fun PerformanceScreen(
     watchlist: SnapshotStateList<Quote>,
     watchlistDisplayOption: String,
     modifier: Modifier = Modifier,
-    onTickerClick: (String) -> Unit = { },
+    onTickerSelected: (String) -> Unit = { },
     onAccountPerformanceRangeSelected: (String) -> Unit = { },
     onWatchlistOptionsClick: () -> Unit = { },
     accountBar: @Composable () -> Unit = { },
@@ -112,7 +112,7 @@ fun PerformanceScreen(
                             isSubvalueDollar = (watchlistDisplayOption != "% Change"),
                             modifier = Modifier
                                 .clickable {
-                                    onTickerClick(ticker.ticker)
+                                    onTickerSelected(ticker.ticker)
                                 }
                                 // this needs to be here so that the clickable animation covers the full width
                                 .padding(horizontal = 6.dp)

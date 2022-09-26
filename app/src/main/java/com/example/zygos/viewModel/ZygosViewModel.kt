@@ -28,14 +28,11 @@ class ZygosViewModel : ViewModel() {
             TimeSeriesTick(10, "9/12/23"),
             TimeSeriesTick(15, "10/31/21"),
     )
-    var accountPerformanceRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
-        private set
+    val accountPerformanceRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
 
     fun setPerformanceRange(range: String) {
         accountPerformanceRange.value = range
     }
-
-
 
     val watchlist = mutableStateListOf(
         Quote("t1", Color.Blue,  123.23f,  21.20f, 0.123f),
@@ -151,6 +148,12 @@ class ZygosViewModel : ViewModel() {
             "holdings" -> sortHoldingsList()
             "watchlist" -> sortWatchlist()
         }
+    }
+
+    /** ChartScreen **/
+    val chartTicker = mutableStateOf("")
+    fun setTicker(ticker: String) {
+        chartTicker.value = ticker
     }
 
 }

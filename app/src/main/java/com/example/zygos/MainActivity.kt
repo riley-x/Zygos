@@ -94,6 +94,10 @@ fun ZygosApp(
             listOptionsSheetState.show()
         }
         fun onHoldingsPositionSelected(pos: Position) = navController.navigateToPosition(pos)
+        fun onTickerSelected(ticker: String) {
+            viewModel.setTicker(ticker)
+            navController.navigateSingleTopTo(Chart.route)
+        }
         fun myCallback() = viewModel.setAccount(viewModel.accounts.random())
 
         /** Set the top and bottom bars **/
@@ -133,6 +137,7 @@ fun ZygosApp(
                             accountPerformanceRange = viewModel.accountPerformanceRange,
                             watchlist = viewModel.watchlist,
                             watchlistDisplayOption = viewModel.watchlistDisplayOption,
+                            onTickerSelected = ::onTickerSelected,
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
                             onAccountPerformanceRangeSelected = viewModel::setPerformanceRange,
                             accountBar = {
@@ -179,7 +184,7 @@ fun ZygosApp(
                     composable(route = Chart.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Chart.route")
                         ChartScreen(
-                            testState = viewModel.currentAccount,
+                            ticker = viewModel.chartTicker,
                             positions = viewModel.positions,
                         )
                     }
