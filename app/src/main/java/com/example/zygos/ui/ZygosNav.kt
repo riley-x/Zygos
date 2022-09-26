@@ -13,10 +13,11 @@ import com.example.zygos.ui.theme.ZygosTheme
 fun ZygosNav(
     tabs: List<ZygosTab>,
     currentTab: String,
+    modifier: Modifier = Modifier,
     onTabSelected: (ZygosTab) -> Unit = { },
 ) {
     BottomNavigation(
-        modifier = Modifier.height(48.dp)
+        modifier = modifier.height(48.dp)
         //elevation = 0.dp,
     ) {
         tabs.forEach { item ->

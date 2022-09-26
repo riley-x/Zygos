@@ -4,12 +4,8 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
-import com.example.zygos.data.Position
-import com.example.zygos.data.Quote
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
-import com.example.zygos.ui.performance.watchlistDisplayOptions
-import com.example.zygos.ui.performance.watchlistSortOptions
 
 class ZygosViewModel : ViewModel() {
     val accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
@@ -25,6 +21,22 @@ class ZygosViewModel : ViewModel() {
     }
 
     /** PerformanceScreen **/
+    val accountPerformance = List(20) { it * if (it % 2 == 0) 1.2f else 0.8f }.toMutableStateList()
+    val accountPerformanceTicksY = mutableStateListOf(5f, 10f, 15f, 20f)
+    val accountPerformanceTicksX = mutableStateListOf(
+            TimeSeriesTick(5, "test"),
+            TimeSeriesTick(10, "9/12/23"),
+            TimeSeriesTick(15, "10/31/21"),
+    )
+    var accountPerformanceRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
+        private set
+
+    fun setPerformanceRange(range: String) {
+        accountPerformanceRange.value = range
+    }
+
+
+
     val watchlist = mutableStateListOf(
         Quote("t1", Color.Blue,  123.23f,  21.20f, 0.123f),
         Quote("t2", Color.Black, 1263.23f, 3.02f,  -0.123f),

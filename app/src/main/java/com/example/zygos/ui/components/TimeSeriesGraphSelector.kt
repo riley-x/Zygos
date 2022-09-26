@@ -23,7 +23,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TimeSeriesGraphSelector(
-    options: SnapshotStateList<String>,
+    options: ImmutableList<String>,
     currentSelection: State<String>, // must pass State here for derivedStateOf below
     modifier: Modifier = Modifier,
     onSelection: (String) -> Unit = { },
@@ -32,7 +32,7 @@ fun TimeSeriesGraphSelector(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        for (option in options) {
+        for (option in options.items) {
             // enabled would be recalculated for each button, but only 2 of them need to recompose
             val enabled by remember { derivedStateOf { option == currentSelection.value } }
             CustomTextButton(
@@ -86,7 +86,7 @@ fun CustomTextButton(
 @Preview
 @Composable
 fun PreviewTimeSeriesGraphSelector() {
-    val options = remember { mutableStateListOf("1m", "3m", "1y", "5y", "All") }
+    val options = ImmutableList(listOf("1m", "3m", "1y", "5y", "All"))
     val currentSelection = remember { mutableStateOf("1y") }
     ZygosTheme {
         Surface(modifier = Modifier.width(330.dp)) {

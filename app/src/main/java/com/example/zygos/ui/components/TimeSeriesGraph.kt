@@ -4,28 +4,20 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.viewModel.TimeSeriesTick
 import kotlin.math.roundToInt
-
-
-data class TimeSeriesTickX(
-    val index: Int,
-    val label: String,
-)
 
 
 /**
@@ -36,7 +28,7 @@ data class TimeSeriesTickX(
 fun TimeSeriesGraph(
     values: SnapshotStateList<Float>,
     ticksY: SnapshotStateList<Float>,
-    ticksX: SnapshotStateList<TimeSeriesTickX>,
+    ticksX: SnapshotStateList<TimeSeriesTick>,
     minY: Float,
     maxY: Float,
     modifier: Modifier = Modifier,
@@ -144,9 +136,9 @@ fun TimeSeriesGraphPreview() {
     val values = remember { List(20) { it * if (it % 2 == 0) 1.2f else 0.8f }.toMutableStateList() }
     val ticksY = remember { mutableStateListOf(5f, 10f, 15f, 20f) }
     val ticksX = remember { mutableStateListOf(
-        TimeSeriesTickX(5, "test"),
-        TimeSeriesTickX(10, "9/12/23"),
-        TimeSeriesTickX(15, "10/31/21"),
+        TimeSeriesTick(5, "test"),
+        TimeSeriesTick(10, "9/12/23"),
+        TimeSeriesTick(15, "10/31/21"),
     ) }
 
     ZygosTheme {

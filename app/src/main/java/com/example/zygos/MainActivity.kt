@@ -16,7 +16,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.example.zygos.data.Position
+import com.example.zygos.viewModel.Position
 import com.example.zygos.ui.*
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.AccountSelection
@@ -27,8 +27,8 @@ import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.performance.PerformanceScreen
-import com.example.zygos.ui.performance.watchlistDisplayOptions
-import com.example.zygos.ui.performance.watchlistSortOptions
+import com.example.zygos.viewModel.watchlistDisplayOptions
+import com.example.zygos.viewModel.watchlistSortOptions
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionsScreen
 import com.example.zygos.viewModel.ZygosViewModel
@@ -85,7 +85,6 @@ fun ZygosApp(
          * These need to be defined here (at viewModel/appScope scope) to enable smart
          * recomposition of any function that is passed these
          */
-        fun onAccountSelected(account: String) = viewModel.setAccount(account)
         fun onHoldingsListOptionsShow() = appScope.launch {
             listOptionsSheetVersion = "holdings"
             listOptionsSheetState.show()
@@ -128,14 +127,19 @@ fun ZygosApp(
                     composable(route = Performance.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Performance.route")
                         PerformanceScreen(
+                            accountPerformance = viewModel.accountPerformance,
+                            accountPerformanceTicksX = viewModel.accountPerformanceTicksX,
+                            accountPerformanceTicksY = viewModel.accountPerformanceTicksY,
+                            accountPerformanceRange = viewModel.accountPerformanceRange,
                             watchlist = viewModel.watchlist,
-                            displayOption = viewModel.watchlistDisplayOption,
+                            watchlistDisplayOption = viewModel.watchlistDisplayOption,
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
+                            onAccountPerformanceRangeSelected = viewModel::setPerformanceRange,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
-                                    onAccountSelected = ::onAccountSelected,
+                                    onAccountSelected = viewModel::setAccount,
                                     modifier = Modifier.topBar(),
                                 )
                             },
@@ -155,7 +159,7 @@ fun ZygosApp(
                                 AccountSelection(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
-                                    onAccountSelected = ::onAccountSelected,
+                                    onAccountSelected = viewModel::setAccount,
                                     modifier = Modifier.topBar(),
                                 )
                             },
