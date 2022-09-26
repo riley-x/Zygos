@@ -1,6 +1,7 @@
 package com.example.zygos
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -10,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -20,10 +22,14 @@ import com.example.zygos.ui.*
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.AccountSelection
 import com.example.zygos.ui.components.LogCompositions
+import com.example.zygos.ui.components.listOptionsSheet
 import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.holdings.HoldingsScreen
-import com.example.zygos.ui.holdings.holdingsListOptionsSheet
+import com.example.zygos.ui.holdings.holdingsListDisplayOptions
+import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.performance.PerformanceScreen
+import com.example.zygos.ui.performance.watchlistDisplayOptions
+import com.example.zygos.ui.performance.watchlistSortOptions
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionsScreen
 import com.example.zygos.viewModel.ZygosViewModel
@@ -58,8 +64,9 @@ fun ZygosApp(
         } ?: zygosTabs[0]
 
         /** ModalBottomSheetLayout state **/
-        var holdingsListOptionsSheetIsClosing by remember { mutableStateOf(false) }
-        val holdingsListOptionsSheetState = rememberModalBottomSheetState(
+        var listOptionsSheetVersion by remember { mutableStateOf("") }
+        var listOptionsSheetIsClosing by remember { mutableStateOf(false) }
+        val listOptionsSheetState = rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
             skipHalfExpanded = true,
             confirmStateChange = {
@@ -68,8 +75,8 @@ fun ZygosApp(
                 // and the bottom sheet can't be opened
 
                 if (it == ModalBottomSheetValue.Hidden) {
-                    holdingsListOptionsSheetIsClosing = true
-                    //Log.i("ZygosViewModel", "$holdingsListOptionsSheetIsClosing")
+                    listOptionsSheetIsClosing = true
+                    Log.i("ZygosViewModel", "$listOptionsSheetIsClosing")
                 }
                 true
             }
@@ -80,7 +87,14 @@ fun ZygosApp(
          * recomposition of any function that is passed these
          */
         fun onAccountSelected(account: String) = viewModel.setAccount(account)
-        fun onOptionsListShow() = appScope.launch { holdingsListOptionsSheetState.show() }
+        fun onHoldingsListOptionsShow() = appScope.launch {
+            listOptionsSheetVersion = "holdings"
+            listOptionsSheetState.show()
+        }
+        fun onWatchlistOptionsShow() = appScope.launch {
+            listOptionsSheetVersion = "watchlist"
+            listOptionsSheetState.show()
+        }
         fun onHoldingsPositionSelected(pos: Position) = navController.navigateToPosition(pos)
         fun myCallback() = viewModel.setAccount(viewModel.accounts.random())
 
@@ -117,6 +131,7 @@ fun ZygosApp(
                         PerformanceScreen(
                             watchlist = viewModel.watchlist,
                             displayOption = viewModel.watchlistDisplayOption,
+                            onWatchlistOptionsClick = ::onWatchlistOptionsShow,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,
@@ -136,7 +151,7 @@ fun ZygosApp(
                             positions = viewModel.positions,
                             displayOption = viewModel.holdingsDisplayOption,
                             onPositionClick = ::onHoldingsPositionSelected,
-                            holdingsListOptionsCallback = ::onOptionsListShow,
+                            holdingsListOptionsCallback = ::onHoldingsListOptionsShow,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,
@@ -184,24 +199,19 @@ fun ZygosApp(
         ModalBottomSheetLayout(
             scrimColor = Color.Black.copy(alpha = 0.6f),
             sheetElevation = 0.dp,
-            sheetState = holdingsListOptionsSheetState,
-            sheetContent = holdingsListOptionsSheet(
-                currentSortOption = viewModel.holdingsSortOption,
-                currentDisplayOption = viewModel.holdingsDisplayOption,
-                isSortedAscending = viewModel.holdingsSortIsAscending,
-                onDisplayOptionSelected = { viewModel.holdingsDisplayOption = it },
-                onSortOptionSelected = { viewModel.setHoldingsSortMethod(it) },
-            )
+            sheetState = listOptionsSheetState,
+            sheetContent = bottomSheetContent(listOptionsSheetVersion, viewModel),
+            modifier = Modifier.recomposeHighlighter(),
         ) { }
-        if (holdingsListOptionsSheetIsClosing) {
+        if (listOptionsSheetIsClosing) {
             // You could just call the sort function here, but it'll block the thread? Also maybe
             // recomposition would kill it? In which case you could use SideEffect or DisposableEffect's
             // onDispose, but they both still block the UI thread when adding a Thread.sleep() call.
             // Also still not sure why you can't access viewModel from the bottomSheet callback...
             LaunchedEffect(true) {
                 //delay(3000) // this happens asynchronously! Make sure that all other state is ok with the positions list being modified
-                viewModel.sortHoldingsList()
-                holdingsListOptionsSheetIsClosing = false
+                viewModel.sortList(listOptionsSheetVersion)
+                listOptionsSheetIsClosing = false
             }
         }
     }
@@ -227,6 +237,33 @@ fun NavHostController.navigateToPosition(position: Position) {
     this.navigate("${PositionDetails.route}/${position.ticker}") {
         launchSingleTop = true
         restoreState = true
+    }
+}
+
+
+fun bottomSheetContent(
+    version: String,
+    viewModel: ZygosViewModel,
+): (@Composable ColumnScope.() -> Unit) {
+    return when (version) {
+        "holdings" -> listOptionsSheet(
+            currentSortOption = viewModel.holdingsSortOption,
+            currentDisplayOption = viewModel.holdingsDisplayOption,
+            isSortedAscending = viewModel.holdingsSortIsAscending,
+            displayOptions = holdingsListDisplayOptions,
+            sortOptions = holdingsListSortOptions,
+            onDisplayOptionSelected = { viewModel.holdingsDisplayOption = it },
+            onSortOptionSelected = { viewModel.setHoldingsSortMethod(it) },
+        )
+        else -> listOptionsSheet(
+            currentSortOption = viewModel.watchlistSortOption,
+            currentDisplayOption = viewModel.watchlistDisplayOption,
+            isSortedAscending = viewModel.watchlistSortIsAscending,
+            displayOptions = watchlistDisplayOptions,
+            sortOptions = watchlistSortOptions,
+            onDisplayOptionSelected = { viewModel.watchlistDisplayOption = it },
+            onSortOptionSelected = { viewModel.setWatchlistSortMethod(it) },
+        )
     }
 }
 

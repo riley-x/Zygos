@@ -1,5 +1,6 @@
 package com.example.zygos.viewModel
 
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -45,15 +46,17 @@ class ZygosViewModel : ViewModel() {
 
     // Called from composable onClick callbacks
     fun setWatchlistSortMethod(opt: String) {
+        Log.i("ZygosViewModel", "$watchlistSortIsAscending")
         if (watchlistSortOption == opt) watchlistSortIsAscending = !watchlistSortIsAscending
         else watchlistSortOption = opt
     }
 
     // This happens asynchronously! Make sure that all other state is ok with the positions list being modified
     fun sortWatchlist() {
+        Log.i("ZygosViewModel/sortWatchlist", "$watchlistSortOption $watchlistSortIsAscending, last: $watchlistLastSortOption $watchlistLastSortIsAscending")
         if (watchlistLastSortOption == watchlistSortOption) {
             if (watchlistLastSortIsAscending != watchlistSortIsAscending) {
-                positions.reverse()
+                watchlist.reverse()
             }
         } else {
             if (watchlistSortIsAscending) {
@@ -125,6 +128,14 @@ class ZygosViewModel : ViewModel() {
         }
         holdingsLastSortIsAscending = holdingsSortIsAscending
         holdingsLastSortOption = holdingsSortOption
+    }
+
+    fun sortList(whichList: String) {
+        Log.i("ZygosViewModel/sortList", whichList)
+        when(whichList) {
+            "holdings" -> sortHoldingsList()
+            "watchlist" -> sortWatchlist()
+        }
     }
 
 }

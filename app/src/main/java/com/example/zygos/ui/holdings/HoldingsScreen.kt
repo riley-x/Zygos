@@ -20,6 +20,8 @@ import com.example.zygos.data.Position
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 
+val holdingsListSortOptions = listOf("Ticker", "Equity", "Returns", "% Change")
+val holdingsListDisplayOptions = listOf("Returns", "% Change")
 
 @Composable
 fun HoldingsScreen(
