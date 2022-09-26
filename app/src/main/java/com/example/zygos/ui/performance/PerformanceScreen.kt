@@ -2,11 +2,11 @@ package com.example.zygos.ui.performance
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.MoreVert
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -18,6 +18,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 fun PerformanceScreen(
     modifier: Modifier = Modifier,
     onTickerClick: (String) -> Unit = { },
+    onWatchlistOptionsClick: () -> Unit = { },
     accountBar: @Composable () -> Unit = { },
 ) {
     val values =
@@ -90,6 +91,14 @@ fun PerformanceScreen(
                             .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 6.dp)
                     )
                 }
+
+                item {
+                    ListTitleBar(
+                        text = "Watchlist",
+                        onOptionsButtonClick = onWatchlistOptionsClick,
+                        modifier = Modifier.padding(start = 22.dp)
+                    )
+                }
             }
         }
     }
@@ -97,8 +106,8 @@ fun PerformanceScreen(
 
 
 @Preview(
-    widthDp = 330,
-    heightDp = 600,
+    widthDp = 360,
+    heightDp = 740,
     showBackground = true,
 )
 @Composable

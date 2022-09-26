@@ -52,8 +52,8 @@ fun ChartScreen(
 }
 
 @Preview(
-    widthDp = 300,
-    heightDp = 600,
+    widthDp = 360,
+    heightDp = 740,
     showBackground = true,
 )
 @Composable

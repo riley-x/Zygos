@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.data.Position
+import com.example.zygos.ui.components.ListTitleBar
 import com.example.zygos.ui.components.LogCompositions
 import com.example.zygos.ui.components.PieChart
 import com.example.zygos.ui.components.recomposeHighlighter
@@ -65,27 +66,11 @@ fun HoldingsScreen(
                 }
 
                 item {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .padding(
-                                start = 22.dp,
-                                top = 0.dp,
-                                bottom = 0.dp
-                            )
-                    ) {
-                        Text(
-                            text = "Holdings",
-                            style = MaterialTheme.typography.h3,
-                            modifier = Modifier.weight(1f),
-                        )
-                        IconButton(onClick = { holdingsListOptionsCallback() }) {
-                            Icon(
-                                imageVector = Icons.Sharp.MoreVert,
-                                contentDescription = null,
-                            )
-                        }
-                    }
+                    ListTitleBar(
+                        text = "Holdings",
+                        modifier = Modifier.padding(start = 22.dp),
+                        onOptionsButtonClick = holdingsListOptionsCallback,
+                    )
                 }
 
                 itemsIndexed(positions) { index, pos ->
@@ -118,8 +103,8 @@ fun HoldingsScreen(
 
 
 @Preview(
-    widthDp = 300,
-    heightDp = 600,
+    widthDp = 360,
+    heightDp = 740,
     showBackground = true,
 )
 @Composable

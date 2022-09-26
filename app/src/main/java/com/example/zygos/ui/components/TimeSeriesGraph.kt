@@ -136,8 +136,8 @@ fun TimeSeriesGraph(
 
 
 @Preview(
-    widthDp = 300,
-    heightDp = 300,
+    widthDp = 360,
+    heightDp = 400,
 )
 @Composable
 fun TimeSeriesGraphPreview() {
