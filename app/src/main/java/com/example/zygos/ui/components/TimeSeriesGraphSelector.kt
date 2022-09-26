@@ -24,7 +24,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 @Composable
 fun TimeSeriesGraphSelector(
     options: SnapshotStateList<String>,
-    currentSelection: State<String>,
+    currentSelection: State<String>, // must pass State here for derivedStateOf below
     modifier: Modifier = Modifier,
     onSelection: (String) -> Unit = { },
 ) {
@@ -33,6 +33,7 @@ fun TimeSeriesGraphSelector(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         for (option in options) {
+            // enabled would be recalculated for each button, but only 2 of them need to recompose
             val enabled by remember { derivedStateOf { option == currentSelection.value } }
             CustomTextButton(
                 text = option,
@@ -43,7 +44,13 @@ fun TimeSeriesGraphSelector(
     }
 }
 
-
+/**
+ * The normal TextButton has too much padding.
+ * Also, scoping this function helps prevent recomposition (otherwise ternaries
+ * like
+ *      if (enabled) MaterialTheme.colors.primary else MaterialTheme.colors.background
+ * would trigger recomposition
+ */
 @Composable
 fun CustomTextButton(
     text: String,

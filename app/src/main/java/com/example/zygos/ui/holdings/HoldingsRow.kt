@@ -11,8 +11,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.components.PieChart
+import com.example.zygos.ui.components.TickerListRow
 import com.example.zygos.ui.components.formatDollar
 import com.example.zygos.ui.components.formatPercent
 import com.example.zygos.ui.theme.ZygosTheme
@@ -28,23 +30,24 @@ fun HoldingsRow(
     isSubvalueDollar: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier
-            .height(52.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    TickerListRow(
+        ticker = ticker,
+        color = color,
+        value = value,
+        subvalue = subvalue,
+        isSubvalueDollar = isSubvalueDollar,
+        afterTickerContent = HoldingsRowShares(shares),
+        modifier = modifier,
+    )
+}
+
+fun HoldingsRowShares(
+    shares: Float,
+): (@Composable (Dp) -> Unit) =
+    @Composable { padStart: Dp ->
         val typography = MaterialTheme.typography
 
-        Spacer(
-            Modifier
-                .size(4.dp, 46.dp)
-                .background(color = color)
-        )
-        Spacer(Modifier.width(12.dp))
-
-        Text(text = ticker, style = typography.body1)
-
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(padStart))
 
         Column(Modifier) {
             CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
@@ -52,20 +55,7 @@ fun HoldingsRow(
                 Text(text = "shares", style = typography.subtitle1)
             }
         }
-
-        Spacer(Modifier.weight(1f))
-
-        Column(Modifier, horizontalAlignment = Alignment.End) {
-            Text(text = formatDollar(value), style = typography.body1)
-            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                Text(text = if (isSubvalueDollar) formatDollar(subvalue) else formatPercent(subvalue),
-                    style = typography.subtitle1,
-                    color = if (subvalue >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error
-                )
-            }
-        }
     }
-}
 
 
 @Preview(showBackground = true)
