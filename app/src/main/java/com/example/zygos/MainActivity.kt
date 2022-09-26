@@ -195,6 +195,8 @@ fun ZygosApp(
         }
 
         /** Bottom Sheet **/
+        // TODO changing a selection inside the bottom sheet causes this top level app to recompose
+        // Was happening in old version before hoisting too though.
         ModalBottomSheetLayout(
             scrimColor = Color.Black.copy(alpha = 0.6f),
             sheetElevation = 0.dp,

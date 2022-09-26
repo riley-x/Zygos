@@ -64,7 +64,7 @@ fun HoldingsScreen(
                     }
                 }
 
-                item {
+                item("holdings_title") {
                     ListTitleBar(
                         text = "Holdings",
                         modifier = Modifier.padding(start = 22.dp),
@@ -72,7 +72,7 @@ fun HoldingsScreen(
                     )
                 }
 
-                itemsIndexed(positions) { index, pos ->
+                itemsIndexed(positions, key = { _, pos -> pos.ticker }) { index, pos ->
                     Column {
                         if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
 
@@ -105,11 +105,16 @@ fun HoldingsScreen(
 )
 @Composable
 fun PreviewHoldingsScreen() {
-    val p1 = Position("p1", 0.2f, Color(0xFF004940))
-    val p2 = Position("p2", 0.3f, Color(0xFF005D57))
-    val p3 = Position("p3", 0.4f, Color(0xFF04B97F))
-    val p4 = Position("p4", 0.1f, Color(0xFF37EFBA))
-    val positions = remember { mutableStateListOf(p1, p2, p3, p4, p1, p2, p3, p4) }
+    val positions = remember { mutableStateListOf(
+        Position("p1", 0.2f, Color(0xFF004940)),
+        Position("p2", 0.3f, Color(0xFF005D57)),
+        Position("p3", 0.4f, Color(0xFF04B97F)),
+        Position("p4", 0.1f, Color(0xFF37EFBA)),
+        Position("p5", 0.2f, Color(0xFF004940)),
+        Position("p6", 0.3f, Color(0xFF005D57)),
+        Position("p7", 0.4f, Color(0xFF04B97F)),
+        Position("p8", 0.1f, Color(0xFF37EFBA)),
+    ) }
     ZygosTheme {
         HoldingsScreen(
             positions = positions,

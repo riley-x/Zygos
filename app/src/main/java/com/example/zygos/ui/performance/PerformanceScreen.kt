@@ -61,7 +61,7 @@ fun PerformanceScreen(
             color = MaterialTheme.colors.background
         ) {
             LazyColumn {
-                item {
+                item("graph") {
                     TimeSeriesGraph(
                         values = values,
                         ticksY = ticksY,
@@ -75,7 +75,7 @@ fun PerformanceScreen(
                     )
                 }
 
-                item {
+                item("divider1") {
                     Divider(
                         color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                         thickness = 1.dp,
@@ -84,7 +84,7 @@ fun PerformanceScreen(
                     )
                 }
 
-                item {
+                item("graph_selector") {
                     TimeSeriesGraphSelector(
                         options = options,
                         currentSelection = currentSelection,
@@ -95,7 +95,7 @@ fun PerformanceScreen(
                     )
                 }
 
-                item {
+                item("divider2") {
                     Divider(
                         color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                         thickness = 1.dp,
@@ -104,7 +104,7 @@ fun PerformanceScreen(
                     )
                 }
 
-                item {
+                item("watchlist_title") {
                     ListTitleBar(
                         text = "Watchlist",
                         onOptionsButtonClick = onWatchlistOptionsClick,
@@ -112,7 +112,7 @@ fun PerformanceScreen(
                     )
                 }
 
-                itemsIndexed(watchlist) { index, ticker ->
+                itemsIndexed(watchlist, key = { _, ticker -> ticker.ticker }) { index, ticker ->
                     Column {
                         if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
 
@@ -147,11 +147,17 @@ fun PerformanceScreen(
 )
 @Composable
 fun PreviewPerformanceScreen() {
-    val q1 = Quote("asdf", Color.Blue,  123.23f,  21.20f, 0.123f)
-    val q2 = Quote("af",   Color.Black, 1263.23f, 3.02f,  -0.123f)
-    val q3 = Quote("afdf", Color.Green, 1923.23f, 120.69f,0.263f)
-    val q4 = Quote("lkj",  Color.Cyan,  1423.23f, 0.59f,  1.23f)
-    val watchlist = remember { mutableStateListOf(q1, q2, q3, q4, q1, q2, q3, q4) }
+
+    val watchlist = remember { mutableStateListOf(
+        Quote("t1", Color.Blue,  123.23f,  21.20f, 0.123f),
+        Quote("t2", Color.Black, 1263.23f, 3.02f,  -0.123f),
+        Quote("t3", Color.Green, 1923.23f, 120.69f,0.263f),
+        Quote("t4", Color.Cyan,  1423.23f, 0.59f,  1.23f),
+        Quote("t5", Color.Blue,  123.23f,  21.20f, 0.123f),
+        Quote("t6", Color.Black, 1263.23f, 3.02f,  -0.123f),
+        Quote("t7", Color.Green, 1923.23f, 120.69f,0.263f),
+        Quote("t8", Color.Cyan,  1423.23f, 0.59f,  1.23f),
+    ) }
     ZygosTheme {
         PerformanceScreen(
             watchlist = watchlist,

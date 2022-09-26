@@ -25,11 +25,16 @@ class ZygosViewModel : ViewModel() {
     }
 
     /** PerformanceScreen **/
-    val q1 = Quote("asdf", Color.Blue,  123.23f,  21.20f, 0.123f)
-    val q2 = Quote("af",   Color.Black, 1263.23f, 3.02f,  -0.123f)
-    val q3 = Quote("afdf", Color.Green, 1923.23f, 120.69f,0.263f)
-    val q4 = Quote("lkj",  Color.Cyan,  1423.23f, 0.59f,  1.23f)
-    val watchlist = mutableStateListOf(q1, q2, q3, q4, q1, q2, q3, q4)
+    val watchlist = mutableStateListOf(
+        Quote("t1", Color.Blue,  123.23f,  21.20f, 0.123f),
+        Quote("t2", Color.Black, 1263.23f, 3.02f,  -0.123f),
+        Quote("t3", Color.Green, 1923.23f, 120.69f,0.263f),
+        Quote("t4", Color.Cyan,  1423.23f, 0.59f,  1.23f),
+        Quote("t5", Color.Blue,  123.23f,  21.20f, 0.123f),
+        Quote("t6", Color.Black, 1263.23f, 3.02f,  -0.123f),
+        Quote("t7", Color.Green, 1923.23f, 120.69f,0.263f),
+        Quote("t8", Color.Cyan,  1423.23f, 0.59f,  1.23f),
+    )
 
     // These variables are merely the ui state of the options selection menu
     // The actual sorting is called in sortWatchlist() via a callback when
@@ -81,10 +86,10 @@ class ZygosViewModel : ViewModel() {
         Position("p2", 0.3f, Color(0xFF005D57)),
         Position("p3", 0.4f, Color(0xFF04B97F)),
         Position("p4", 0.1f, Color(0xFF37EFBA)),
-        Position("p1", 0.2f, Color(0xFF004940)),
-        Position("p2", 0.3f, Color(0xFF005D57)),
-        Position("p3", 0.4f, Color(0xFF04B97F)),
-        Position("p4", 0.1f, Color(0xFF37EFBA))
+        Position("p5", 0.2f, Color(0xFF004940)),
+        Position("p6", 0.3f, Color(0xFF005D57)),
+        Position("p7", 0.4f, Color(0xFF04B97F)),
+        Position("p8", 0.1f, Color(0xFF37EFBA))
     )
 
     // These variables are merely the ui state of the options selection menu
