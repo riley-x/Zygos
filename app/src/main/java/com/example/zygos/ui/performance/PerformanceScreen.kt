@@ -1,7 +1,9 @@
 package com.example.zygos.ui.performance
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.MoreVert
@@ -11,7 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.data.Position
+import com.example.zygos.data.Quote
 import com.example.zygos.ui.components.*
+import com.example.zygos.ui.holdings.HoldingsRow
 import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
@@ -35,6 +39,13 @@ fun PerformanceScreen(
     var currentSelection = remember { mutableStateOf("1y") }
     fun onOptionsSelection(selection: String) { currentSelection.value = selection }
 
+    val watchlist = remember { mutableStateListOf(
+        Quote("asdf", 123.23f,  21.20f, 0.123f),
+        Quote("af",   1263.23f, 3.02f,  -0.123f),
+        Quote("afdf", 1923.23f, 120.69f,0.263f),
+        Quote("lkj",  1423.23f, 0.59f,  1.23f),
+    ) }
+
     Column(
         modifier = modifier
             .fillMaxWidth(),
@@ -45,6 +56,7 @@ fun PerformanceScreen(
 
         Surface(
             modifier = Modifier
+                .recomposeHighlighter()
                 .fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {
@@ -88,7 +100,7 @@ fun PerformanceScreen(
                         color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                         thickness = 1.dp,
                         modifier = Modifier
-                            .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 6.dp)
+                            .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 20.dp)
                     )
                 }
 
@@ -98,6 +110,10 @@ fun PerformanceScreen(
                         onOptionsButtonClick = onWatchlistOptionsClick,
                         modifier = Modifier.padding(start = 22.dp)
                     )
+                }
+
+                itemsIndexed(watchlist) { index, pos ->
+
                 }
             }
         }
