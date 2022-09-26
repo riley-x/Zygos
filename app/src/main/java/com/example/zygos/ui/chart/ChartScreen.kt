@@ -1,11 +1,12 @@
 package com.example.zygos.ui.chart
 
+import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,16 +41,11 @@ fun ChartScreen(
                 .requiredSize(width = 200.dp, height = 500.dp)
                 .recomposeHighlighter()
         ) {
-            Column {
-                Text("ChartScreen$testState")
-                for (pos in positions) {
-                    Text(pos.ticker)
-                }
-            }
-
+            Text("Chart Screen!")
         }
     }
 }
+
 
 @Preview(
     widthDp = 360,

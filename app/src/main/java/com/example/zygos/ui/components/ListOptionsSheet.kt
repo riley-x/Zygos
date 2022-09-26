@@ -18,8 +18,8 @@ fun listOptionsSheet(
     currentSortOption: String,
     currentDisplayOption: String,
     isSortedAscending: Boolean,
-    displayOptions: List<String>,
-    sortOptions: List<String>,
+    displayOptions: ImmutableList<String>,
+    sortOptions: ImmutableList<String>,
     onDisplayOptionSelected: (String) -> Unit = { },
     onSortOptionSelected: (String) -> Unit = { },
 ) : (@Composable ColumnScope.() -> Unit) =
@@ -36,7 +36,7 @@ fun listOptionsSheet(
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 8.dp)
             )
-            for ((index, opt) in displayOptions.withIndex()) {
+            for ((index, opt) in displayOptions.items.withIndex()) {
                 if (index > 0) ListOptionDivider()
 
                 ListDisplayOptionRow(
@@ -57,7 +57,7 @@ fun listOptionsSheet(
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 8.dp, top = 8.dp)
             )
-            for ((index, opt) in sortOptions.withIndex()) {
+            for ((index, opt) in sortOptions.items.withIndex()) {
                 if (index > 0) ListOptionDivider()
 
                 ListSortOptionRow(
@@ -90,8 +90,8 @@ fun PreviewHoldingsListOptionsSheet() {
         ) {
             Surface {
                 listOptionsSheet(
-                    currentSortOption = holdingsListSortOptions[0],
-                    currentDisplayOption = holdingsListDisplayOptions[0],
+                    currentSortOption = holdingsListSortOptions.items[0],
+                    currentDisplayOption = holdingsListDisplayOptions.items[0],
                     isSortedAscending = true,
                     sortOptions = holdingsListSortOptions,
                     displayOptions = holdingsListDisplayOptions,

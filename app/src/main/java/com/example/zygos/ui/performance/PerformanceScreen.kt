@@ -20,8 +20,8 @@ import com.example.zygos.ui.components.*
 import com.example.zygos.ui.holdings.HoldingsRow
 import com.example.zygos.ui.theme.ZygosTheme
 
-val watchlistSortOptions = listOf("Ticker", "% Change")
-val watchlistDisplayOptions = listOf("Change", "% Change")
+val watchlistSortOptions = ImmutableList(listOf("Ticker", "% Change"))
+val watchlistDisplayOptions = ImmutableList(listOf("Change", "% Change"))
 
 @Composable
 fun PerformanceScreen(

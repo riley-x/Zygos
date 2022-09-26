@@ -39,11 +39,11 @@ class ZygosViewModel : ViewModel() {
     // These variables are merely the ui state of the options selection menu
     // The actual sorting is called in sortWatchlist() via a callback when
     // the menu is hidden.
-    var watchlistSortOption by mutableStateOf(watchlistSortOptions[0])
+    var watchlistSortOption by mutableStateOf(watchlistSortOptions.items[0])
         private set
     var watchlistSortIsAscending by mutableStateOf(true)
         private set
-    var watchlistDisplayOption by mutableStateOf(watchlistDisplayOptions[0])
+    var watchlistDisplayOption by mutableStateOf(watchlistDisplayOptions.items[0])
 
     // Cached sort options to not re-sort if nothing was changed
     private var watchlistLastSortOption = ""
@@ -51,7 +51,6 @@ class ZygosViewModel : ViewModel() {
 
     // Called from composable onClick callbacks
     fun setWatchlistSortMethod(opt: String) {
-        Log.i("ZygosViewModel", "$watchlistSortIsAscending")
         if (watchlistSortOption == opt) watchlistSortIsAscending = !watchlistSortIsAscending
         else watchlistSortOption = opt
     }
@@ -95,11 +94,11 @@ class ZygosViewModel : ViewModel() {
     // These variables are merely the ui state of the options selection menu
     // The actual sorting is called in sortHoldingsList() via a callback when
     // the menu is hidden.
-    var holdingsSortOption by mutableStateOf(holdingsListSortOptions[0])
+    var holdingsSortOption by mutableStateOf(holdingsListSortOptions.items[0])
         private set
     var holdingsSortIsAscending by mutableStateOf(true)
         private set
-    var holdingsDisplayOption by mutableStateOf(holdingsListDisplayOptions[0])
+    var holdingsDisplayOption by mutableStateOf(holdingsListDisplayOptions.items[0])
 
     // Cached sort options to not re-sort if nothing was changed
     private var holdingsLastSortOption = ""
@@ -136,7 +135,6 @@ class ZygosViewModel : ViewModel() {
     }
 
     fun sortList(whichList: String) {
-        Log.i("ZygosViewModel/sortList", whichList)
         when(whichList) {
             "holdings" -> sortHoldingsList()
             "watchlist" -> sortWatchlist()
