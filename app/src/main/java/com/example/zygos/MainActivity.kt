@@ -27,6 +27,7 @@ import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.performance.PerformanceScreen
+import com.example.zygos.ui.positionDetails.PositionDetailsScreen
 import com.example.zygos.viewModel.watchlistDisplayOptions
 import com.example.zygos.viewModel.watchlistSortOptions
 import com.example.zygos.ui.theme.ZygosTheme
@@ -177,6 +178,7 @@ fun ZygosApp(
                         LogCompositions("Zygos", "ZygosApp/Scaffold/PositionDetails.route")
                         val ticker =
                             navBackStackEntry.arguments?.getString(PositionDetails.routeArgName)
+                        PositionDetailsScreen()
                     }
                 }
 
