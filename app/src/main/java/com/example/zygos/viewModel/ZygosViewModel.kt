@@ -1,8 +1,6 @@
 package com.example.zygos.viewModel
 
-import android.util.Log
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.example.zygos.data.Position
@@ -21,7 +19,7 @@ class ZygosViewModel : ViewModel() {
 
     fun setAccount(account: String) {
         if (currentAccount == account) return
-
+        // TODO
         currentAccount = account
     }
 
@@ -40,6 +38,39 @@ class ZygosViewModel : ViewModel() {
     var watchlistSortIsAscending by mutableStateOf(true)
         private set
     var watchlistDisplayOption by mutableStateOf(watchlistDisplayOptions[0])
+
+    // Cached sort options to not re-sort if nothing was changed
+    private var watchlistLastSortOption = ""
+    private var watchlistLastSortIsAscending = true
+
+    // Called from composable onClick callbacks
+    fun setWatchlistSortMethod(opt: String) {
+        if (watchlistSortOption == opt) watchlistSortIsAscending = !watchlistSortIsAscending
+        else watchlistSortOption = opt
+    }
+
+    // This happens asynchronously! Make sure that all other state is ok with the positions list being modified
+    fun sortWatchlist() {
+        if (watchlistLastSortOption == watchlistSortOption) {
+            if (watchlistLastSortIsAscending != watchlistSortIsAscending) {
+                positions.reverse()
+            }
+        } else {
+            if (watchlistSortIsAscending) {
+                when (watchlistSortOption) {
+                    "Ticker" -> watchlist.sortBy(Quote::ticker)
+                    else -> watchlist.sortBy(Quote::percentChange)
+                }
+            } else {
+                when (watchlistSortOption) {
+                    "Ticker" -> watchlist.sortByDescending(Quote::ticker)
+                    else -> watchlist.sortByDescending(Quote::percentChange)
+                }
+            }
+        }
+        watchlistLastSortIsAscending = watchlistSortIsAscending
+        watchlistLastSortOption = watchlistSortOption
+    }
 
     /** Holdings **/
     val positions = mutableStateListOf(
@@ -63,8 +94,8 @@ class ZygosViewModel : ViewModel() {
     var holdingsDisplayOption by mutableStateOf(holdingsListDisplayOptions[0])
 
     // Cached sort options to not re-sort if nothing was changed
-    private var lastSortOption = ""
-    private var lastSortIsAscending = true
+    private var holdingsLastSortOption = ""
+    private var holdingsLastSortIsAscending = true
 
     // Called from composable onClick callbacks
     fun setHoldingsSortMethod(opt: String) {
@@ -75,8 +106,8 @@ class ZygosViewModel : ViewModel() {
     // This happens asynchronously! Make sure that all other state is ok with the positions list being modified
     fun sortHoldingsList() {
         //Log.i("ZygosViewModel", "$holdingsSortOption $lastSortOption")
-        if (lastSortOption == holdingsSortOption) {
-            if (lastSortIsAscending != holdingsSortIsAscending) {
+        if (holdingsLastSortOption == holdingsSortOption) {
+            if (holdingsLastSortIsAscending != holdingsSortIsAscending) {
                 positions.reverse()
             }
         } else {
@@ -92,8 +123,8 @@ class ZygosViewModel : ViewModel() {
                 }
             }
         }
-        lastSortIsAscending = holdingsSortIsAscending
-        lastSortOption = holdingsSortOption
+        holdingsLastSortIsAscending = holdingsSortIsAscending
+        holdingsLastSortOption = holdingsSortOption
     }
 
 }
