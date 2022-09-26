@@ -115,6 +115,7 @@ fun ZygosApp(
                     composable(route = Performance.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Performance.route")
                         PerformanceScreen(
+                            displayOption = "% Change", // TODO
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,

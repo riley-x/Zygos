@@ -10,6 +10,7 @@ import androidx.compose.material.icons.sharp.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.data.Position
@@ -20,6 +21,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
 fun PerformanceScreen(
+    displayOption: String,
     modifier: Modifier = Modifier,
     onTickerClick: (String) -> Unit = { },
     onWatchlistOptionsClick: () -> Unit = { },
@@ -40,10 +42,10 @@ fun PerformanceScreen(
     fun onOptionsSelection(selection: String) { currentSelection.value = selection }
 
     val watchlist = remember { mutableStateListOf(
-        Quote("asdf", 123.23f,  21.20f, 0.123f),
-        Quote("af",   1263.23f, 3.02f,  -0.123f),
-        Quote("afdf", 1923.23f, 120.69f,0.263f),
-        Quote("lkj",  1423.23f, 0.59f,  1.23f),
+        Quote("asdf", Color.Blue,  123.23f,  21.20f, 0.123f),
+        Quote("af",   Color.Black, 1263.23f, 3.02f,  -0.123f),
+        Quote("afdf", Color.Green, 1923.23f, 120.69f,0.263f),
+        Quote("lkj",  Color.Cyan,  1423.23f, 0.59f,  1.23f),
     ) }
 
     Column(
@@ -112,8 +114,27 @@ fun PerformanceScreen(
                     )
                 }
 
-                itemsIndexed(watchlist) { index, pos ->
+                itemsIndexed(watchlist) { index, ticker ->
+                    Column {
+                        if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
 
+                        TickerListRow(
+                            ticker = ticker.ticker,
+                            color = ticker.color,
+                            value = ticker.price,
+                            subvalue = when (displayOption) {
+                                "% Change" -> ticker.percentChange
+                                else -> ticker.change
+                            },
+                            isSubvalueDollar = (displayOption != "% Change"),
+                            modifier = Modifier
+                                .clickable {
+                                    onTickerClick(ticker.ticker)
+                                }
+                                // this needs to be here so that the clickable animation covers the full width
+                                .padding(horizontal = 6.dp)
+                        )
+                    }
                 }
             }
         }
@@ -130,6 +151,7 @@ fun PerformanceScreen(
 fun PreviewPerformanceScreen() {
     ZygosTheme {
         PerformanceScreen(
+            displayOption = "% Change"
         )
     }
 }

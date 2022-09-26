@@ -17,10 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.data.Position
-import com.example.zygos.ui.components.ListTitleBar
-import com.example.zygos.ui.components.LogCompositions
-import com.example.zygos.ui.components.PieChart
-import com.example.zygos.ui.components.recomposeHighlighter
+import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 
 
@@ -75,12 +72,8 @@ fun HoldingsScreen(
 
                 itemsIndexed(positions) { index, pos ->
                     Column {
-                        if (index > 0) Divider(
-                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                            thickness = 1.dp,
-                            modifier = Modifier
-                                .padding(start = 12.dp, top = 2.dp, bottom = 2.dp)
-                        )
+                        if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
+
                         HoldingsRow(
                             ticker = pos.ticker,
                             color = pos.color,
@@ -92,7 +85,8 @@ fun HoldingsScreen(
                                 .clickable {
                                     onPositionClick(pos)
                                 }
-                                .padding(horizontal = 6.dp)
+                                .padding(horizontal = 6.dp) // this needs to be here so that the clickable
+                                                            // animation covers the full width
                         )
                     }
                 }

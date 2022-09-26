@@ -8,8 +8,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.ui.theme.tickerColors
 
 /**
  * Base composable of any list of tickers and prices
@@ -60,7 +63,7 @@ fun TickerListRow(
 }
 
 @Composable
-fun TableListDivider(
+fun TickerListDivider(
     modifier: Modifier = Modifier,
 ) {
     Divider(
@@ -69,4 +72,33 @@ fun TableListDivider(
         modifier = Modifier
             .padding(start = 6.dp, top = 2.dp, bottom = 2.dp)
     )
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun TickerListRowPreview() {
+    ZygosTheme {
+        Surface() {
+            Column {
+                TickerListRow(
+                    ticker = "MSFT",
+                    color = tickerColors.getOrDefault("MSFT", Color.Blue),
+                    value = 4567.32f,
+                    subvalue = -1342.01f,
+                    isSubvalueDollar = true,
+                )
+
+                TickerListDivider()
+
+                TickerListRow(
+                    ticker = "MSFT",
+                    color = tickerColors.getOrDefault("MSFT", Color.Blue),
+                    value = 1357.32f,
+                    subvalue = 0.1234f,
+                    isSubvalueDollar = false,
+                )
+            }
+        }
+    }
 }
