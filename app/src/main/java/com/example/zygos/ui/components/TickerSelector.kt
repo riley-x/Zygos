@@ -147,7 +147,7 @@ fun CustomTextField(
                 isError = isError,
                 interactionSource = interactionSource,
                 colors = colors,
-                contentPadding = PaddingValues(),
+                contentPadding = PaddingValues(start = 6.dp, end = 6.dp),
             )
         },
     )

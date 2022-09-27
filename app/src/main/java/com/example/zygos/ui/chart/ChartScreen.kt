@@ -30,10 +30,6 @@ fun ChartScreen(
 ) {
     LogCompositions("Zygos", "ChartScreen")
 
-    // TODO: Replace account bar with a ticker selector
-    // I think vertical only like Robinhood is good
-    // Horizontal doesn't look that nice on narrow phones
-
     Surface(
         modifier = Modifier
             .recomposeHighlighter()
@@ -41,14 +37,12 @@ fun ChartScreen(
         color = MaterialTheme.colors.background
     ) {
 
-        Box(
+        Column(
             modifier = modifier
                 .fillMaxSize(),
         ) {
             var hoverTime by remember { mutableStateOf("") }
             var hoverValues by remember { mutableStateOf("") }
-
-            val tickerSelectorHeight = 50.dp
 
             fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
                 if (isHover && x >= 0 && x < data.size) {
@@ -72,8 +66,9 @@ fun ChartScreen(
             Row(
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier
-                    .height(tickerSelectorHeight)
-                    .align(Alignment.TopStart)
+                    .height(43.dp)
+                    // There seems to be a minimum height that enables the droplet selection.
+                    // 42.dp doesn't work but 43.dp does
                     .fillMaxWidth()
             ) {
                 // The weights fix the ticker selector to the first 1/3
@@ -81,8 +76,6 @@ fun ChartScreen(
                     ticker = ticker.value,
                     onTickerGo = onTickerChanged,
                     modifier = Modifier
-//                        .requiredHeight(80.dp)
-//                        .height(36.dp) // compress the text onto the indicator line
                         .weight(1f)
                 )
 
@@ -105,11 +98,7 @@ fun ChartScreen(
 
             }
 
-            LazyColumn(
-                modifier = Modifier
-                    .padding(top = tickerSelectorHeight)
-                    .align(Alignment.TopStart)
-            ) {
+            LazyColumn {
 
                 item("graph") {
                     val grapher = candlestickGraph()
