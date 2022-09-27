@@ -21,13 +21,11 @@ class ZygosViewModel : ViewModel() {
     }
 
     /** PerformanceScreen **/
-    val accountPerformance = List(20) { it * if (it % 2 == 0) 1.2f else 0.8f }.toMutableStateList()
+    val accountPerformance = List(20) {
+        NamedValue(it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
+    }.toMutableStateList()
     val accountPerformanceTicksY = mutableStateListOf(5f, 10f, 15f, 20f)
-    val accountPerformanceTicksX = mutableStateListOf(
-            TimeSeriesTick(5, "test"),
-            TimeSeriesTick(10, "9/12/23"),
-            TimeSeriesTick(15, "10/31/21"),
-    )
+    val accountPerformanceTicksX = mutableStateListOf(5, 10, 15)
     val accountPerformanceRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
 
     fun setPerformanceRange(range: String) {

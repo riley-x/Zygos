@@ -22,8 +22,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.TimeSeriesTick
-import kotlin.math.atan2
+import com.example.zygos.viewModel.NamedValue
 import kotlin.math.roundToInt
 
 
@@ -33,9 +32,9 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalTextApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun TimeSeriesGraph(
-    values: SnapshotStateList<Float>,
+    values: SnapshotStateList<NamedValue>,
     ticksY: SnapshotStateList<Float>,
-    ticksX: SnapshotStateList<TimeSeriesTick>,
+    ticksX: SnapshotStateList<Int>, // index into values
     minY: Float,
     maxY: Float,
     modifier: Modifier = Modifier,
@@ -125,7 +124,7 @@ fun TimeSeriesGraph(
 
         /** X Gridlines and Axis Labels **/
         for (tick in ticksX) {
-            val x = tick.index.toFloat() * deltaX
+            val x = tick.toFloat() * deltaX
             drawLine(
                 start = Offset(x = x, y = startY),
                 end = Offset(x = x, y = 0f),
@@ -134,7 +133,7 @@ fun TimeSeriesGraph(
             )
             val layoutResult: TextLayoutResult =
                 textMeasurer.measure(
-                    text = AnnotatedString(tick.label),
+                    text = AnnotatedString(values[tick].name),
                     style = textStyle,
                 )
             drawText(
@@ -150,8 +149,8 @@ fun TimeSeriesGraph(
         /** Main line plot **/
         for (i in 1 until values.size) {
             drawLine(
-                start = Offset(x = deltaX * (i - 1), y = startY + deltaY * (values[i - 1] - minY)),
-                end = Offset(x = deltaX * i, y = startY + deltaY * (values[i] - minY)),
+                start = Offset(x = deltaX * (i - 1), y = startY + deltaY * (values[i - 1].value - minY)),
+                end = Offset(x = deltaX * i, y = startY + deltaY * (values[i].value - minY)),
                 color = color,
                 strokeWidth = strokeWidthPx,
             )
@@ -185,13 +184,11 @@ fun TimeSeriesGraph(
 )
 @Composable
 fun TimeSeriesGraphPreview() {
-    val values = remember { List(20) { it * if (it % 2 == 0) 1.2f else 0.8f }.toMutableStateList() }
+    val values = remember { List(20) {
+        NamedValue(it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
+    }.toMutableStateList() }
     val ticksY = remember { mutableStateListOf(5f, 10f, 15f, 20f) }
-    val ticksX = remember { mutableStateListOf(
-        TimeSeriesTick(5, "test"),
-        TimeSeriesTick(10, "9/12/23"),
-        TimeSeriesTick(15, "10/31/21"),
-    ) }
+    val ticksX = remember { mutableStateListOf(5, 10, 15) }
 
     ZygosTheme {
         TimeSeriesGraph(

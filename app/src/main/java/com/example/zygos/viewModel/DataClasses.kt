@@ -9,10 +9,11 @@ import androidx.compose.ui.graphics.Color
 
 
 @Immutable
-data class TimeSeriesTick(
-    val index: Int,
-    val label: String,
+data class NamedValue(
+    val value: Float,
+    val name: String,
 )
+
 
 @Immutable
 data class Position(

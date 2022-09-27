@@ -7,21 +7,22 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.zygos.viewModel.Quote
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.TimeSeriesTick
-import com.example.zygos.viewModel.accountPerformanceRangeOptions
+import com.example.zygos.viewModel.*
+import kotlin.math.roundToInt
 
 @Composable
 fun PerformanceScreen(
-    accountPerformance: SnapshotStateList<Float>,
+    accountPerformance: SnapshotStateList<NamedValue>,
     accountPerformanceTicksY: SnapshotStateList<Float>,
-    accountPerformanceTicksX: SnapshotStateList<TimeSeriesTick>,
+    accountPerformanceTicksX: SnapshotStateList<Int>, // index into accountPerformance
     accountPerformanceRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     watchlist: SnapshotStateList<Quote>,
     watchlistDisplayOption: String,
@@ -45,7 +46,36 @@ fun PerformanceScreen(
                 .fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {
+            var hoverX by remember { mutableStateOf("") }
+            var hoverY by remember { mutableStateOf("") }
+
+            fun onGraphHover(x: Float, y: Float) {
+                val xInt = x.roundToInt()
+                hoverX = if (x > 0f && xInt < accountPerformance.size) accountPerformance[xInt].name else ""
+                hoverY = if (y > 0f && y < 25f) formatDollar(y) else "" // TODO
+            }
+
             LazyColumn {
+                item("graph_hover") {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .height(20.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = hoverX,
+                            style = MaterialTheme.typography.subtitle2,
+                            modifier = Modifier
+                                .weight(1f)
+                        )
+                        Text(
+                            text = hoverY,
+                            style = MaterialTheme.typography.subtitle2,
+                        )
+                    }
+                }
+
                 item("graph") {
                     TimeSeriesGraph(
                         values = accountPerformance,
@@ -53,6 +83,7 @@ fun PerformanceScreen(
                         ticksX = accountPerformanceTicksX,
                         minY = 0f,
                         maxY = 25f,
+                        onHover = ::onGraphHover,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 4.dp)
@@ -132,32 +163,15 @@ fun PerformanceScreen(
 )
 @Composable
 fun PreviewPerformanceScreen() {
-    val accountPerformance = remember { List(20) { it * if (it % 2 == 0) 1.2f else 0.8f }.toMutableStateList() }
-    val accountPerformanceTicksY = remember { mutableStateListOf(5f, 10f, 15f, 20f) }
-    val accountPerformanceTicksX = remember { mutableStateListOf(
-        TimeSeriesTick(5, "test"),
-        TimeSeriesTick(10, "9/12/23"),
-        TimeSeriesTick(15, "10/31/21"),
-    ) }
-    val currentAccountPerformanceRange = remember { mutableStateOf(accountPerformanceRangeOptions.items[0]) }
-    val watchlist = remember { mutableStateListOf(
-        Quote("t1", Color.Blue,  123.23f,  21.20f, 0.123f),
-        Quote("t2", Color.Black, 1263.23f, 3.02f,  -0.123f),
-        Quote("t3", Color.Green, 1923.23f, 120.69f,0.263f),
-        Quote("t4", Color.Cyan,  1423.23f, 0.59f,  1.23f),
-        Quote("t5", Color.Blue,  123.23f,  21.20f, 0.123f),
-        Quote("t6", Color.Black, 1263.23f, 3.02f,  -0.123f),
-        Quote("t7", Color.Green, 1923.23f, 120.69f,0.263f),
-        Quote("t8", Color.Cyan,  1423.23f, 0.59f,  1.23f),
-    ) }
+    val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
         PerformanceScreen(
-            accountPerformance = accountPerformance,
-            accountPerformanceTicksX = accountPerformanceTicksX,
-            accountPerformanceTicksY = accountPerformanceTicksY,
-            accountPerformanceRange = currentAccountPerformanceRange,
-            watchlist = watchlist,
-            watchlistDisplayOption = "% Change",
+            accountPerformance = viewModel.accountPerformance,
+            accountPerformanceTicksX = viewModel.accountPerformanceTicksX,
+            accountPerformanceTicksY = viewModel.accountPerformanceTicksY,
+            accountPerformanceRange = viewModel.accountPerformanceRange,
+            watchlist = viewModel.watchlist,
+            watchlistDisplayOption = viewModel.watchlistDisplayOption,
         )
     }
 }
