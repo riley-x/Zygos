@@ -1,14 +1,21 @@
 package com.example.zygos.ui.chart
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LastBaseline
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -17,6 +24,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.*
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ChartScreen(
     ticker: State<String>,
@@ -30,13 +38,35 @@ fun ChartScreen(
 ) {
     LogCompositions("Zygos", "ChartScreen")
 
+    /** Keyboard focus controls. Clears focus from the TextField in the ticker selector when you
+     * tap elsewhere
+     */
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    fun onGraphPress() {
+        keyboardController?.hide()
+        focusManager.clearFocus(true)
+    }
+    fun onChartRangeTap(selection: String) {
+        keyboardController?.hide()
+        focusManager.clearFocus(true)
+        onChartRangeSelected(selection)
+    }
+
     Surface(
+        color = MaterialTheme.colors.background,
         modifier = Modifier
             .recomposeHighlighter()
-            .fillMaxSize(),
-        color = MaterialTheme.colors.background
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = { // onTap
+                    keyboardController?.hide()
+                    focusManager.clearFocus(true)
+                } )
+            }
     ) {
-
+        /** Nonscrolling column for ticker selection header bar **/
         Column(
             modifier = modifier
                 .fillMaxSize(),
@@ -63,41 +93,15 @@ fun ChartScreen(
                 }
             }
 
-            Row(
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier
-                    .height(43.dp)
-                    // There seems to be a minimum height that enables the droplet selection.
-                    // 42.dp doesn't work but 43.dp does
-                    .fillMaxWidth()
-            ) {
-                // The weights fix the ticker selector to the first 1/3
-                TickerSelector(
-                    ticker = ticker.value,
-                    onTickerGo = onTickerChanged,
-                    modifier = Modifier
-                        .weight(1f)
-                )
 
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier
-                        .weight(2f)
-                ) {
-                    Text(
-                        text = hoverTime,
-                        style = MaterialTheme.typography.subtitle2,
-                    )
-                    Spacer(Modifier.width(10.dp))
-                    Text(
-                        text = hoverValues,
-                        style = MaterialTheme.typography.subtitle2,
-                    )
-                }
+            /** Ticker selection bar, also chart hover text goes here to save space **/
+            ChartScreenHeader(
+                ticker = ticker.value,
+                hoverTime = hoverTime,
+                hoverValues = hoverValues,
+            )
 
-            }
-
+            /** Main screen with chart and details **/
             LazyColumn {
 
                 item("graph") {
@@ -112,6 +116,7 @@ fun ChartScreen(
                         minY = 0f,
                         maxY = 25f,
                         onHover = ::onGraphHover,
+                        onPress = ::onGraphPress,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 4.dp)
@@ -133,7 +138,7 @@ fun ChartScreen(
                     TimeSeriesGraphSelector(
                         options = chartRangeOptions,
                         currentSelection = chartRange,
-                        onSelection = onChartRangeSelected,
+                        onSelection = ::onChartRangeTap,
                         modifier = Modifier
                             .padding(horizontal = 12.dp)
                             .fillMaxWidth()

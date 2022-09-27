@@ -69,6 +69,7 @@ fun <T: Named> TimeSeriesGraph(
     labelXOffset: Dp = 2.dp, // padding top of label
     grapher: TimeSeriesGrapher<T> = { _, _, _, _, _, _, _ -> },
     onHover: (isHover: Boolean, x: Int, y: Float) -> Unit = { _, _, _ -> },
+    onPress: () -> Unit = { }, // On first press. Can be used to clear focus, for example
     // WARNING x, y can be out of bounds! Make sure to catch.
 ) {
     if (values.size < 2) return
@@ -112,6 +113,9 @@ fun <T: Named> TimeSeriesGraph(
         .pointerInteropFilter(
             requestDisallowInterceptTouchEvent = disallowIntercept
         ) { motionEvent ->
+            if (motionEvent.action == MotionEvent.ACTION_DOWN) {
+                onPress()
+            }
             if (
                 motionEvent.action == MotionEvent.ACTION_MOVE ||
                 motionEvent.action == MotionEvent.ACTION_DOWN

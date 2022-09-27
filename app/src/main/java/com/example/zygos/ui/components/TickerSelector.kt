@@ -21,10 +21,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.zygos.ui.theme.EczarFontFamily
 import com.example.zygos.ui.theme.Roboto
+import com.example.zygos.ui.theme.ZygosTheme
 
 
 const val maxCharacters = 7
@@ -54,7 +56,7 @@ fun TickerSelector(
             textColor = MaterialTheme.colors.onSurface,
         ),
         placeholder = {
-            Text("ticker", style = style.copy(fontFamily = Roboto))
+            Text("ticker", style = style.copy(fontFamily = Roboto, fontSize = 22.sp))
         },
         onValueChange = { if (it.length <= maxCharacters) currentText = it },
         keyboardOptions = KeyboardOptions(
@@ -147,8 +149,23 @@ fun CustomTextField(
                 isError = isError,
                 interactionSource = interactionSource,
                 colors = colors,
-                contentPadding = PaddingValues(start = 6.dp, end = 6.dp),
+                contentPadding = PaddingValues(start = 6.dp, end = 6.dp), // Edited!!!!!
             )
         },
     )
+}
+
+
+@Preview
+@Composable
+fun PreviewTickerSelector() {
+    ZygosTheme {
+        Surface {
+            Column {
+                TickerSelector(ticker = "MSFT")
+                Spacer(Modifier.height(20.dp))
+                TickerSelector(ticker = "")
+            }
+        }
+    }
 }
