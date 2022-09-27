@@ -12,15 +12,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.viewModel.Position
 import com.example.zygos.ui.components.LogCompositions
+import com.example.zygos.ui.components.TimeSeriesGraph
+import com.example.zygos.ui.components.candlestickGraph
 import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.viewModel.Ohlc
+import com.example.zygos.viewModel.TestViewModel
 
 
 @Composable
 fun ChartScreen(
-    positions: SnapshotStateList<Position> = mutableStateListOf(),
+    data: SnapshotStateList<Ohlc>,
+    ticksY: SnapshotStateList<Float>,
+    ticksX: SnapshotStateList<Int>, // index into accountPerformance
     ticker: State<String>,
 ) {
     LogCompositions("Zygos", "ChartScreen")
@@ -35,13 +42,24 @@ fun ChartScreen(
             .fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
+        Column(
             modifier = Modifier
-                .requiredSize(width = 200.dp, height = 500.dp)
-                .recomposeHighlighter()
+                .fillMaxWidth()
         ) {
-            Text("Chart Screen! ticker = ${ticker.value}")
+            TimeSeriesGraph(
+                grapher = candlestickGraph(),
+                values = data,
+                ticksY = ticksY,
+                ticksX = ticksX,
+                minX = -1f,
+                maxX = data.size.toFloat(),
+                minY = 0f,
+                maxY = 25f,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
+                    .height(300.dp)
+            )
         }
     }
 }
@@ -54,11 +72,13 @@ fun ChartScreen(
 )
 @Composable
 fun PreviewChartScreen() {
-    val ticker = remember { mutableStateOf("MSFT") }
-
+    val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
         ChartScreen(
-            ticker = ticker,
+            ticker = viewModel.chartTicker,
+            data = viewModel.ohlc,
+            ticksX = viewModel.accountPerformanceTicksX,
+            ticksY = viewModel.accountPerformanceTicksY,
         )
     }
 }

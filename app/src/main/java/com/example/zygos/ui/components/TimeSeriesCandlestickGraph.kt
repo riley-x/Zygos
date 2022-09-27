@@ -26,7 +26,6 @@ fun candlestickGraph(
     upColor: Color = CandleGreen,
     downColor: Color = CandleRed,
     lineColor: Color = MaterialTheme.colors.onSurface,
-    //size: Float = with(LocalDensity.current) { 2.dp.toPx() },
 ): TimeSeriesGrapher<Ohlc> {
     return fun(
         drawScope: DrawScope,

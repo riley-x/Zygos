@@ -155,4 +155,8 @@ class ZygosViewModel : ViewModel() {
         chartTicker.value = ticker
     }
 
+    val ohlc = List(21) {
+        Ohlc(it.toFloat(), it * 2f, 0.5f * it,it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
+    }.drop(1).toMutableStateList()
+
 }
