@@ -22,6 +22,9 @@ private val Roboto = FontFamily(
     Font(R.font.roboto_regular),
     Font(R.font.roboto_bold, FontWeight.Bold)
 )
+private val UmTypewriter = FontFamily(
+    Font(R.font.um_typewriter),
+)
 
 val Typography = Typography(
     defaultFontFamily = RobotoCondensed,
@@ -61,15 +64,16 @@ val Typography = Typography(
         fontFamily = EczarFontFamily,
         letterSpacing = 3.sp
     ),
-    subtitle1 = TextStyle(
+    subtitle1 = TextStyle( // Subtitle in ticker rows
         fontWeight = FontWeight.Light,
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 3.sp
     ),
-    subtitle2 = TextStyle(
+    subtitle2 = TextStyle( // Monospaced for grids/etc.
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
+        fontFamily = UmTypewriter,
         letterSpacing = 0.1.em
     ),
     body1 = TextStyle(

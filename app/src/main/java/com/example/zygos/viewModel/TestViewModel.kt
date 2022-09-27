@@ -66,7 +66,10 @@ class TestViewModel: ViewModel() {
 
     /** ChartScreen **/
     val chartTicker = mutableStateOf("")
-    val ohlc = List(21) {
+    val chartData = List(21) {
         Ohlc(it.toFloat(), it * 2f, 0.5f * it,it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
     }.drop(1).toMutableStateList()
+    val chartTicksY = mutableStateListOf(5f, 10f, 15f, 20f)
+    val chartTicksX = mutableStateListOf(5, 10, 15)
+    val chartRange = mutableStateOf(chartRangeOptions.items.last())
 }

@@ -188,9 +188,11 @@ fun ZygosApp(
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Chart.route")
                         ChartScreen(
                             ticker = viewModel.chartTicker,
-                            data = viewModel.ohlc,
-                            ticksY = viewModel.accountPerformanceTicksY,
-                            ticksX = viewModel.accountPerformanceTicksX,
+                            data = viewModel.chartData,
+                            ticksY = viewModel.chartTicksY,
+                            ticksX = viewModel.chartTicksX,
+                            chartRange = viewModel.chartRange,
+                            onChartRangeSelected = viewModel::setChartRange,
                         )
                     }
                 }

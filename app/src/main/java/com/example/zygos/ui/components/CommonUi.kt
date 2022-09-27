@@ -1,6 +1,7 @@
 package com.example.zygos.ui.components
 
 import android.icu.text.DecimalFormat
+import android.icu.text.DecimalFormatSymbols
 import android.icu.text.NumberFormat
 import androidx.compose.runtime.Immutable
 
@@ -14,6 +15,13 @@ fun formatDollar(value: Float): String {
     return format.format(value)
 }
 
+fun formatDollarNoSymbol(value: Float, length: Int = 0): String {
+    val format = NumberFormat.getNumberInstance()
+    format.minimumFractionDigits = 2
+    format.maximumFractionDigits = 2
+    val out = format.format(value)
+    return out.padStart(length)
+}
 
 // NOTE: do not pre-multiply by 100!
 fun formatPercent(value: Float): String {
