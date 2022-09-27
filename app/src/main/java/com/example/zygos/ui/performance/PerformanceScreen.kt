@@ -83,7 +83,9 @@ fun PerformanceScreen(
                 }
 
                 item("graph") {
+                    val grapher = lineGraph()
                     TimeSeriesGraph(
+                        grapher = grapher,
                         values = accountPerformance,
                         ticksY = accountPerformanceTicksY,
                         ticksX = accountPerformanceTicksX,

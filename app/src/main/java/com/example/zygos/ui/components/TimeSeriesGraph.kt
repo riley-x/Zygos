@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.RequestDisallowInterceptTouchEvent
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -23,28 +24,46 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.viewModel.Named
 import com.example.zygos.viewModel.NamedValue
 import com.example.zygos.viewModel.TestViewModel
 import kotlin.math.roundToInt
 
 
 /**
- * Contains the graph canvas and also the top text for hover info
+ * The floats are:
+ *      deltaX
+ *      deltaY
+ *      startY
+ *      minY
+ * Where
+ *      pixX = userX * deltaX
+ *      pixY = startY + deltaY * (userY - minY)
+ */
+typealias TimeSeriesGrapher<T> =
+            (DrawScope, SnapshotStateList<T>, Float, Float, Float, Float) -> Unit
+
+
+/**
+ * Plots a graph where the x axis has discrete values. This is an "abstract"
+ * class that handles the grid, axes, labels, and callbacks. Users should
+ * implement the main graph drawing with the grapher argument:
+ *      TimeSeriesLineGraph
+ *      TimeSeriesCandlestickGraph
  */
 @OptIn(ExperimentalTextApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun TimeSeriesGraph(
-    values: SnapshotStateList<NamedValue>,
+fun <T: Named> TimeSeriesGraph(
+    values: SnapshotStateList<T>,
     ticksY: SnapshotStateList<Float>,
     ticksX: SnapshotStateList<Int>, // index into values
     minY: Float,
     maxY: Float,
     modifier: Modifier = Modifier,
     xAxisLoc: Float? = null, // y value of x axis location
-    color: Color = MaterialTheme.colors.onSurface,
-    stroke: Dp = 2.dp,
     labelYOffset: Dp = 8.dp, // padding left of label
     labelXOffset: Dp = 2.dp, // padding top of label
+    grapher: TimeSeriesGrapher<T> = { _, _, _, _, _, _ -> },
     onHover: (isHover: Boolean, x: Int, y: Float) -> Unit = { _, _, _ -> },
     // WARNING x, y can be out of bounds! Make sure to catch.
 ) {
@@ -61,13 +80,12 @@ fun TimeSeriesGraph(
         )
     val textSize = textLayoutResult.size
 
-    /** Other config vars **/
+    /** Other Config Vars **/
     val hoverColor = MaterialTheme.colors.onSurface
     val gridColor = MaterialTheme.colors.onSurface.copy(alpha = 0.3f)
     val axisColor = MaterialTheme.colors.primary
     val gridPathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
     val axisPathEffect = PathEffect.dashPathEffect(floatArrayOf(40f, 20f), 0f)
-    val strokeWidthPx = with(LocalDensity.current) { stroke.toPx() }
     val labelYOffsetPx = with(LocalDensity.current) { labelYOffset.toPx() }
     val labelXOffsetPx = with(LocalDensity.current) { labelXOffset.toPx() }
 
@@ -76,7 +94,7 @@ fun TimeSeriesGraph(
     val disallowIntercept = RequestDisallowInterceptTouchEvent()
     var hoverPos by remember { mutableStateOf(Offset(-1f, -1f)) }
 
-    /** user -> pixel conversions **/
+    /** User -> pixel conversions **/
     val endX = boxSize.width - textSize.width - labelYOffsetPx
     val deltaX = endX / (values.size - 1)
     val startY = boxSize.height - textSize.height - labelXOffsetPx
@@ -153,7 +171,7 @@ fun TimeSeriesGraph(
             )
         }
 
-        /** x axis **/
+        /** X Axis **/
         if (xAxisLoc != null) {
             val y = startY + deltaY * (xAxisLoc - minY)
             drawLine(
@@ -164,15 +182,8 @@ fun TimeSeriesGraph(
                 )
         }
 
-        /** Main line plot **/
-        for (i in 1 until values.size) {
-            drawLine(
-                start = Offset(x = deltaX * (i - 1), y = startY + deltaY * (values[i - 1].value - minY)),
-                end = Offset(x = deltaX * i, y = startY + deltaY * (values[i].value - minY)),
-                color = color,
-                strokeWidth = strokeWidthPx,
-            )
-        }
+        /** Main Plot **/
+        grapher(this, values, deltaX, deltaY, startY, minY)
 
         /** Hover **/
         if (hoverPos.y > 0 && hoverPos.y < startY) {
@@ -191,6 +202,7 @@ fun TimeSeriesGraph(
         }
     }
 }
+
 
 
 @Preview(
