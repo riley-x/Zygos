@@ -193,6 +193,7 @@ fun ZygosApp(
                             ticksX = viewModel.chartTicksX,
                             chartRange = viewModel.chartRange,
                             onChartRangeSelected = viewModel::setChartRange,
+                            onTickerChanged = viewModel::setTicker,
                         )
                     }
                 }

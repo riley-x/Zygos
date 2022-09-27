@@ -190,7 +190,8 @@ fun <T: Named> TimeSeriesGraph(
                 end = Offset(x = endX, y = y),
                 color = axisColor,
                 pathEffect = axisPathEffect,
-                )
+                strokeWidth = 2f,
+            )
         }
 
         /** Main Plot **/
@@ -230,8 +231,7 @@ fun TimeSeriesGraphPreview() {
             ticksX = viewModel.accountPerformanceTicksX,
             minY = 0f,
             maxY = 25f,
-            xAxisLoc = viewModel.accountStartingValue,
-            modifier = Modifier.size(300.dp, 400.dp)
+            xAxisLoc = viewModel.accountStartingValue
         )
     }
 }

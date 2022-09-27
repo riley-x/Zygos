@@ -99,6 +99,8 @@ fun ChartScreen(
                 ticker = ticker.value,
                 hoverTime = hoverTime,
                 hoverValues = hoverValues,
+                onTickerChanged = onTickerChanged,
+                modifier = Modifier.padding(start = 12.dp),
             )
 
             /** Main screen with chart and details **/
@@ -120,7 +122,7 @@ fun ChartScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 4.dp)
-                            .height(300.dp)
+                            .height(400.dp)
                             .clipToBounds()
                     )
                 }

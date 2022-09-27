@@ -56,7 +56,11 @@ fun TickerSelector(
             textColor = MaterialTheme.colors.onSurface,
         ),
         placeholder = {
-            Text("ticker", style = style.copy(fontFamily = Roboto, fontSize = 22.sp))
+            Text(
+                text = "ticker",
+                style = style.copy(fontFamily = Roboto, fontSize = 22.sp),
+                modifier = Modifier.padding(start = 4.dp)
+            )
         },
         onValueChange = { if (it.length <= maxCharacters) currentText = it },
         keyboardOptions = KeyboardOptions(
