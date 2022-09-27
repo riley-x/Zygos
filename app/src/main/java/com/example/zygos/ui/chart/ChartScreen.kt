@@ -1,7 +1,5 @@
 package com.example.zygos.ui.chart
 
-import android.util.Log
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
@@ -50,28 +48,7 @@ fun ChartScreen(
             color = MaterialTheme.colors.background
         ) {
             var hoverTime by remember { mutableStateOf("") }
-//            var hoverOpen by remember { mutableStateOf("") }
-//            var hoverHigh by remember { mutableStateOf("") }
-//            var hoverLow by remember { mutableStateOf("") }
-//            var hoverClose by remember { mutableStateOf("") }
-//
-//            fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
-//                if (isHover && x >= 0 && x < data.size) {
-//                    hoverTime = data[x].name
-//                    hoverOpen = "O: " + formatDollar(data[x].open)
-//                    hoverHigh = "H: " + formatDollar(data[x].high)
-//                    hoverLow = "L: " + formatDollar(data[x].low)
-//                    hoverClose = "C: " + formatDollar(data[x].close)
-//                } else {
-//                    hoverTime = ""
-//                    hoverOpen = ""
-//                    hoverHigh = ""
-//                    hoverLow = ""
-//                    hoverClose = ""
-//                }
-//            }
-
-            var hoverText by remember { mutableStateOf("") }
+            var hoverValues by remember { mutableStateOf("") }
 
             fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
                 if (isHover && x >= 0 && x < data.size) {
@@ -81,13 +58,13 @@ fun ChartScreen(
                     val high = formatDollarNoSymbol(data[x].open)
                     val low = formatDollarNoSymbol(data[x].open)
                     val maxLength = maxOf(open.length, close.length, high.length, low.length)
-                    hoverText = "O: " + open.padStart(maxLength) +
+                    hoverValues = "O: " + open.padStart(maxLength) +
                             "  H: " + high.padStart(maxLength) +
                             "\nC: " + close.padStart(maxLength) +
                             "  L: " + low.padStart(maxLength)
                 } else {
                     hoverTime = ""
-                    hoverText = ""
+                    hoverValues = ""
                 }
             }
 
@@ -106,21 +83,9 @@ fun ChartScreen(
                             style = MaterialTheme.typography.subtitle2,
                         )
                         Text(
-                            text = hoverText,
+                            text = hoverValues,
                             style = MaterialTheme.typography.subtitle2,
                         )
-//                        Text(
-//                            text = hoverHigh,
-//                            style = MaterialTheme.typography.subtitle2,
-//                        )
-//                        Text(
-//                            text = hoverLow,
-//                            style = MaterialTheme.typography.subtitle2,
-//                        )
-//                        Text(
-//                            text = hoverClose,
-//                            style = MaterialTheme.typography.subtitle2,
-//                        )
                     }
                 }
 
