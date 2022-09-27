@@ -10,6 +10,9 @@ val Teal200 = Color(0xFF03DAC5)
 val Green500 = Color(0xFF1EB969)
 val DarkBlue900 = Color(0xFF26282F)
 
+val CandleGreen = Color(0xFF2DBF78)
+val CandleRed = Color(0xFFEF4747)
+
 val tickerColors = mapOf<String, Color>(
     "AMD" to Color(0xffed1c24),
     "MSFT" to Color(0xff00a1f1),

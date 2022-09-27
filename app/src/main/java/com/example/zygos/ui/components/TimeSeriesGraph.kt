@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.math.MathUtils.clamp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.Named
@@ -35,13 +36,14 @@ import kotlin.math.roundToInt
  *      deltaX
  *      deltaY
  *      startY
+ *      minX
  *      minY
  * Where
  *      pixX = userX * deltaX
  *      pixY = startY + deltaY * (userY - minY)
  */
 typealias TimeSeriesGrapher<T> =
-            (DrawScope, SnapshotStateList<T>, Float, Float, Float, Float) -> Unit
+            (DrawScope, SnapshotStateList<T>, Float, Float, Float, Float, Float) -> Unit
 
 
 /**
@@ -60,10 +62,12 @@ fun <T: Named> TimeSeriesGraph(
     minY: Float,
     maxY: Float,
     modifier: Modifier = Modifier,
+    minX: Float = 0f,
+    maxX: Float = values.lastIndex.toFloat(),
     xAxisLoc: Float? = null, // y value of x axis location
     labelYOffset: Dp = 8.dp, // padding left of label
     labelXOffset: Dp = 2.dp, // padding top of label
-    grapher: TimeSeriesGrapher<T> = { _, _, _, _, _, _ -> },
+    grapher: TimeSeriesGrapher<T> = { _, _, _, _, _, _, _ -> },
     onHover: (isHover: Boolean, x: Int, y: Float) -> Unit = { _, _, _ -> },
     // WARNING x, y can be out of bounds! Make sure to catch.
 ) {
@@ -94,9 +98,12 @@ fun <T: Named> TimeSeriesGraph(
     val disallowIntercept = RequestDisallowInterceptTouchEvent()
     var hoverPos by remember { mutableStateOf(Offset(-1f, -1f)) }
 
-    /** User -> pixel conversions **/
+    /** User -> pixel conversions
+     *      pixelX = 0 + deltaX * (index - minX)
+     *      pixelY = startY + deltaY * (valueY - minY)
+     */
     val endX = boxSize.width - textSize.width - labelYOffsetPx
-    val deltaX = endX / (values.size - 1)
+    val deltaX = endX / (maxX - minX)
     val startY = boxSize.height - textSize.height - labelXOffsetPx
     val deltaY = -startY / (maxY - minY)
 
@@ -110,9 +117,9 @@ fun <T: Named> TimeSeriesGraph(
                 motionEvent.action == MotionEvent.ACTION_DOWN
             ) {
                 disallowIntercept(true)
-                val userX = (motionEvent.x / deltaX).roundToInt()
+                val userX = clamp((motionEvent.x / deltaX + minX).roundToInt(), 0, values.lastIndex)
                 val userY = (motionEvent.y - startY) / deltaY + minY
-                val roundedX = userX * deltaX
+                val roundedX = (userX - minX) * deltaX
                 onHover(true, userX, userY)
                 hoverPos = Offset(roundedX, motionEvent.y)
             } else {
@@ -149,7 +156,7 @@ fun <T: Named> TimeSeriesGraph(
 
         /** X Gridlines and Axis Labels **/
         for (tick in ticksX) {
-            val x = tick.toFloat() * deltaX
+            val x = (tick.toFloat() - minX) * deltaX
             drawLine(
                 start = Offset(x = x, y = startY),
                 end = Offset(x = x, y = 0f),
@@ -183,7 +190,7 @@ fun <T: Named> TimeSeriesGraph(
         }
 
         /** Main Plot **/
-        grapher(this, values, deltaX, deltaY, startY, minY)
+        grapher(this, values, deltaX, deltaY, startY, minX, minY)
 
         /** Hover **/
         if (hoverPos.y > 0 && hoverPos.y < startY) {
