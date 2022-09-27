@@ -17,8 +17,8 @@ fun ZygosNav(
     onTabSelected: (ZygosTab) -> Unit = { },
 ) {
     BottomNavigation(
-        modifier = modifier.height(48.dp)
-        //elevation = 0.dp,
+        modifier = modifier.height(48.dp),
+        elevation = 6.dp,
     ) {
         tabs.forEach { item ->
             BottomNavigationItem(

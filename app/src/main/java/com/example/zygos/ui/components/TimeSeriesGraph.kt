@@ -42,9 +42,8 @@ fun TimeSeriesGraph(
     stroke: Dp = 2.dp,
     labelYOffset: Dp = 8.dp, // padding left of label
     labelXOffset: Dp = 2.dp, // padding top of label
-    onHover: (x: Float, y: Float) -> Unit = { _, _ -> },
-    // WARNING x, y can be out of bounds! Make sure to catch
-    // p.s. should use SideEffect instead? probs not
+    onHover: (isHover: Boolean, x: Int, y: Float) -> Unit = { _, _, _ -> },
+    // WARNING x, y can be out of bounds! Make sure to catch.
 ) {
     if (values.size < 2) return
 
@@ -69,7 +68,7 @@ fun TimeSeriesGraph(
     /** Hover vars **/
     var boxSize by remember { mutableStateOf(IntSize(10, 10)) } // 960 x 1644
     val disallowIntercept = RequestDisallowInterceptTouchEvent()
-    var hoverPos by remember { mutableStateOf(Offset(0f, 0f)) }
+    var hoverPos by remember { mutableStateOf(Offset(-1f, -1f)) }
 
     /** user -> pixel conversions **/
     val endX = boxSize.width - textSize.width - labelYOffsetPx
@@ -87,13 +86,15 @@ fun TimeSeriesGraph(
                 motionEvent.action == MotionEvent.ACTION_DOWN
             ) {
                 disallowIntercept(true)
-                val userX = motionEvent.x / deltaX
+                val userX = (motionEvent.x / deltaX).roundToInt()
                 val userY = (motionEvent.y - startY) / deltaY + minY
-                onHover(userX, userY)
-                hoverPos = Offset(motionEvent.x, motionEvent.y)
+                val roundedX = userX * deltaX
+                onHover(true, userX, userY)
+                hoverPos = Offset(roundedX, motionEvent.y)
             } else {
                 disallowIntercept(false)
-                hoverPos = Offset(0f, 0f)
+                onHover(false,0, 0f)
+                hoverPos = Offset(-1f, -1f)
             }
             true
         },
@@ -163,15 +164,13 @@ fun TimeSeriesGraph(
                 start = Offset(x = 0f, y = hoverPos.y),
                 end = Offset(x = endX, y = hoverPos.y),
                 color = color,
-                strokeWidth = 2f,
             )
         }
-        if (hoverPos.x > 0 && hoverPos.x < endX) {
+        if (hoverPos.x >= 0 && hoverPos.x <= endX) {
             drawLine(
                 start = Offset(x = hoverPos.x, y = startY),
                 end = Offset(x = hoverPos.x, y = 0f),
                 color = color,
-                strokeWidth = 2f,
             )
         }
     }

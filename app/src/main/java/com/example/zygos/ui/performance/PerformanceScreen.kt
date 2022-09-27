@@ -49,10 +49,15 @@ fun PerformanceScreen(
             var hoverX by remember { mutableStateOf("") }
             var hoverY by remember { mutableStateOf("") }
 
-            fun onGraphHover(x: Float, y: Float) {
-                val xInt = x.roundToInt()
-                hoverX = if (x > 0f && xInt < accountPerformance.size) accountPerformance[xInt].name else ""
-                hoverY = if (y > 0f && y < 25f) formatDollar(y) else "" // TODO
+            fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
+                if (isHover && x >= 0 && x < accountPerformance.size) {
+                    hoverX = accountPerformance[x].name
+                    hoverY = formatDollar(accountPerformance[x].value)
+                } else {
+                    hoverX = ""
+                    hoverY = ""
+                }
+                //hoverY = if (isHover && y > 0f && y < 25f) formatDollar(y) else ""
             }
 
             LazyColumn {

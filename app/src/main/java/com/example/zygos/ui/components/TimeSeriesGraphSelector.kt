@@ -59,7 +59,7 @@ fun CustomTextButton(
     colorBackground: Color = MaterialTheme.colors.primary,
     colorText: Color =  MaterialTheme.colors.onPrimary,
     colorBackgroundDisabled: Color = MaterialTheme.colors.background,
-    colorTextDisabled: Color = MaterialTheme.colors.onBackground,
+    colorTextDisabled: Color = MaterialTheme.colors.primary,
     onSelection: (String) -> Unit = { },
 ) {
     Surface(
