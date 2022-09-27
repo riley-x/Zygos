@@ -13,6 +13,7 @@ class TestViewModel: ViewModel() {
         private set
 
     /** PerformanceScreen **/
+    val accountStartingValue = 12f
     val accountPerformance = List(20) {
         NamedValue(it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
     }.toMutableStateList()

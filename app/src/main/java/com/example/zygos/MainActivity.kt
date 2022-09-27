@@ -132,6 +132,7 @@ fun ZygosApp(
                     composable(route = Performance.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Performance.route")
                         PerformanceScreen(
+                            accountStartingValue = viewModel.accountStartingValue,
                             accountPerformance = viewModel.accountPerformance,
                             accountPerformanceTicksX = viewModel.accountPerformanceTicksX,
                             accountPerformanceTicksY = viewModel.accountPerformanceTicksY,

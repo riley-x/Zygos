@@ -21,8 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.NamedValue
+import com.example.zygos.viewModel.TestViewModel
 import kotlin.math.roundToInt
 
 
@@ -38,6 +40,7 @@ fun TimeSeriesGraph(
     minY: Float,
     maxY: Float,
     modifier: Modifier = Modifier,
+    xAxisLoc: Float? = null, // y value of x axis location
     color: Color = MaterialTheme.colors.onSurface,
     stroke: Dp = 2.dp,
     labelYOffset: Dp = 8.dp, // padding left of label
@@ -59,8 +62,11 @@ fun TimeSeriesGraph(
     val textSize = textLayoutResult.size
 
     /** Other config vars **/
-    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-    val gridColor = color.copy(alpha = 0.3f)
+    val hoverColor = MaterialTheme.colors.onSurface
+    val gridColor = MaterialTheme.colors.onSurface.copy(alpha = 0.3f)
+    val axisColor = MaterialTheme.colors.primary
+    val gridPathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+    val axisPathEffect = PathEffect.dashPathEffect(floatArrayOf(40f, 20f), 0f)
     val strokeWidthPx = with(LocalDensity.current) { stroke.toPx() }
     val labelYOffsetPx = with(LocalDensity.current) { labelYOffset.toPx() }
     val labelXOffsetPx = with(LocalDensity.current) { labelXOffset.toPx() }
@@ -106,7 +112,7 @@ fun TimeSeriesGraph(
                 start = Offset(x = 0f, y = y),
                 end = Offset(x = endX, y = y),
                 color = gridColor,
-                pathEffect = pathEffect,
+                pathEffect = gridPathEffect,
             )
             val layoutResult: TextLayoutResult =
                 textMeasurer.measure(
@@ -130,7 +136,7 @@ fun TimeSeriesGraph(
                 start = Offset(x = x, y = startY),
                 end = Offset(x = x, y = 0f),
                 color = gridColor,
-                pathEffect = pathEffect,
+                pathEffect = gridPathEffect,
             )
             val layoutResult: TextLayoutResult =
                 textMeasurer.measure(
@@ -147,6 +153,17 @@ fun TimeSeriesGraph(
             )
         }
 
+        /** x axis **/
+        if (xAxisLoc != null) {
+            val y = startY + deltaY * (xAxisLoc - minY)
+            drawLine(
+                start = Offset(x = 0f, y = y),
+                end = Offset(x = endX, y = y),
+                color = axisColor,
+                pathEffect = axisPathEffect,
+                )
+        }
+
         /** Main line plot **/
         for (i in 1 until values.size) {
             drawLine(
@@ -159,18 +176,17 @@ fun TimeSeriesGraph(
 
         /** Hover **/
         if (hoverPos.y > 0 && hoverPos.y < startY) {
-
             drawLine(
                 start = Offset(x = 0f, y = hoverPos.y),
                 end = Offset(x = endX, y = hoverPos.y),
-                color = color,
+                color = hoverColor,
             )
         }
         if (hoverPos.x >= 0 && hoverPos.x <= endX) {
             drawLine(
                 start = Offset(x = hoverPos.x, y = startY),
                 end = Offset(x = hoverPos.x, y = 0f),
-                color = color,
+                color = hoverColor,
             )
         }
     }
@@ -183,20 +199,16 @@ fun TimeSeriesGraph(
 )
 @Composable
 fun TimeSeriesGraphPreview() {
-    val values = remember { List(20) {
-        NamedValue(it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
-    }.toMutableStateList() }
-    val ticksY = remember { mutableStateListOf(5f, 10f, 15f, 20f) }
-    val ticksX = remember { mutableStateListOf(5, 10, 15) }
-
+    val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
         TimeSeriesGraph(
-            values = values,
-            ticksY = ticksY,
-            ticksX = ticksX,
+            values = viewModel.accountPerformance,
+            ticksY = viewModel.accountPerformanceTicksY,
+            ticksX = viewModel.accountPerformanceTicksX,
             minY = 0f,
             maxY = 25f,
-            modifier = Modifier.fillMaxSize()
+            xAxisLoc = viewModel.accountStartingValue,
+            modifier = Modifier.size(300.dp, 400.dp)
         )
     }
 }

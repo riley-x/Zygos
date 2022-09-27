@@ -78,7 +78,10 @@ fun CustomTextButton(
             contentAlignment = Alignment.Center,
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
         ) {
-            Text(text)
+            Text(
+                text = text,
+                style = MaterialTheme.typography.button,
+            )
         }
     }
 }

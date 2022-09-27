@@ -20,6 +20,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun PerformanceScreen(
+    accountStartingValue: Float,
     accountPerformance: SnapshotStateList<NamedValue>,
     accountPerformanceTicksY: SnapshotStateList<Float>,
     accountPerformanceTicksX: SnapshotStateList<Int>, // index into accountPerformance
@@ -88,6 +89,7 @@ fun PerformanceScreen(
                         ticksX = accountPerformanceTicksX,
                         minY = 0f,
                         maxY = 25f,
+                        xAxisLoc = accountStartingValue,
                         onHover = ::onGraphHover,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -171,6 +173,7 @@ fun PreviewPerformanceScreen() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
         PerformanceScreen(
+            accountStartingValue = viewModel.accountStartingValue,
             accountPerformance = viewModel.accountPerformance,
             accountPerformanceTicksX = viewModel.accountPerformanceTicksX,
             accountPerformanceTicksY = viewModel.accountPerformanceTicksY,
