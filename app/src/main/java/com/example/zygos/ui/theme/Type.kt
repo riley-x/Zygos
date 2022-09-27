@@ -9,20 +9,20 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.example.zygos.R
 
-private val EczarFontFamily = FontFamily(
+val EczarFontFamily = FontFamily(
     Font(R.font.eczar_regular),
     Font(R.font.eczar_semibold, FontWeight.SemiBold)
 )
-private val RobotoCondensed = FontFamily(
+val RobotoCondensed = FontFamily(
     Font(R.font.robotocondensed_regular),
     Font(R.font.robotocondensed_light, FontWeight.Light),
     Font(R.font.robotocondensed_bold, FontWeight.Bold)
 )
-private val Roboto = FontFamily(
+val Roboto = FontFamily(
     Font(R.font.roboto_regular),
     Font(R.font.roboto_bold, FontWeight.Bold)
 )
-private val UmTypewriter = FontFamily(
+val UmTypewriter = FontFamily(
     Font(R.font.um_typewriter),
 )
 

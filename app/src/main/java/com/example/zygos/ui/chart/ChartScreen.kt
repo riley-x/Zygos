@@ -2,15 +2,13 @@ package com.example.zygos.ui.chart
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,6 +26,7 @@ fun ChartScreen(
     chartRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     modifier: Modifier = Modifier,
     onChartRangeSelected: (String) -> Unit = { },
+    onTickerChanged: (String) -> Unit = { },
 ) {
     LogCompositions("Zygos", "ChartScreen")
 
@@ -35,29 +34,31 @@ fun ChartScreen(
     // I think vertical only like Robinhood is good
     // Horizontal doesn't look that nice on narrow phones
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth(),
+    Surface(
+        modifier = Modifier
+            .recomposeHighlighter()
+            .fillMaxSize(),
+        color = MaterialTheme.colors.background
     ) {
-        // Ticker selection
 
-        Surface(
-            modifier = Modifier
-                .recomposeHighlighter()
+        Box(
+            modifier = modifier
                 .fillMaxSize(),
-            color = MaterialTheme.colors.background
         ) {
             var hoverTime by remember { mutableStateOf("") }
             var hoverValues by remember { mutableStateOf("") }
+
+            val tickerSelectorHeight = 50.dp
 
             fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
                 if (isHover && x >= 0 && x < data.size) {
                     hoverTime = data[x].name
                     val open = formatDollarNoSymbol(data[x].open)
-                    val close = formatDollarNoSymbol(data[x].open)
-                    val high = formatDollarNoSymbol(data[x].open)
-                    val low = formatDollarNoSymbol(data[x].open)
+                    val close = formatDollarNoSymbol(data[x].close)
+                    val high = formatDollarNoSymbol(data[x].high)
+                    val low = formatDollarNoSymbol(data[x].low)
                     val maxLength = maxOf(open.length, close.length, high.length, low.length)
+                    // can set a flag here to disable the hoverTime if length is too long
                     hoverValues = "O: " + open.padStart(maxLength) +
                             "  H: " + high.padStart(maxLength) +
                             "\nC: " + close.padStart(maxLength) +
@@ -68,26 +69,47 @@ fun ChartScreen(
                 }
             }
 
-            LazyColumn {
-                item("graph_hover") {
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .height(40.dp)
-                            .padding(bottom = 2.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = hoverTime,
-                            style = MaterialTheme.typography.subtitle2,
-                        )
-                        Text(
-                            text = hoverValues,
-                            style = MaterialTheme.typography.subtitle2,
-                        )
-                    }
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier
+                    .height(tickerSelectorHeight)
+                    .align(Alignment.TopStart)
+                    .fillMaxWidth()
+            ) {
+                // The weights fix the ticker selector to the first 1/3
+                TickerSelector(
+                    ticker = ticker.value,
+                    onTickerGo = onTickerChanged,
+                    modifier = Modifier
+//                        .requiredHeight(80.dp)
+//                        .height(36.dp) // compress the text onto the indicator line
+                        .weight(1f)
+                )
+
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier
+                        .weight(2f)
+                ) {
+                    Text(
+                        text = hoverTime,
+                        style = MaterialTheme.typography.subtitle2,
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        text = hoverValues,
+                        style = MaterialTheme.typography.subtitle2,
+                    )
                 }
+
+            }
+
+            LazyColumn(
+                modifier = Modifier
+                    .padding(top = tickerSelectorHeight)
+                    .align(Alignment.TopStart)
+            ) {
 
                 item("graph") {
                     val grapher = candlestickGraph()
