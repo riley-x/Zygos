@@ -24,7 +24,7 @@ fun lineGraph(
 ): TimeSeriesGrapher<NamedValue> {
     return fun(
        drawScope: DrawScope,
-       values: SnapshotStateList<NamedValue>,
+       values: List<NamedValue>,
        deltaX: Float,
        deltaY: Float,
        startY: Float,

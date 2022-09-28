@@ -39,11 +39,11 @@ import kotlin.math.roundToInt
  *      minX
  *      minY
  * Where
- *      pixX = userX * deltaX
+ *      pixX = deltaX * (userX - minX)
  *      pixY = startY + deltaY * (userY - minY)
  */
 typealias TimeSeriesGrapher<T> =
-            (DrawScope, SnapshotStateList<T>, Float, Float, Float, Float, Float) -> Unit
+            (DrawScope, List<T>, Float, Float, Float, Float, Float) -> Unit
 
 
 /**
@@ -52,6 +52,12 @@ typealias TimeSeriesGrapher<T> =
  * implement the main graph drawing with the grapher argument:
  *      TimeSeriesLineGraph
  *      TimeSeriesCandlestickGraph
+ *
+ * @param xRange        The indices from values to be read. Useful for i.e. switching time ranges
+ *                      without resetting the whole list. The range also defines the "user"
+ *                      coordinates in the x direction.
+ * @param minX,minY     The lower and upper bounds of the graph, in user coordinates
+ * @param
  */
 @OptIn(ExperimentalTextApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -62,8 +68,10 @@ fun <T: Named> TimeSeriesGraph(
     minY: Float,
     maxY: Float,
     modifier: Modifier = Modifier,
-    minX: Float = 0f,
-    maxX: Float = values.lastIndex.toFloat(),
+    xRange: IntRange = 0..values.lastIndex, // only read these
+    //
+    minX: Float = xRange.first.toFloat(), // recall that user x coordinates are simply xRange
+    maxX: Float = xRange.last.toFloat(),
     xAxisLoc: Float? = null, // y value of x axis location
     labelYOffset: Dp = 8.dp, // padding left of label
     labelXOffset: Dp = 2.dp, // padding top of label
@@ -72,7 +80,7 @@ fun <T: Named> TimeSeriesGraph(
     onPress: () -> Unit = { }, // On first press. Can be used to clear focus, for example
     // WARNING x, y can be out of bounds! Make sure to catch.
 ) {
-    if (values.size < 2) return
+    if (xRange.count() < 2) return
 
     /** Cache some text variables (note MaterialTheme is not accessible in DrawScope) **/
     val textMeasurer = rememberTextMeasurer()
@@ -97,7 +105,8 @@ fun <T: Named> TimeSeriesGraph(
     /** Hover vars **/
     var boxSize by remember { mutableStateOf(IntSize(10, 10)) } // 960 x 1644
     val disallowIntercept = RequestDisallowInterceptTouchEvent()
-    var hoverPos by remember { mutableStateOf(Offset(-1f, -1f)) }
+    var hoverXUser by remember { mutableStateOf(-1) }
+    var hoverYPx by remember { mutableStateOf(-1f) }
 
     /** User -> pixel conversions
      *      pixelX = 0 + deltaX * (index - minX)
@@ -121,15 +130,17 @@ fun <T: Named> TimeSeriesGraph(
                 motionEvent.action == MotionEvent.ACTION_DOWN
             ) {
                 disallowIntercept(true)
-                val userX = clamp((motionEvent.x / deltaX + minX).roundToInt(), 0, values.lastIndex)
+                val userXFloat = (motionEvent.x / deltaX + minX)
+                val userX = clamp((userXFloat / xRange.step).roundToInt() * xRange.step, xRange.first, xRange.last)
                 val userY = (motionEvent.y - startY) / deltaY + minY
-                val roundedX = (userX - minX) * deltaX
+                hoverXUser = userX
+                hoverYPx = motionEvent.y
                 onHover(true, userX, userY)
-                hoverPos = Offset(roundedX, motionEvent.y)
             } else {
                 disallowIntercept(false)
                 onHover(false,0, 0f)
-                hoverPos = Offset(-1f, -1f)
+                hoverXUser = -1
+                hoverYPx = -1f
             }
             true
         },
@@ -195,20 +206,23 @@ fun <T: Named> TimeSeriesGraph(
         }
 
         /** Main Plot **/
-        grapher(this, values, deltaX, deltaY, startY, minX, minY)
+        grapher(this, values.slice(xRange), deltaX, deltaY, startY, minX, minY)
 
         /** Hover **/
-        if (hoverPos.y > 0 && hoverPos.y < startY) {
+        if (hoverYPx > 0 && hoverYPx < startY) {
             drawLine(
-                start = Offset(x = 0f, y = hoverPos.y),
-                end = Offset(x = endX, y = hoverPos.y),
+                start = Offset(x = 0f, y = hoverYPx),
+                end = Offset(x = endX, y = hoverYPx),
                 color = hoverColor,
             )
         }
-        if (hoverPos.x >= 0 && hoverPos.x <= endX) {
+        if (hoverXUser in xRange) {
+            // check xRange instead of min/maxX since we don't want to hover over an empty point
+            // since hoverXUser is clamped above, could just check if >= 0
+            val x = (hoverXUser.toFloat() - minX) * deltaX
             drawLine(
-                start = Offset(x = hoverPos.x, y = startY),
-                end = Offset(x = hoverPos.x, y = 0f),
+                start = Offset(x = x, y = startY),
+                end = Offset(x = x, y = 0f),
                 color = hoverColor,
             )
         }

@@ -6,21 +6,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.example.zygos.data.readAccounts
 import com.example.zygos.data.writeAccounts
+import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
+import kotlinx.coroutines.delay
 import java.io.File
 
 
 
 class ZygosViewModel : ViewModel() {
 
+    /** Account state **/
     val accounts = mutableStateListOf(noAccountMessage)
     //val accounts: List<String> = _accounts // Warning: these backing vals seem to ruin smart recomposition
 
     var currentAccount by mutableStateOf(accounts[0])
         private set
 
+    // Sets the current account to display, loading the data elements into the ui state variables
     fun setAccount(account: String) {
         if (currentAccount == account) return
         // TODO
@@ -28,7 +32,7 @@ class ZygosViewModel : ViewModel() {
     }
 
     /** PerformanceScreen **/
-    val accountStartingValue = 12f
+    val accountStartingValue by mutableStateOf(12f)
     val accountPerformance = List(20) {
         NamedValue(it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
     }.toMutableStateList()
@@ -172,33 +176,43 @@ class ZygosViewModel : ViewModel() {
         chartRange.value = range
     }
 
-    /** Main startup sequence that loads all data! **/
+    /** Main startup sequence that loads all data!
+     * This should be called from a LaunchedEffect(Unit). UI will update as each state variable
+     * gets updated.
+     */
     fun startup(
         localFileDir: File,
     ) {
-        Log.d("ZygosViewModel/startup", localFileDir.absolutePath)
+        Log.d("Zygos/ZygosViewModel/startup", localFileDir.absolutePath)
         val accs = readAccounts(localFileDir)
-        if (accs.isNotEmpty()) {
-            accounts.clear()
-            accounts.addAll(accs)
-            accounts.add("All Accounts")
+        if (accs.isEmpty()) {
+            return // Initial values are set for empty data already
         }
+
+        accounts.clear()
+        accounts.addAll(accs)
+        accounts.add(allAccounts)
+
+        // Load all data into persistent memory?
+
+        setAccount(allAccounts)
     }
 
     fun addAccount(localFileDir: File, account: String) {
-        if (accounts.last() == "All Accounts") {
+        if (accounts.last() == allAccounts) {
             accounts.add(accounts.lastIndex, account)
             writeAccounts(localFileDir, accounts.dropLast(1))
+            setAccount(account)
         }
-        else if (accounts[0] == noAccountMessage) {
+        else if (accounts[0] == noAccountMessage || accounts.isEmpty()) {
             accounts.clear()
             accounts.add(account)
             writeAccounts(localFileDir, accounts)
-            accounts.add("All Accounts")
+            accounts.add(allAccounts)
+            setAccount(account)
         } else {
-            Log.w("ZygosViewModel/addAccount", "Accounts wack: $accounts")
+            Log.w("Zygos/ZygosViewModel/addAccount", "Accounts wack: $accounts")
         }
-        setAccount(account)
     }
 
 

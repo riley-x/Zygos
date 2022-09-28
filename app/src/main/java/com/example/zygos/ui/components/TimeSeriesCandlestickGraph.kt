@@ -29,7 +29,7 @@ fun candlestickGraph(
 ): TimeSeriesGrapher<Ohlc> {
     return fun(
         drawScope: DrawScope,
-        values: SnapshotStateList<Ohlc>,
+        values: List<Ohlc>,
         deltaX: Float,
         deltaY: Float,
         startY: Float,

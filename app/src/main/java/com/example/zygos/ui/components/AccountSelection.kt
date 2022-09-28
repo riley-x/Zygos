@@ -16,6 +16,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 
 
 const val noAccountMessage = "No Accounts"
+const val allAccounts = "All Accounts"
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -73,7 +74,7 @@ fun AccountSelection(
                     }
                 ) {
                     accounts.forEach { account ->
-                        if (account == "All Accounts") {
+                        if (account == allAccounts) {
                             Divider(
                                 color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                                 thickness = 1.dp,
