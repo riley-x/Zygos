@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,10 +20,7 @@ import androidx.navigation.compose.*
 import com.example.zygos.viewModel.Position
 import com.example.zygos.ui.*
 import com.example.zygos.ui.chart.ChartScreen
-import com.example.zygos.ui.components.AccountSelection
-import com.example.zygos.ui.components.LogCompositions
-import com.example.zygos.ui.components.listOptionsSheet
-import com.example.zygos.ui.components.recomposeHighlighter
+import com.example.zygos.ui.components.*
 import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
@@ -52,6 +50,11 @@ fun ZygosApp(
     ZygosTheme {
         LogCompositions("Zygos", "ZygosApp")
 
+        val fileDir = LocalContext.current.filesDir
+        LaunchedEffect(Unit) {
+            viewModel.startup(fileDir)
+        }
+
         /** Get the coroutine scope for the entire app **/
         val appScope = rememberCoroutineScope()
 
@@ -62,6 +65,9 @@ fun ZygosApp(
         val currentTab = zygosTabs.drop(1).find { tab ->
             currentDestination?.hierarchy?.any { it.route == tab.graph || it.route == tab.route } == true
         } ?: zygosTabs[0]
+
+        /** Dialog state **/
+        var openAddAccountDialog by remember { mutableStateOf(false) }
 
         /** ModalBottomSheetLayout state **/
         var listOptionsSheetVersion by remember { mutableStateOf("") }
@@ -93,6 +99,15 @@ fun ZygosApp(
         fun onWatchlistOptionsShow() = appScope.launch {
             listOptionsSheetVersion = "watchlist"
             listOptionsSheetState.show()
+        }
+        fun onAddAccountClick() {
+            openAddAccountDialog = true
+        }
+        fun onAddAccount(account: String) {
+            openAddAccountDialog = false
+            if (account.isNotBlank()) {
+                viewModel.addAccount(fileDir, account)
+            }
         }
         fun onHoldingsPositionSelected(pos: Position) = navController.navigateToPosition(pos)
         fun onTickerSelected(ticker: String) {
@@ -147,6 +162,7 @@ fun ZygosApp(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
                                     onAccountSelected = viewModel::setAccount,
+                                    onAddAccount = ::onAddAccountClick,
                                     modifier = Modifier.topBar(),
                                 )
                             },
@@ -167,6 +183,7 @@ fun ZygosApp(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
                                     onAccountSelected = viewModel::setAccount,
+                                    onAddAccount = ::onAddAccountClick,
                                     modifier = Modifier.topBar(),
                                 )
                             },
@@ -232,8 +249,14 @@ fun ZygosApp(
                 listOptionsSheetIsClosing = false
             }
         }
+        if (openAddAccountDialog) {
+            AddAccountDialog(
+                onDismiss = ::onAddAccount
+            )
+        }
     }
 }
+
 
 
 fun Modifier.topBar(): Modifier {

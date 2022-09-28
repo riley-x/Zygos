@@ -4,11 +4,18 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import com.example.zygos.data.readAccounts
+import com.example.zygos.data.writeAccounts
+import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
+import java.io.File
+
+
 
 class ZygosViewModel : ViewModel() {
-    val accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
+
+    val accounts = mutableStateListOf(noAccountMessage)
     //val accounts: List<String> = _accounts // Warning: these backing vals seem to ruin smart recomposition
 
     var currentAccount by mutableStateOf(accounts[0])
@@ -164,5 +171,37 @@ class ZygosViewModel : ViewModel() {
     fun setChartRange(range: String) {
         chartRange.value = range
     }
+
+    /** Main startup sequence that loads all data! **/
+    fun startup(
+        localFileDir: File,
+    ) {
+        Log.d("ZygosViewModel/startup", localFileDir.absolutePath)
+        val accs = readAccounts(localFileDir)
+        if (accs.isNotEmpty()) {
+            accounts.clear()
+            accounts.addAll(accs)
+            accounts.add("All Accounts")
+        }
+    }
+
+    fun addAccount(localFileDir: File, account: String) {
+        if (accounts.last() == "All Accounts") {
+            accounts.add(accounts.lastIndex, account)
+            writeAccounts(localFileDir, accounts.dropLast(1))
+        }
+        else if (accounts[0] == noAccountMessage) {
+            accounts.clear()
+            accounts.add(account)
+            writeAccounts(localFileDir, accounts)
+            accounts.add("All Accounts")
+        } else {
+            Log.w("ZygosViewModel/addAccount", "Accounts wack: $accounts")
+        }
+        setAccount(account)
+    }
+
+
+
 
 }

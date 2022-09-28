@@ -51,7 +51,7 @@ val Typography = Typography(
         fontSize = 34.sp,
         fontFamily = Roboto,
     ),
-    // Option menu title
+    // Option menu title, add account
     h5 = TextStyle(
         fontWeight = FontWeight.W500,
         fontSize = 22.sp,
