@@ -45,9 +45,9 @@ typealias TimeSeriesGrapher<T> = (
 
 
 /**
- * Plots a graph where the x axis has discrete values. This is an "abstract"
- * class that handles the grid, axes, labels, and callbacks. Users should
- * implement the main graph drawing with the grapher argument:
+ * Plots a graph where the x axis has discrete values. This is an "abstract" class that handles the
+ * grid, axes, labels, hover, and callbacks. Users should implement the main graph drawing with one
+ * of the following in the grapher argument:
  *      TimeSeriesLineGraph
  *      TimeSeriesCandlestickGraph
  *
@@ -70,7 +70,7 @@ typealias TimeSeriesGrapher<T> = (
 @OptIn(ExperimentalTextApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun <T: Named> TimeSeriesGraph(
-    values: SnapshotStateList<T>,
+    values: SnapshotStateList<T>, // Really just need the x value names
     ticksY: SnapshotStateList<Float>,
     ticksX: SnapshotStateList<Int>, // index into values
     minY: Float,
