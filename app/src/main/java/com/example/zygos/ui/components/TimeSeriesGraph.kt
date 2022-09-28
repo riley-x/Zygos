@@ -2,7 +2,6 @@ package com.example.zygos.ui.components
 
 import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.*
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
@@ -10,7 +9,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.RequestDisallowInterceptTouchEvent
@@ -26,24 +24,24 @@ import androidx.core.math.MathUtils.clamp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.Named
-import com.example.zygos.viewModel.NamedValue
 import com.example.zygos.viewModel.TestViewModel
 import kotlin.math.roundToInt
 
 
 /**
- * The floats are:
- *      deltaX
- *      deltaY
- *      startY
- *      minX
- *      minY
  * Where
  *      pixX = deltaX * (userX - minX)
  *      pixY = startY + deltaY * (userY - minY)
  */
-typealias TimeSeriesGrapher<T> =
-            (DrawScope, List<T>, Float, Float, Float, Float, Float) -> Unit
+typealias TimeSeriesGrapher<T> = (
+    drawScope: DrawScope,
+    values: List<T>,
+    deltaX: Float,
+    deltaY: Float,
+    startY: Float,
+    minX: Float,
+    minY: Float
+) -> Unit
 
 
 /**
@@ -53,11 +51,21 @@ typealias TimeSeriesGrapher<T> =
  *      TimeSeriesLineGraph
  *      TimeSeriesCandlestickGraph
  *
- * @param xRange        The indices from values to be read. Useful for i.e. switching time ranges
- *                      without resetting the whole list. The range also defines the "user"
- *                      coordinates in the x direction.
- * @param minX,minY     The lower and upper bounds of the graph, in user coordinates
- * @param
+ * @param grapher           The main graphing function. It should call draw functions on the
+ *                          passed drawScope parameter.
+ *
+ * @param xRange            The indices from values to be read. Useful for i.e. switching time ranges
+ *                          without resetting the whole list. The range also defines the "user"
+ *                          coordinates in the x direction.
+ * @param minX,maxX,minY,maxY
+ *                          The lower and upper x/y bounds of the graph, in user coordinates
+ * @param xAxisLoc          User y location to draw the x axis, or null for no axis
+ * @param labelYStartPad    Padding to the left of the y tick labels
+ * @param labelXTopPad      Padding above the x tick labels
+ *
+ * @param onPress           Callback on first press down. Can be used to clear focus, for example
+ * @param onHover           Callback for when the hover position changes. WARNING x, y can be out of
+ *                          bounds! Make sure to catch.
  */
 @OptIn(ExperimentalTextApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -68,17 +76,15 @@ fun <T: Named> TimeSeriesGraph(
     minY: Float,
     maxY: Float,
     modifier: Modifier = Modifier,
-    xRange: IntRange = 0..values.lastIndex, // only read these
-    //
+    xRange: IntRange = 0..values.lastIndex,
     minX: Float = xRange.first.toFloat(), // recall that user x coordinates are simply xRange
     maxX: Float = xRange.last.toFloat(),
     xAxisLoc: Float? = null, // y value of x axis location
-    labelYOffset: Dp = 8.dp, // padding left of label
-    labelXOffset: Dp = 2.dp, // padding top of label
+    labelYStartPad: Dp = 8.dp, // padding left of label
+    labelXTopPad: Dp = 2.dp, // padding top of label
     grapher: TimeSeriesGrapher<T> = { _, _, _, _, _, _, _ -> },
     onHover: (isHover: Boolean, x: Int, y: Float) -> Unit = { _, _, _ -> },
-    onPress: () -> Unit = { }, // On first press. Can be used to clear focus, for example
-    // WARNING x, y can be out of bounds! Make sure to catch.
+    onPress: () -> Unit = { },
 ) {
     if (xRange.count() < 2) return
 
@@ -99,8 +105,8 @@ fun <T: Named> TimeSeriesGraph(
     val axisColor = MaterialTheme.colors.primary
     val gridPathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
     val axisPathEffect = PathEffect.dashPathEffect(floatArrayOf(40f, 20f), 0f)
-    val labelYOffsetPx = with(LocalDensity.current) { labelYOffset.toPx() }
-    val labelXOffsetPx = with(LocalDensity.current) { labelXOffset.toPx() }
+    val labelYOffsetPx = with(LocalDensity.current) { labelYStartPad.toPx() }
+    val labelXOffsetPx = with(LocalDensity.current) { labelXTopPad.toPx() }
 
     /** Hover vars **/
     var boxSize by remember { mutableStateOf(IntSize(10, 10)) } // 960 x 1644
