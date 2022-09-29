@@ -219,27 +219,27 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
 
-            Log.i("ZygosViewModel/startup", "nLots: ${lotDao.count()}")
+//            Log.i("ZygosViewModel/startup", "nLots: ${lotDao.count()}")
 
-            lotDao.addLot(
-                Lot(
-                    id = 0,
-                    account = "Robinhood",
-                    ticker = "MSFT",
-                    note = "",
-                    type = LotType.STOCK,
-                    shares = 5,
-                    date = 20220928,
-                    expiration = 0,
-                    price = 2000000,
-                    extrinsic = 0,
-                    strike = 0,
-                    dividends = 100000,
-                    fees = 0
-                )
-            )
+//            lotDao.addLot(
+//                Lot(
+//                    id = 0,
+//                    account = "Robinhood",
+//                    ticker = "MSFT",
+//                    note = "",
+//                    type = LotType.STOCK,
+//                    shares = 5,
+//                    date = 20220928,
+//                    expiration = 0,
+//                    price = 2000000,
+//                    extrinsic = 0,
+//                    strike = 0,
+//                    dividends = 100000,
+//                    fees = 0
+//                )
+//            )
 
-            Log.i("ZygosViewModel/startup", "nLots: ${lotDao.count()}")
+//            Log.i("ZygosViewModel/startup", "nLots: ${lotDao.count()}")
         }
 
         // Load all data into persistent memory?

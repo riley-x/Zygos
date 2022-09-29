@@ -4,41 +4,32 @@ import android.content.Context
 import androidx.annotation.NonNull
 import androidx.room.*
 
-
-enum class LotType {
-    STOCK, CALL_LONG, CALL_SHORT, PUT_LONG, PUT_SHORT, BOND
+enum class TransactionType {
+    TRANSFER, INTEREST, DIVIDEND, STOCK, CALL_LONG, CALL_SHORT, PUT_LONG, PUT_SHORT, BOND,
+    SPLIT, SPINOFF,
 }
 
 
 /**
  * All integer dollar values are 1/100th of a cent, and dates are in YYYYMMDD format
  */
-@Entity(
-    tableName = "lot",
-    foreignKeys = arrayOf(
-        ForeignKey(
-            entity = Transaction::class,
-            parentColumns = arrayOf("id"),
-            childColumns = arrayOf("transaction"),
-            onDelete = ForeignKey.CASCADE
-        )
-    )
-)
-data class Lot(
+@Entity(tableName = "lot")
+data class Transaction(
     @PrimaryKey(autoGenerate = true) val id: Int = 0, // 0 to auto generate a key
-    @ColumnInfo(index = true) val transaction: Int,
 
     /** Common info **/
     @NonNull val account: String,
     @NonNull val ticker: String,
     @NonNull val note: String,
+    val open: Boolean,
     val type: LotType,
     val shares: Int, // should be multiple of 100 for options
     val date: Int,
     val price: Int, // price to track gain/loss, not the actual value of trade
     val basis: Int, // usually the value of the trade net fees, but can be adjusted from washes
     val fees: Int, // fees associated with opening this position
-    val open: Int,
+
+    val transactionId: Int, // the transaction that created this lot
 
     /** Stock fields **/
     val dividends: Int = 0, // per share
@@ -51,31 +42,24 @@ data class Lot(
 
 
 @Dao
-interface LotDao {
-    @Insert
-    fun addLot(lot: Lot)
+interface TransactionDao {
 
-    @Query("SELECT * FROM lot ORDER BY date DESC")
-    fun getAll(): List<Lot>
-
-    @Query("SELECT COUNT(*) FROM lot")
-    fun count(): Int
 }
 
 
-@Database(entities = [Lot::class], version = 1)
-abstract class LotDatabase : RoomDatabase() {
-    abstract fun lotDao(): LotDao
+@Database(entities = [Transaction::class], version = 1)
+abstract class TransactionDatabase : RoomDatabase() {
+    abstract fun transactionDao(): TransactionDao
 
     companion object {
         @Volatile
-        private var INSTANCE: LotDatabase? = null
+        private var INSTANCE: TransactionDatabase? = null
 
-        fun getDatabase(context: Context): LotDatabase {
+        fun getDatabase(context: Context): TransactionDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context,
-                    LotDatabase::class.java,
+                    TransactionDatabase::class.java,
                     "app_database"
                 )
 //                    .createFromAsset("database/main.db")

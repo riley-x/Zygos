@@ -20,6 +20,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.zygos.data.LotDatabase
+import com.example.zygos.data.TransactionDatabase
 import com.example.zygos.ui.*
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.*
@@ -36,6 +37,7 @@ import kotlinx.coroutines.launch
 
 class ZygosApplication : Application() {
     val lotDatabase: LotDatabase by lazy { LotDatabase.getDatabase(this) }
+    val transactionDatabase: TransactionDatabase by lazy { TransactionDatabase.getDatabase(this) }
 }
 
 

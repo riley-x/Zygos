@@ -2,21 +2,15 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d591add5b91f3b9785898394a0d02424",
+    "identityHash": "03d0b461abec9240052942c62ed62f7a",
     "entities": [
       {
         "tableName": "lot",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `transaction` INTEGER NOT NULL, `account` TEXT NOT NULL, `ticker` TEXT NOT NULL, `note` TEXT NOT NULL, `type` TEXT NOT NULL, `shares` INTEGER NOT NULL, `date` INTEGER NOT NULL, `price` INTEGER NOT NULL, `basis` INTEGER NOT NULL, `fees` INTEGER NOT NULL, `open` INTEGER NOT NULL, `dividends` INTEGER NOT NULL, `expiration` INTEGER NOT NULL, `strike` INTEGER NOT NULL, `priceUnderlying` INTEGER NOT NULL, FOREIGN KEY(`transaction`) REFERENCES `lot`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `account` TEXT NOT NULL, `ticker` TEXT NOT NULL, `note` TEXT NOT NULL, `open` INTEGER NOT NULL, `type` TEXT NOT NULL, `shares` INTEGER NOT NULL, `date` INTEGER NOT NULL, `price` INTEGER NOT NULL, `basis` INTEGER NOT NULL, `fees` INTEGER NOT NULL, `transactionId` INTEGER NOT NULL, `dividends` INTEGER NOT NULL, `expiration` INTEGER NOT NULL, `strike` INTEGER NOT NULL, `priceUnderlying` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "transaction",
-            "columnName": "transaction",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -36,6 +30,12 @@
             "fieldPath": "note",
             "columnName": "note",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "open",
+            "columnName": "open",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -75,8 +75,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "open",
-            "columnName": "open",
+            "fieldPath": "transactionId",
+            "columnName": "transactionId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -111,36 +111,14 @@
           ],
           "autoGenerate": true
         },
-        "indices": [
-          {
-            "name": "index_lot_transaction",
-            "unique": false,
-            "columnNames": [
-              "transaction"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_lot_transaction` ON `${TABLE_NAME}` (`transaction`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "lot",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "transaction"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd591add5b91f3b9785898394a0d02424')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '03d0b461abec9240052942c62ed62f7a')"
     ]
   }
 }
