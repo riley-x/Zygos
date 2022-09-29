@@ -1,9 +1,11 @@
 package com.example.zygos
 
+import android.app.Application
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -17,7 +19,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.example.zygos.viewModel.Position
+import com.example.zygos.data.LotDatabase
 import com.example.zygos.ui.*
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.*
@@ -26,21 +28,32 @@ import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.positionDetails.PositionDetailsScreen
-import com.example.zygos.viewModel.watchlistDisplayOptions
-import com.example.zygos.viewModel.watchlistSortOptions
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionsScreen
-import com.example.zygos.viewModel.ZygosViewModel
+import com.example.zygos.viewModel.*
 import kotlinx.coroutines.launch
+
+
+class ZygosApplication : Application() {
+    val lotDatabase: LotDatabase by lazy { LotDatabase.getDatabase(this) }
+}
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val viewModel: ZygosViewModel by viewModels {
+            ZygosViewModelFactory(application as ZygosApplication)
+        }
+
         setContent {
-            ZygosApp()
+            ZygosApp(viewModel)
         }
     }
 }
+
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -50,7 +63,8 @@ fun ZygosApp(
     ZygosTheme {
         LogCompositions("Zygos", "ZygosApp")
 
-        val fileDir = LocalContext.current.filesDir
+        val context = LocalContext.current
+        val fileDir = context.filesDir
         LaunchedEffect(Unit) {
             viewModel.startup(fileDir)
         }

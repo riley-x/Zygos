@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.zygos.ZygosApplication
+import com.example.zygos.data.LotDao
 import com.example.zygos.data.readAccounts
 import com.example.zygos.data.writeAccounts
 import com.example.zygos.ui.components.allAccounts
@@ -14,8 +17,24 @@ import kotlinx.coroutines.delay
 import java.io.File
 
 
+class ZygosViewModelFactory(
+    private val application: ZygosApplication
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ZygosViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ZygosViewModel(application) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 
-class ZygosViewModel : ViewModel() {
+
+
+class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
+
+    /** DAOs **/
+    val lotDao = application.lotDatabase.lotDao()
 
     /** Account state **/
     val accounts = mutableStateListOf(noAccountMessage)
