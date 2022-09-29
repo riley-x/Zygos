@@ -199,9 +199,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
      * This should be called from a LaunchedEffect(Unit). UI will update as each state variable
      * gets updated.
      */
-    fun startup(
-        localFileDir: File,
-    ) {
+    fun startup() {
+        val localFileDir = application.filesDir ?: return
         Log.d("Zygos/ZygosViewModel/startup", localFileDir.absolutePath)
         val accs = readAccounts(localFileDir)
         if (accs.isEmpty()) {
@@ -217,7 +216,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         setAccount(allAccounts)
     }
 
-    fun addAccount(localFileDir: File, account: String) {
+    fun addAccount(account: String) {
+        val localFileDir = application.filesDir ?: return
         if (accounts.last() == allAccounts) {
             accounts.add(accounts.lastIndex, account)
             writeAccounts(localFileDir, accounts.dropLast(1))

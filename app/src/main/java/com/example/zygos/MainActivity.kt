@@ -63,10 +63,9 @@ fun ZygosApp(
     ZygosTheme {
         LogCompositions("Zygos", "ZygosApp")
 
-        val context = LocalContext.current
-        val fileDir = context.filesDir
+//        val context = LocalContext.current.filesDir
         LaunchedEffect(Unit) {
-            viewModel.startup(fileDir)
+            viewModel.startup()
         }
 
         /** Get the coroutine scope for the entire app **/
@@ -120,7 +119,7 @@ fun ZygosApp(
         fun onAddAccount(account: String) {
             openAddAccountDialog = false
             if (account.isNotBlank()) {
-                viewModel.addAccount(fileDir, account)
+                viewModel.addAccount(account)
             }
         }
         fun onHoldingsPositionSelected(pos: Position) = navController.navigateToPosition(pos)
