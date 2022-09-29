@@ -5,15 +5,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
-import com.example.zygos.data.LotDao
-import com.example.zygos.data.readAccounts
-import com.example.zygos.data.writeAccounts
+import com.example.zygos.data.*
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 
 
@@ -34,7 +35,7 @@ class ZygosViewModelFactory(
 class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     /** DAOs **/
-    val lotDao = application.lotDatabase.lotDao()
+    private val lotDao = application.lotDatabase.lotDao()
 
     /** Account state **/
     val accounts = mutableStateListOf(noAccountMessage)
@@ -195,6 +196,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         chartRange.value = range
     }
 
+
+
     /** Main startup sequence that loads all data!
      * This should be called from a LaunchedEffect(Unit). UI will update as each state variable
      * gets updated.
@@ -210,6 +213,34 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         accounts.clear()
         accounts.addAll(accs)
         accounts.add(allAccounts)
+
+        Log.i("ZygosViewModel/startup", application.getDatabasePath("app_database").absolutePath)
+        // /data/user/0/com.example.zygos/databases/app_database
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            Log.i("ZygosViewModel/startup", "nLots: ${lotDao.count()}")
+
+            lotDao.addLot(
+                Lot(
+                    id = 0,
+                    account = "Robinhood",
+                    ticker = "MSFT",
+                    note = "",
+                    type = LotType.STOCK,
+                    shares = 5,
+                    date = 20220928,
+                    expiration = 0,
+                    price = 2000000,
+                    extrinsic = 0,
+                    strike = 0,
+                    dividends = 100000,
+                    fees = 0
+                )
+            )
+
+            Log.i("ZygosViewModel/startup", "nLots: ${lotDao.count()}")
+        }
 
         // Load all data into persistent memory?
 

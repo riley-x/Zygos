@@ -33,8 +33,14 @@ data class Lot(
 
 @Dao
 interface LotDao {
+    @Insert
+    fun addLot(lot: Lot)
+
     @Query("SELECT * FROM lot ORDER BY date DESC")
     fun getAll(): List<Lot>
+
+    @Query("SELECT COUNT(*) FROM lot")
+    fun count(): Int
 }
 
 
@@ -53,7 +59,7 @@ abstract class LotDatabase : RoomDatabase() {
                     LotDatabase::class.java,
                     "app_database"
                 )
-                    .createFromAsset("database/main.db")
+//                    .createFromAsset("database/main.db")
                     .build()
                 INSTANCE = instance
 
