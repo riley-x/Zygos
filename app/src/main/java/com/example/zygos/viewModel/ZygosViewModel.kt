@@ -1,5 +1,6 @@
 package com.example.zygos.viewModel
 
+import android.icu.util.Calendar
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
@@ -9,13 +10,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
 import com.example.zygos.ui.components.allAccounts
+import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.File
+
+
+const val performanceGraphYPad = 0.1f // fractional padding for each top/bottom
 
 
 class ZygosViewModelFactory(
@@ -47,16 +50,55 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
 
     /** PerformanceScreen **/
-    val accountStartingValue by mutableStateOf(12f)
-    val accountPerformance = List(20) {
-        NamedValue(it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
-    }.toMutableStateList()
-    val accountPerformanceTicksY = mutableStateListOf(5f, 10f, 15f, 20f)
-    val accountPerformanceTicksX = mutableStateListOf(5, 10, 15)
-    val accountPerformanceRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
+    var accountStartingValue by mutableStateOf(0f)
+    val accountPerformance = mutableStateListOf<TimeSeries>()
+    var accountPerformanceXRange by mutableStateOf(0..0)
+    var accountPerformanceMinY by mutableStateOf(0f)
+    var accountPerformanceMaxY by mutableStateOf(100f)
+    val accountPerformanceTicksY = mutableStateListOf<Float>()
+    val accountPerformanceTicksX = mutableStateListOf<Int>()
+    val accountPerformanceTimeRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
 
-    fun setPerformanceRange(range: String) {
-        accountPerformanceRange.value = range
+    fun updateAccountPerformanceRange(range: String) {
+        if (accountPerformanceTimeRange.value != range)
+            setAccountPerformanceRange(range)
+    }
+    private fun setAccountPerformanceRange(range: String) {
+        // don't check if time range is the same, since this is called in statup too. Use update instead
+        accountPerformanceTimeRange.value = range
+        if (accountPerformance.isEmpty()) return
+
+        accountPerformanceMinY = -1000f
+        accountPerformanceMaxY = 10000f
+        accountPerformanceXRange = 0..accountPerformance.lastIndex
+
+        /** Set the y min/max and xrange of the performance plot **/
+        var yMin = accountPerformance.last().value
+        var yMax = accountPerformance.last().value
+        var startIndex = 0
+        val startDate = if (range == "All") 0 else {
+            val cal = Calendar.getInstance()
+            when (range) {
+                "1m" -> cal.add(Calendar.MONTH, -1)
+                "3m" -> cal.add(Calendar.MONTH, -3)
+                "1y" -> cal.add(Calendar.YEAR, -1)
+                "5y" -> cal.add(Calendar.YEAR, -5)
+            }
+            cal.toIntDate()
+        }
+        for (i in accountPerformance.lastIndex downTo 0) {
+            val x = accountPerformance[i]
+            if (x.date < startDate) {
+                startIndex = i + 1
+                break
+            }
+            if (x.value < yMin) yMin = x.value
+            if (x.value > yMax) yMax = x.value
+        }
+        val pad = (yMax - yMin) * performanceGraphYPad
+        accountPerformanceMinY = yMin - pad
+        accountPerformanceMaxY = yMax + pad
+        accountPerformanceXRange = startIndex..accountPerformance.lastIndex
     }
 
     val watchlist = mutableStateListOf(
@@ -254,6 +296,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             } else {
                 transactions.addAll(transactionDao.getAll())
             }
+
+            accountPerformance.clear()
+            accountPerformance.addAll(equityHistoryDao.getAccount(currentAccount).map() {
+                TimeSeries(it.returns / 10000f, it.date, formatDateInt(it.date))
+            })
+            setAccountPerformanceRange(accountPerformanceTimeRange.value)
         }
     }
 

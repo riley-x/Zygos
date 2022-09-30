@@ -9,22 +9,23 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.*
-import kotlin.math.roundToInt
 
 @Composable
 fun PerformanceScreen(
     accountStartingValue: Float,
-    accountPerformance: SnapshotStateList<NamedValue>,
+    accountPerformance: SnapshotStateList<TimeSeries>,
+    accountPerformanceXRange: IntRange,
+    accountPerformanceMinY: Float,
+    accountPerformanceMaxY: Float,
     accountPerformanceTicksY: SnapshotStateList<Float>,
     accountPerformanceTicksX: SnapshotStateList<Int>, // index into accountPerformance
-    accountPerformanceRange: State<String>, // must pass state here for button group to calculate derivedStateOf
+    accountPerformanceTimeRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     watchlist: SnapshotStateList<Quote>,
     watchlistDisplayOption: String,
     modifier: Modifier = Modifier,
@@ -83,21 +84,39 @@ fun PerformanceScreen(
                 }
 
                 item("graph") {
-                    val grapher = lineGraph()
-                    TimeSeriesGraph(
-                        grapher = grapher,
-                        values = accountPerformance,
-                        ticksY = accountPerformanceTicksY,
-                        ticksX = accountPerformanceTicksX,
-                        minY = 0f,
-                        maxY = 25f,
-                        xAxisLoc = accountStartingValue,
-                        onHover = ::onGraphHover,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 4.dp)
-                            .height(300.dp)
-                    )
+                    if (accountPerformance.size < 2) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp)
+                                .height(300.dp)
+                        ) {
+                            Text(
+                                text = "No data!",
+                                style = MaterialTheme.typography.h5,
+                                color = MaterialTheme.colors.error,
+                            )
+                        }
+                    }
+                    else {
+                        val grapher = lineGraph<TimeSeries>()
+                        TimeSeriesGraph(
+                            grapher = grapher,
+                            values = accountPerformance,
+                            ticksY = accountPerformanceTicksY,
+                            ticksX = accountPerformanceTicksX,
+                            xRange = accountPerformanceXRange,
+                            minY = accountPerformanceMinY,
+                            maxY = accountPerformanceMaxY,
+                            xAxisLoc = accountStartingValue,
+                            onHover = ::onGraphHover,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 4.dp)
+                                .height(300.dp)
+                        )
+                    }
                 }
 
                 item("divider1") {
@@ -112,7 +131,7 @@ fun PerformanceScreen(
                 item("graph_selector") {
                     TimeSeriesGraphSelector(
                         options = accountPerformanceRangeOptions,
-                        currentSelection = accountPerformanceRange,
+                        currentSelection = accountPerformanceTimeRange,
                         onSelection = onAccountPerformanceRangeSelected,
                         modifier = Modifier
                             .padding(horizontal = 12.dp)
@@ -177,9 +196,12 @@ fun PreviewPerformanceScreen() {
         PerformanceScreen(
             accountStartingValue = viewModel.accountStartingValue,
             accountPerformance = viewModel.accountPerformance,
+            accountPerformanceXRange = viewModel.accountPerformanceXRange,
+            accountPerformanceMinY = viewModel.accountPerformanceMinY,
+            accountPerformanceMaxY = viewModel.accountPerformanceMaxY,
             accountPerformanceTicksX = viewModel.accountPerformanceTicksX,
             accountPerformanceTicksY = viewModel.accountPerformanceTicksY,
-            accountPerformanceRange = viewModel.accountPerformanceRange,
+            accountPerformanceTimeRange = viewModel.accountPerformanceTimeRange,
             watchlist = viewModel.watchlist,
             watchlistDisplayOption = viewModel.watchlistDisplayOption,
         )

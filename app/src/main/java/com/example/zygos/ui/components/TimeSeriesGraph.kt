@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.math.MathUtils.clamp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.Named
+import com.example.zygos.viewModel.HasName
 import com.example.zygos.viewModel.TestViewModel
 import kotlin.math.roundToInt
 
@@ -69,7 +69,7 @@ typealias TimeSeriesGrapher<T> = (
  */
 @OptIn(ExperimentalTextApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun <T: Named> TimeSeriesGraph(
+fun <T: HasName> TimeSeriesGraph(
     values: SnapshotStateList<T>, // Really just need the x value names
     ticksY: SnapshotStateList<Float>,
     ticksX: SnapshotStateList<Int>, // index into values
@@ -86,18 +86,28 @@ fun <T: Named> TimeSeriesGraph(
     onHover: (isHover: Boolean, x: Int, y: Float) -> Unit = { _, _, _ -> },
     onPress: () -> Unit = { },
 ) {
-    if (xRange.count() < 2) return
+    if (values.size < 2 || xRange.count() < 2) return
 
     /** Cache some text variables (note MaterialTheme is not accessible in DrawScope) **/
     val textMeasurer = rememberTextMeasurer()
     val textStyle = MaterialTheme.typography.subtitle2
     val textColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
-    val textLayoutResult: TextLayoutResult =
-        textMeasurer.measure( // Use the last y tick (~widest value) to estimate text extent
-            text = AnnotatedString("${ticksY.last().roundToInt()}"),
-            style = textStyle,
-        )
-    val textSize = textLayoutResult.size
+    val labelYWidth = if (ticksY.isEmpty()) 0 else {
+        val textLayoutResult: TextLayoutResult =
+            textMeasurer.measure( // Use the last y tick (~widest value) to estimate text extent
+                text = AnnotatedString("${ticksY.last().roundToInt()}"),
+                style = textStyle,
+            )
+        textLayoutResult.size.width
+    }
+    val labelXHeight = if (ticksX.isEmpty()) 0 else {
+        val textLayoutResult: TextLayoutResult =
+            textMeasurer.measure( // Use the first x tick cause no better
+                text = AnnotatedString(values[ticksX.first()].name),
+                style = textStyle,
+            )
+        textLayoutResult.size.height
+    }
 
     /** Other Config Vars **/
     val hoverColor = MaterialTheme.colors.onSurface
@@ -118,9 +128,9 @@ fun <T: Named> TimeSeriesGraph(
      *      pixelX = 0 + deltaX * (index - minX)
      *      pixelY = startY + deltaY * (valueY - minY)
      */
-    val endX = boxSize.width - textSize.width - labelYOffsetPx
+    val endX = boxSize.width - labelYWidth - labelYOffsetPx
     val deltaX = endX / (maxX - minX)
-    val startY = boxSize.height - textSize.height - labelXOffsetPx
+    val startY = boxSize.height - labelXHeight - labelXOffsetPx
     val deltaY = -startY / (maxY - minY)
 
     Canvas(modifier = modifier

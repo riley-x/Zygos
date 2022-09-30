@@ -7,15 +7,26 @@ import androidx.compose.ui.graphics.Color
  * This file contains data classes that are passed into composables
  */
 
-interface Named {
+interface HasName {
     val name: String
+}
+
+interface HasValue {
+    val value: Float
 }
 
 @Immutable
 data class NamedValue(
-    val value: Float,
+    override val value: Float,
     override val name: String,
-): Named
+): HasName, HasValue
+
+@Immutable
+data class TimeSeries(
+    override val value: Float,
+    val date: Int,
+    override val name: String,
+): HasName, HasValue
 
 @Immutable
 data class Ohlc(
@@ -24,7 +35,7 @@ data class Ohlc(
     val low: Float,
     val close: Float,
     override val name: String,
-): Named
+): HasName
 
 
 @Immutable

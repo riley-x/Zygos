@@ -17,11 +17,14 @@ class TestViewModel: ViewModel() {
     /** PerformanceScreen **/
     val accountStartingValue = 12f
     val accountPerformance = List(20) {
-        NamedValue(it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
+        TimeSeries(it * if (it % 2 == 0) 1.2f else 0.8f, it, "$it/${it * 2}")
     }.toMutableStateList()
+    val accountPerformanceXRange = 1..19
+    val accountPerformanceMinY = 0f
+    val accountPerformanceMaxY = 25f
     val accountPerformanceTicksY = mutableStateListOf(5f, 10f, 15f, 20f)
     val accountPerformanceTicksX = mutableStateListOf(5, 10, 15)
-    val accountPerformanceRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
+    val accountPerformanceTimeRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
 
     val watchlist = mutableStateListOf(
         Quote("t1", Color.Blue,  123.23f,  21.20f, 0.123f),

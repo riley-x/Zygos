@@ -11,7 +11,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -161,14 +160,17 @@ fun ZygosApp(
                         PerformanceScreen(
                             accountStartingValue = viewModel.accountStartingValue,
                             accountPerformance = viewModel.accountPerformance,
+                            accountPerformanceXRange = viewModel.accountPerformanceXRange,
+                            accountPerformanceMinY = viewModel.accountPerformanceMinY,
+                            accountPerformanceMaxY = viewModel.accountPerformanceMaxY,
                             accountPerformanceTicksX = viewModel.accountPerformanceTicksX,
                             accountPerformanceTicksY = viewModel.accountPerformanceTicksY,
-                            accountPerformanceRange = viewModel.accountPerformanceRange,
+                            accountPerformanceTimeRange = viewModel.accountPerformanceTimeRange,
                             watchlist = viewModel.watchlist,
                             watchlistDisplayOption = viewModel.watchlistDisplayOption,
                             onTickerSelected = ::onTickerSelected,
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
-                            onAccountPerformanceRangeSelected = viewModel::setPerformanceRange,
+                            onAccountPerformanceRangeSelected = viewModel::updateAccountPerformanceRange,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,

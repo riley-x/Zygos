@@ -13,23 +13,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.viewModel.HasName
+import com.example.zygos.viewModel.HasValue
 import com.example.zygos.viewModel.NamedValue
 import com.example.zygos.viewModel.TestViewModel
 
 
 @Composable
-fun lineGraph(
+fun <T> lineGraph(
     color: Color = MaterialTheme.colors.onSurface,
     size: Float = with(LocalDensity.current) { 2.dp.toPx() },
-): TimeSeriesGrapher<NamedValue> {
+): TimeSeriesGrapher<T>
+        where T : HasName,
+              T : HasValue {
     return fun(
-       drawScope: DrawScope,
-       values: List<NamedValue>,
-       deltaX: Float,
-       deltaY: Float,
-       startY: Float,
-       minX: Float,
-       minY: Float,
+        drawScope: DrawScope,
+        values: List<T>,
+        deltaX: Float,
+        deltaY: Float,
+        startY: Float,
+        minX: Float,
+        minY: Float,
     ) {
         for (i in 1 until values.size) {
             drawScope.drawLine(
@@ -37,7 +41,10 @@ fun lineGraph(
                     x = deltaX * (i - 1 - minX),
                     y = startY + deltaY * (values[i - 1].value - minY)
                 ),
-                end = Offset(x = deltaX * (i - minX), y = startY + deltaY * (values[i].value - minY)),
+                end = Offset(
+                    x = deltaX * (i - minX),
+                    y = startY + deltaY * (values[i].value - minY)
+                ),
                 color = color,
                 strokeWidth = size,
             )
