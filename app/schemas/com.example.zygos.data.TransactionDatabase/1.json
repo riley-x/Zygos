@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "746a35bc4b692c433f4798a3ed60ed1b",
+    "identityHash": "8a55d2b8d2fa8635d84096b3b62edc29",
     "entities": [
       {
         "tableName": "transaction_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `account` TEXT NOT NULL, `ticker` TEXT NOT NULL, `note` TEXT NOT NULL, `type` TEXT NOT NULL, `shares` INTEGER NOT NULL, `date` INTEGER NOT NULL, `price` INTEGER NOT NULL, `basis` INTEGER NOT NULL, `fees` INTEGER NOT NULL, `openId` INTEGER, `dividends` INTEGER NOT NULL, `expiration` INTEGER NOT NULL, `strike` INTEGER NOT NULL, `priceUnderlying` INTEGER NOT NULL, FOREIGN KEY(`openId`) REFERENCES `transaction_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `account` TEXT NOT NULL, `ticker` TEXT NOT NULL, `note` TEXT NOT NULL, `type` TEXT NOT NULL, `shares` INTEGER NOT NULL, `date` INTEGER NOT NULL, `price` INTEGER NOT NULL, `value` INTEGER NOT NULL, `fees` INTEGER NOT NULL, `openId` INTEGER, `expiration` INTEGER NOT NULL, `strike` INTEGER NOT NULL, `priceUnderlying` INTEGER NOT NULL, FOREIGN KEY(`openId`) REFERENCES `transaction_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -57,8 +57,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "basis",
-            "columnName": "basis",
+            "fieldPath": "value",
+            "columnName": "value",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -73,12 +73,6 @@
             "columnName": "openId",
             "affinity": "INTEGER",
             "notNull": false
-          },
-          {
-            "fieldPath": "dividends",
-            "columnName": "dividends",
-            "affinity": "INTEGER",
-            "notNull": true
           },
           {
             "fieldPath": "expiration",
@@ -124,7 +118,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '746a35bc4b692c433f4798a3ed60ed1b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8a55d2b8d2fa8635d84096b3b62edc29')"
     ]
   }
 }

@@ -214,47 +214,11 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         accounts.addAll(accs)
         accounts.add(allAccounts)
 
-        Log.i("ZygosViewModel/startup", application.getDatabasePath("app_database").absolutePath)
+        Log.i("Zygos/ZygosViewModel/startup", application.getDatabasePath("app_database").absolutePath)
         // /data/user/0/com.example.zygos/databases/app_database
 
         viewModelScope.launch(Dispatchers.IO) {
-
-            Log.i("ZygosViewModel/startup", "transactions: ${transactionDao.count()}")
-
-//            transactionDao.addTransaction(
-//                Transaction(
-//                    id = 0,
-//                    account = "Robinhood",
-//                    ticker = "MSFT",
-//                    note = "",
-//                    type = TransactionType.STOCK,
-//                    shares = 5,
-//                    date = 20220928,
-//                    expiration = 0,
-//                    price = 2000000,
-//                    basis = 10000000,
-//                    dividends = 100000,
-//                    fees = 0
-//                )
-//            )
-//
-//            transactionDao.addTransaction(
-//                Transaction(
-//                    id = 0,
-//                    account = "Robinhood",
-//                    ticker = "MSFT",
-//                    note = "",
-//                    type = TransactionType.STOCK,
-//                    shares = 5,
-//                    date = 20220928,
-//                    expiration = 0,
-//                    price = 2000000,
-//                    basis = 10000000,
-//                    dividends = 100000,
-//                    fees = 0,
-//                    openId = 1,
-//                )
-//            )
+            Log.i("Zygos/ZygosViewModel/startup", "transactions: ${transactionDao.count()}")
         }
 
         // Load all data into persistent memory?

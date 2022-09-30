@@ -1,12 +1,14 @@
 package com.example.zygos.data
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.NonNull
 import androidx.room.*
+import java.io.File
 
 enum class TransactionType {
     TRANSFER, INTEREST, DIVIDEND, STOCK, CALL_LONG, CALL_SHORT, PUT_LONG, PUT_SHORT, BOND,
-    SPLIT, SPINOFF,
+    SPLIT, SPINOFF, RENAME,
 }
 
 
@@ -24,25 +26,22 @@ data class Transaction(
     @PrimaryKey(autoGenerate = true) val id: Int = 0, // 0 to auto generate a key
 
     /** Common info **/
-    @NonNull val account: String,
+    @NonNull val account: String, // can be "All" for some special events like split or rename
     @NonNull val ticker: String,
-    @NonNull val note: String,
+    @NonNull val note: String, // for TransactionType::RENAME, MUST be the new ticker name
     val type: TransactionType,
     val shares: Int, // should be multiple of 100 for options
     val date: Int,
     val price: Int, // price to track gain/loss, not the actual value of trade
-    val basis: Int, // usually the value of the trade net fees, but can be adjusted from washes
-    val fees: Int, // fees associated with opening this position
+    val value: Int, // actual dollar change due to the trade
+    val fees: Int, // known fees associated with opening this position
 
     val openId: Int? = null, // on close transactions, id of the opening transaction
-
-    /** Stock fields **/
-    val dividends: Int = 0, // per share
 
     /** Option fields **/
     val expiration: Int = 0,
     val strike: Int = 0,
-    val priceUnderlying: Int = 0, // when position was opened
+    val priceUnderlying: Int = 0, // when position was opened. Can be 0 for old parthenos transactions, in which case price is only the extrinsic
 )
 
 
@@ -69,13 +68,17 @@ abstract class TransactionDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): TransactionDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
+                val prepopFile = File(context.filesDir, "parthenos.db") // TODO hardcoded. Just drag drop this into the Android Studio file explorer
+                Log.d("Zygos/TransactionDatabase/getDatabase", prepopFile.absolutePath)
+                var builder = Room.databaseBuilder(
                     context,
                     TransactionDatabase::class.java,
                     "app_database"
                 )
-//                    .createFromAsset("database/main.db")
-                    .build()
+                if (prepopFile.exists()) {
+                    builder = builder.createFromFile(prepopFile)
+                }
+                val instance = builder.build()
                 INSTANCE = instance
 
                 instance
