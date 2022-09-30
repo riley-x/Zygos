@@ -36,6 +36,9 @@ fun AddAccountDialog(
                             Text("Account name")
                         }
                     },
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        textColor = MaterialTheme.colors.onSurface,
+                    ),
                     modifier = Modifier.height(60.dp)
                 )
             }

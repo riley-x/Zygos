@@ -76,12 +76,12 @@ val Typography = Typography(
         fontFamily = UmTypewriter,
         letterSpacing = 0.1.em
     ),
-    body1 = TextStyle(
+    body1 = TextStyle( // Default text, ticker row, options menu
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         letterSpacing = 0.1.em
     ),
-    body2 = TextStyle(
+    body2 = TextStyle( // Transactions
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp,

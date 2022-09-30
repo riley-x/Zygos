@@ -127,7 +127,6 @@ fun ZygosApp(
             viewModel.setTicker(ticker)
             navController.navigateSingleTopTo(Chart.route)
         }
-        fun myCallback() = viewModel.setAccount(viewModel.accounts.random())
 
         /** Set the top and bottom bars **/
         Scaffold(
@@ -232,8 +231,7 @@ fun ZygosApp(
                     composable(route = Transactions.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Transactions.route")
                         TransactionsScreen(
-                            testState = viewModel.currentAccount,
-                            onClick = ::myCallback,
+                            viewModel.transactions
                         )
                     }
                 }

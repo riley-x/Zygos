@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import com.example.zygos.data.Transaction
+import com.example.zygos.data.TransactionType
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
 
@@ -72,4 +74,48 @@ class TestViewModel: ViewModel() {
     val chartTicksY = mutableStateListOf(5f, 10f, 15f, 20f)
     val chartTicksX = mutableStateListOf(5, 10, 15)
     val chartRange = mutableStateOf(chartRangeOptions.items.last())
+
+    /** TransactionScreen **/
+    val transactions = mutableStateListOf(
+        Transaction(
+            id = 0,
+            account = "Robinhood",
+            ticker = "MSFT",
+            note = "",
+            type = TransactionType.STOCK,
+            shares = 5,
+            date = 20220928,
+            expiration = 0,
+            price = 2000000,
+            value = 10000000,
+            fees = 0
+        ),
+        Transaction(
+            id = 1,
+            account = "Arista",
+            ticker = "AAPL",
+            note = "",
+            type = TransactionType.DIVIDEND,
+            shares = 0,
+            date = 20220928,
+            expiration = 0,
+            price = 345100,
+            value = 5413000,
+            fees = 0
+        ),
+        Transaction(
+            id = 2,
+            account = "TD Ameritrade",
+            ticker = "AMD",
+            note = "",
+            type = TransactionType.CALL_LONG,
+            shares = 100,
+            date = 20220928,
+            expiration = 20240724,
+            strike = 300000,
+            price = 360000,
+            value = -36000000,
+            fees = 0
+        ),
+    )
 }

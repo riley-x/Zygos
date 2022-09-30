@@ -44,12 +44,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     var currentAccount by mutableStateOf(accounts[0])
         private set
 
-    // Sets the current account to display, loading the data elements into the ui state variables
-    fun setAccount(account: String) {
-        if (currentAccount == account) return
-        // TODO
-        currentAccount = account
-    }
 
     /** PerformanceScreen **/
     val accountStartingValue by mutableStateOf(12f)
@@ -196,6 +190,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         chartRange.value = range
     }
 
+    /** TransactionScreen **/
+    val transactions = mutableStateListOf<Transaction>()
+
 
 
     /** Main startup sequence that loads all data!
@@ -244,7 +241,19 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
     }
 
-
+    // Sets the current account to display, loading the data elements into the ui state variables
+    fun setAccount(account: String) {
+        if (currentAccount == account) return
+        currentAccount = account
+        viewModelScope.launch(Dispatchers.IO) {
+            transactions.clear()
+            if (currentAccount != allAccounts && currentAccount != noAccountMessage) {
+                transactions.addAll(transactionDao.getAccount(currentAccount))
+            } else {
+                transactions.addAll(transactionDao.getAll())
+            }
+        }
+    }
 
 
 }

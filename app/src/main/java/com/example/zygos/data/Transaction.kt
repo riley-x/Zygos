@@ -53,6 +53,9 @@ interface TransactionDao {
     @Query("SELECT * FROM transaction_table ORDER BY date DESC")
     fun getAll(): List<Transaction>
 
+    @Query("SELECT * FROM transaction_table WHERE account = :account OR account = 'All' ORDER BY date DESC")
+    fun getAccount(account: String): List<Transaction>
+
     @Query("SELECT COUNT(*) FROM transaction_table")
     fun count(): Int
 }

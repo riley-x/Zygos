@@ -31,6 +31,13 @@ fun formatPercent(value: Float): String {
     return format.format(value)
 }
 
+fun formatDateInt(date: Int): String {
+    val day = date % 100
+    val month = (date / 100) % 100
+    val year = (date / 10000) % 100
+    return "$month/$day/$year"
+}
+
 /**
  * Use this for const lists. Otherwise an composable that accepts a List<T> will recompose with the
  * parent, even though the underlying list hasn't changed
