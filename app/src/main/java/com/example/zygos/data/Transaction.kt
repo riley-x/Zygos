@@ -61,31 +61,3 @@ interface TransactionDao {
 }
 
 
-@Database(entities = [Transaction::class], version = 1)
-abstract class TransactionDatabase : RoomDatabase() {
-    abstract fun transactionDao(): TransactionDao
-
-    companion object {
-        @Volatile
-        private var INSTANCE: TransactionDatabase? = null
-
-        fun getDatabase(context: Context): TransactionDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val prepopFile = File(context.filesDir, "parthenos.db") // TODO hardcoded. Just drag drop this into the Android Studio file explorer
-                Log.d("Zygos/TransactionDatabase/getDatabase", prepopFile.absolutePath)
-                var builder = Room.databaseBuilder(
-                    context,
-                    TransactionDatabase::class.java,
-                    "app_database"
-                )
-                if (prepopFile.exists()) {
-                    builder = builder.createFromFile(prepopFile)
-                }
-                val instance = builder.build()
-                INSTANCE = instance
-
-                instance
-            }
-        }
-    }
-}

@@ -36,25 +36,25 @@ fun TransactionsScreen(
     // And click transaction to edit/delete in a separate screen?
     // Sort by most recent first
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth(),
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
     ) {
-        accountBar()
-
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
+        Column(
+            modifier = modifier
+                .fillMaxWidth(),
         ) {
-            LazyColumn {
+            accountBar()
 
-                item("title") {
-                    ListTitleBar(
-                        text = "Transactions",
-                        onOptionsButtonClick = transactionListOptionsCallback,
-                        modifier = Modifier.padding(start = 22.dp)
-                    )
-                }
+            Card() {
+                ListTitleBar(
+                    text = "Transactions",
+                    onOptionsButtonClick = transactionListOptionsCallback,
+                    modifier = Modifier.padding(start = 22.dp)
+                )
+            }
+
+            LazyColumn {
 
                 itemsIndexed(transactions, key = { _, t -> t.id }) { // TODO is this key ok?
                     index, transaction ->
@@ -63,10 +63,10 @@ fun TransactionsScreen(
                             color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                             thickness = 1.dp,
                             modifier = modifier
-                                .padding(2.dp)
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
                         )
 
-                        TransactionRow(transaction)
+                        TransactionRow(transaction, modifier = Modifier.padding(horizontal = 4.dp))
                     }
                 }
             }

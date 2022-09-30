@@ -19,7 +19,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.example.zygos.data.TransactionDatabase
+import com.example.zygos.data.ZygosDatabase
 import com.example.zygos.ui.*
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.*
@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 
 
 class ZygosApplication : Application() {
-    val transactionDatabase: TransactionDatabase by lazy { TransactionDatabase.getDatabase(this) }
+    val database: ZygosDatabase by lazy { ZygosDatabase.getDatabase(this) }
 }
 
 
@@ -231,7 +231,16 @@ fun ZygosApp(
                     composable(route = Transactions.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Transactions.route")
                         TransactionsScreen(
-                            viewModel.transactions
+                            transactions = viewModel.transactions,
+                            accountBar = {
+                                AccountSelection(
+                                    accounts = viewModel.accounts,
+                                    currentAccount = viewModel.currentAccount,
+                                    onAccountSelected = viewModel::setAccount,
+                                    onAddAccount = ::onAddAccountClick,
+                                    modifier = Modifier.topBar(),
+                                )
+                            },
                         )
                     }
                 }

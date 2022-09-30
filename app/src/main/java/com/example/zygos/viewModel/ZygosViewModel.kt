@@ -35,7 +35,8 @@ class ZygosViewModelFactory(
 class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     /** DAOs **/
-    private val transactionDao = application.transactionDatabase.transactionDao()
+    private val transactionDao = application.database.transactionDao()
+    private val equityHistoryDao = application.database.equityHistoryDao()
 
     /** Account state **/
     val accounts = mutableStateListOf(noAccountMessage)
@@ -216,6 +217,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
             Log.i("Zygos/ZygosViewModel/startup", "transactions: ${transactionDao.count()}")
+            Log.i("Zygos/ZygosViewModel/startup", "equity history: ${equityHistoryDao.count()}")
         }
 
         // Load all data into persistent memory?
