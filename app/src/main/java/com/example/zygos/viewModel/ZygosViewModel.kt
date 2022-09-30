@@ -99,6 +99,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         accountPerformanceMinY = yMin - pad
         accountPerformanceMaxY = yMax + pad
         accountPerformanceXRange = startIndex..accountPerformance.lastIndex
+        Log.d("Zygos/ZygosViewModel/setAccountPerformanceRange", "$accountPerformanceMinY $accountPerformanceMaxY $accountPerformanceXRange")
+        // -5002.882 16775.822 0..949
     }
 
     val watchlist = mutableStateListOf(
@@ -297,6 +299,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
                 transactions.addAll(transactionDao.getAll())
             }
 
+            accountPerformanceXRange = 0..0 // THIS MUST HAPPEN FIRST OR ELSE THE CLEAR BELOW MAY CAUSE A RANGE ERROR IN COMPOSABLES
             accountPerformance.clear()
             accountPerformance.addAll(equityHistoryDao.getAccount(currentAccount).map() {
                 TimeSeries(it.returns / 10000f, it.date, formatDateInt(it.date))

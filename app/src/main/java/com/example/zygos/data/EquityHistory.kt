@@ -30,7 +30,7 @@ interface EquityHistoryDao {
     @Query("SELECT * FROM equity_history ORDER BY date DESC")
     fun getAll(): List<EquityHistory>
 
-    @Query("SELECT * FROM equity_history WHERE account = :account ORDER BY date DESC")
+    @Query("SELECT * FROM equity_history WHERE account = :account ORDER BY date ASC")
     fun getAccount(account: String): List<EquityHistory>
 
     @Query("SELECT COUNT(*) FROM equity_history")
