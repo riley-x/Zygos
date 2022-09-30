@@ -35,7 +35,7 @@ class ZygosViewModelFactory(
 class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     /** DAOs **/
-    private val lotDao = application.lotDatabase.lotDao()
+    private val transactionDao = application.transactionDatabase.transactionDao()
 
     /** Account state **/
     val accounts = mutableStateListOf(noAccountMessage)
@@ -219,27 +219,42 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         viewModelScope.launch(Dispatchers.IO) {
 
-//            Log.i("ZygosViewModel/startup", "nLots: ${lotDao.count()}")
+            Log.i("ZygosViewModel/startup", "transactions: ${transactionDao.count()}")
 
-//            lotDao.addLot(
-//                Lot(
+//            transactionDao.addTransaction(
+//                Transaction(
 //                    id = 0,
 //                    account = "Robinhood",
 //                    ticker = "MSFT",
 //                    note = "",
-//                    type = LotType.STOCK,
+//                    type = TransactionType.STOCK,
 //                    shares = 5,
 //                    date = 20220928,
 //                    expiration = 0,
 //                    price = 2000000,
-//                    extrinsic = 0,
-//                    strike = 0,
+//                    basis = 10000000,
 //                    dividends = 100000,
 //                    fees = 0
 //                )
 //            )
-
-//            Log.i("ZygosViewModel/startup", "nLots: ${lotDao.count()}")
+//
+//            transactionDao.addTransaction(
+//                Transaction(
+//                    id = 0,
+//                    account = "Robinhood",
+//                    ticker = "MSFT",
+//                    note = "",
+//                    type = TransactionType.STOCK,
+//                    shares = 5,
+//                    date = 20220928,
+//                    expiration = 0,
+//                    price = 2000000,
+//                    basis = 10000000,
+//                    dividends = 100000,
+//                    fees = 0,
+//                    openId = 1,
+//                )
+//            )
         }
 
         // Load all data into persistent memory?

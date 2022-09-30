@@ -13,7 +13,13 @@ enum class TransactionType {
 /**
  * All integer dollar values are 1/100th of a cent, and dates are in YYYYMMDD format
  */
-@Entity(tableName = "lot")
+@Entity(tableName = "transaction_table",  // transaction is a keyword!!!!!!!
+    foreignKeys = [ForeignKey(
+        entity = Transaction::class,
+        parentColumns = arrayOf("id"),
+        childColumns = arrayOf("openId")
+    )]
+)
 data class Transaction(
     @PrimaryKey(autoGenerate = true) val id: Int = 0, // 0 to auto generate a key
 
@@ -21,15 +27,14 @@ data class Transaction(
     @NonNull val account: String,
     @NonNull val ticker: String,
     @NonNull val note: String,
-    val open: Boolean,
-    val type: LotType,
+    val type: TransactionType,
     val shares: Int, // should be multiple of 100 for options
     val date: Int,
     val price: Int, // price to track gain/loss, not the actual value of trade
     val basis: Int, // usually the value of the trade net fees, but can be adjusted from washes
     val fees: Int, // fees associated with opening this position
 
-    val transactionId: Int, // the transaction that created this lot
+    val openId: Int? = null, // on close transactions, id of the opening transaction
 
     /** Stock fields **/
     val dividends: Int = 0, // per share
@@ -43,7 +48,14 @@ data class Transaction(
 
 @Dao
 interface TransactionDao {
+    @Insert
+    fun addTransaction(transaction: Transaction)
 
+    @Query("SELECT * FROM transaction_table ORDER BY date DESC")
+    fun getAll(): List<Transaction>
+
+    @Query("SELECT COUNT(*) FROM transaction_table")
+    fun count(): Int
 }
 
 

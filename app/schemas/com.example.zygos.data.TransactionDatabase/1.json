@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "03d0b461abec9240052942c62ed62f7a",
+    "identityHash": "746a35bc4b692c433f4798a3ed60ed1b",
     "entities": [
       {
-        "tableName": "lot",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `account` TEXT NOT NULL, `ticker` TEXT NOT NULL, `note` TEXT NOT NULL, `open` INTEGER NOT NULL, `type` TEXT NOT NULL, `shares` INTEGER NOT NULL, `date` INTEGER NOT NULL, `price` INTEGER NOT NULL, `basis` INTEGER NOT NULL, `fees` INTEGER NOT NULL, `transactionId` INTEGER NOT NULL, `dividends` INTEGER NOT NULL, `expiration` INTEGER NOT NULL, `strike` INTEGER NOT NULL, `priceUnderlying` INTEGER NOT NULL)",
+        "tableName": "transaction_table",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `account` TEXT NOT NULL, `ticker` TEXT NOT NULL, `note` TEXT NOT NULL, `type` TEXT NOT NULL, `shares` INTEGER NOT NULL, `date` INTEGER NOT NULL, `price` INTEGER NOT NULL, `basis` INTEGER NOT NULL, `fees` INTEGER NOT NULL, `openId` INTEGER, `dividends` INTEGER NOT NULL, `expiration` INTEGER NOT NULL, `strike` INTEGER NOT NULL, `priceUnderlying` INTEGER NOT NULL, FOREIGN KEY(`openId`) REFERENCES `transaction_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -30,12 +30,6 @@
             "fieldPath": "note",
             "columnName": "note",
             "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "open",
-            "columnName": "open",
-            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -75,10 +69,10 @@
             "notNull": true
           },
           {
-            "fieldPath": "transactionId",
-            "columnName": "transactionId",
+            "fieldPath": "openId",
+            "columnName": "openId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "dividends",
@@ -112,13 +106,25 @@
           "autoGenerate": true
         },
         "indices": [],
-        "foreignKeys": []
+        "foreignKeys": [
+          {
+            "table": "transaction_table",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "openId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '03d0b461abec9240052942c62ed62f7a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '746a35bc4b692c433f4798a3ed60ed1b')"
     ]
   }
 }
