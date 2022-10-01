@@ -97,7 +97,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             }
             val pad = (yMax - yMin) * performanceGraphYPad
             accountPerformanceState.value = AccountPerformanceState(
-                startingValue = 0f, // TODO
                 values = equityHistorySeries.slice(startIndex..equityHistorySeries.lastIndex),
                 minY = yMin - pad,
                 maxY = yMax + pad,

@@ -78,33 +78,16 @@ fun PerformanceScreen(
                 }
 
                 item("graph") {
-                    if (accountPerformanceState.value.values.size < 2) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp)
-                                .height(300.dp)
-                        ) {
-                            Text(
-                                text = "No data!",
-                                style = MaterialTheme.typography.h5,
-                                color = MaterialTheme.colors.error,
-                            )
-                        }
-                    }
-                    else {
-                        val grapher = lineGraph<TimeSeries>()
-                        TimeSeriesGraph(
-                            grapher = grapher,
-                            state = accountPerformanceState,
-                            onHover = ::onGraphHover,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp)
-                                .height(300.dp)
-                        )
-                    }
+                    val grapher = lineGraph<TimeSeries>()
+                    TimeSeriesGraph(
+                        grapher = grapher,
+                        state = accountPerformanceState,
+                        onHover = ::onGraphHover,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp)
+                            .height(300.dp)
+                    )
                 }
 
                 item("divider1") {

@@ -15,7 +15,7 @@ class TestViewModel: ViewModel() {
 
     /** PerformanceScreen **/
     var accountPerformanceState = mutableStateOf(AccountPerformanceState(
-        startingValue = 12f,
+        xAxisLoc = 12f,
         values = List(20) {
             TimeSeries(it * if (it % 2 == 0) 1.2f else 0.8f, it, "$it/${it * 2}")
         },
