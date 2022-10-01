@@ -23,7 +23,7 @@ import com.example.zygos.viewModel.*
 @Composable
 fun ChartScreen(
     ticker: State<String>,
-    chartState: ChartState,
+    chartState: State<ChartState>,
     chartRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     modifier: Modifier = Modifier,
     onChartRangeSelected: (String) -> Unit = { },
@@ -68,12 +68,12 @@ fun ChartScreen(
             var hoverValues by remember { mutableStateOf("") }
 
             fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
-                if (isHover && x >= 0 && x < chartState.values.size) {
-                    hoverTime = chartState.values[x].name
-                    val open = formatDollarNoSymbol(chartState.values[x].open)
-                    val close = formatDollarNoSymbol(chartState.values[x].close)
-                    val high = formatDollarNoSymbol(chartState.values[x].high)
-                    val low = formatDollarNoSymbol(chartState.values[x].low)
+                if (isHover && x >= 0 && x < chartState.value.values.size) {
+                    hoverTime = chartState.value.values[x].name
+                    val open = formatDollarNoSymbol(chartState.value.values[x].open)
+                    val close = formatDollarNoSymbol(chartState.value.values[x].close)
+                    val high = formatDollarNoSymbol(chartState.value.values[x].high)
+                    val low = formatDollarNoSymbol(chartState.value.values[x].low)
                     val maxLength = maxOf(open.length, close.length, high.length, low.length)
                     // can set a flag here to disable the hoverTime if length is too long
                     hoverValues = "O: " + open.padStart(maxLength) +

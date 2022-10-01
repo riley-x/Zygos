@@ -58,7 +58,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     /** PerformanceScreen **/
     var accountPerformanceTimeRange = mutableStateOf(accountPerformanceRangeOptions.items.last()) // must be state to pass down to button group derivedStateOf
         private set
-    var accountPerformanceState by mutableStateOf(AccountPerformanceState())
+    var accountPerformanceState = mutableStateOf(AccountPerformanceState())
         private set
     private var equityHistorySeries = mutableListOf<TimeSeries>()
 
@@ -96,7 +96,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
                 if (x.value > yMax) yMax = x.value
             }
             val pad = (yMax - yMin) * performanceGraphYPad
-            accountPerformanceState = AccountPerformanceState(
+            accountPerformanceState.value = AccountPerformanceState(
                 startingValue = 0f, // TODO
                 values = equityHistorySeries.slice(startIndex..equityHistorySeries.lastIndex),
                 minY = yMin - pad,
@@ -224,7 +224,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     /** ChartScreen **/
     val chartTicker = mutableStateOf("")
-    val chartState by mutableStateOf(ChartState())
+    val chartState = mutableStateOf(ChartState())
     val chartRange = mutableStateOf(chartRangeOptions.items.last())
 
     fun setTicker(ticker: String) {

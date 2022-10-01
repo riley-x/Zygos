@@ -80,7 +80,7 @@ data class TimeSeriesGraphState<T>(
 @OptIn(ExperimentalTextApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun <T: HasName> TimeSeriesGraph(
-    state: TimeSeriesGraphState<T>,
+    state: State<TimeSeriesGraphState<T>>,
     modifier: Modifier = Modifier,
     labelYStartPad: Dp = 8.dp, // padding left of label
     labelXTopPad: Dp = 2.dp, // padding top of label
@@ -88,24 +88,24 @@ fun <T: HasName> TimeSeriesGraph(
     onHover: (isHover: Boolean, x: Int, y: Float) -> Unit = { _, _, _ -> },
     onPress: () -> Unit = { },
 ) {
-    if (state.values.size < 2) return
+    if (state.value.values.size < 2) return
 
     /** Cache some text variables (note MaterialTheme is not accessible in DrawScope) **/
     val textMeasurer = rememberTextMeasurer()
     val textStyle = MaterialTheme.typography.subtitle2
     val textColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
-    val labelYWidth = if (state.ticksY.isEmpty()) 0 else {
+    val labelYWidth = if (state.value.ticksY.isEmpty()) 0 else {
         val textLayoutResult: TextLayoutResult =
             textMeasurer.measure( // Use the last y tick (~widest value) to estimate text extent
-                text = AnnotatedString("${state.ticksY.last().roundToInt()}"),
+                text = AnnotatedString("${state.value.ticksY.last().roundToInt()}"),
                 style = textStyle,
             )
         textLayoutResult.size.width
     }
-    val labelXHeight = if (state.ticksX.isEmpty()) 0 else {
+    val labelXHeight = if (state.value.ticksX.isEmpty()) 0 else {
         val textLayoutResult: TextLayoutResult =
             textMeasurer.measure( // Use the first x tick cause no better
-                text = AnnotatedString(state.values[state.ticksX.first()].name),
+                text = AnnotatedString(state.value.values[state.value.ticksX.first()].name),
                 style = textStyle,
             )
         textLayoutResult.size.height
@@ -135,11 +135,11 @@ fun <T: HasName> TimeSeriesGraph(
      *      pixelY = startY + deltaY * (valueY - minY)
      */
     val endX = boxSize.width - labelYWidth - labelYOffsetPx
-    val minX = -state.padX
-    val maxX = state.values.lastIndex + state.padX
+    val minX = -state.value.padX
+    val maxX = state.value.values.lastIndex + state.value.padX
     val deltaX = endX / (maxX - minX)
     val startY = boxSize.height - labelXHeight - labelXOffsetPx
-    val deltaY = -startY / (state.maxY - state.minY)
+    val deltaY = -startY / (state.value.maxY - state.value.minY)
 
     Canvas(modifier = modifier
         .onGloballyPositioned { boxSize = it.size }
@@ -154,8 +154,8 @@ fun <T: HasName> TimeSeriesGraph(
                 motionEvent.action == MotionEvent.ACTION_DOWN
             ) {
                 disallowIntercept(true)
-                val userX = clamp((motionEvent.x / deltaX + minX).roundToInt(), 0, state.values.lastIndex)
-                val userY = (motionEvent.y - startY) / deltaY + state.minY
+                val userX = clamp((motionEvent.x / deltaX + minX).roundToInt(), 0, state.value.values.lastIndex)
+                val userY = (motionEvent.y - startY) / deltaY + state.value.minY
                 hoverXUser = userX
                 hoverYPx = motionEvent.y
                 onHover(true, userX, userY)
@@ -169,8 +169,8 @@ fun <T: HasName> TimeSeriesGraph(
         },
     ) {
         /** Y Gridlines and Axis Labels **/
-        for (tick in state.ticksY) {
-            val y = startY + deltaY * (tick - state.minY)
+        for (tick in state.value.ticksY) {
+            val y = startY + deltaY * (tick - state.value.minY)
             drawLine(
                 start = Offset(x = 0f, y = y),
                 end = Offset(x = endX, y = y),
@@ -193,7 +193,7 @@ fun <T: HasName> TimeSeriesGraph(
         }
 
         /** X Gridlines and Axis Labels **/
-        for (tick in state.ticksX) {
+        for (tick in state.value.ticksX) {
             val x = (tick.toFloat() - minX) * deltaX
             drawLine(
                 start = Offset(x = x, y = startY),
@@ -203,7 +203,7 @@ fun <T: HasName> TimeSeriesGraph(
             )
             val layoutResult: TextLayoutResult =
                 textMeasurer.measure(
-                    text = AnnotatedString(state.values[tick].name),
+                    text = AnnotatedString(state.value.values[tick].name),
                     style = textStyle,
                 )
             drawText(
@@ -217,8 +217,8 @@ fun <T: HasName> TimeSeriesGraph(
         }
 
         /** X Axis **/
-        if (state.xAxisLoc != null) {
-            val y = startY + deltaY * (state.xAxisLoc - state.minY)
+        if (state.value.xAxisLoc != null) {
+            val y = startY + deltaY * (state.value.xAxisLoc!! - state.value.minY)
             drawLine(
                 start = Offset(x = 0f, y = y),
                 end = Offset(x = endX, y = y),
@@ -229,7 +229,7 @@ fun <T: HasName> TimeSeriesGraph(
         }
 
         /** Main Plot **/
-        grapher(this, state.values, deltaX, deltaY, startY, minX, state.minY)
+        grapher(this, state.value.values, deltaX, deltaY, startY, minX, state.value.minY)
 
         /** Hover **/
         if (hoverYPx > 0 && hoverYPx < startY) {
@@ -239,7 +239,7 @@ fun <T: HasName> TimeSeriesGraph(
                 color = hoverColor,
             )
         }
-        if (hoverXUser >= 0 && hoverXUser < state.values.size) {
+        if (hoverXUser >= 0 && hoverXUser < state.value.values.size) {
             // check xRange instead of min/maxX since we don't want to hover over an empty point
             // since hoverXUser is clamped above, could just check if >= 0
             val x = (hoverXUser.toFloat() - minX) * deltaX

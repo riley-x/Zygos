@@ -18,7 +18,7 @@ import com.example.zygos.viewModel.*
 
 @Composable
 fun PerformanceScreen(
-    accountPerformanceState: AccountPerformanceState,
+    accountPerformanceState: State<AccountPerformanceState>,
     accountPerformanceTimeRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     watchlist: SnapshotStateList<Quote>,
     watchlistDisplayOption: String,
@@ -46,9 +46,9 @@ fun PerformanceScreen(
             var hoverY by remember { mutableStateOf("") }
 
             fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
-                if (isHover && x >= 0 && x < accountPerformanceState.values.size) {
-                    hoverX = accountPerformanceState.values[x].name
-                    hoverY = formatDollar(accountPerformanceState.values[x].value)
+                if (isHover && x >= 0 && x < accountPerformanceState.value.values.size) {
+                    hoverX = accountPerformanceState.value.values[x].name
+                    hoverY = formatDollar(accountPerformanceState.value.values[x].value)
                 } else {
                     hoverX = ""
                     hoverY = ""
@@ -78,7 +78,7 @@ fun PerformanceScreen(
                 }
 
                 item("graph") {
-                    if (accountPerformanceState.values.size < 2) {
+                    if (accountPerformanceState.value.values.size < 2) {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
@@ -113,6 +113,7 @@ fun PerformanceScreen(
                         thickness = 1.dp,
                         modifier = Modifier
                             .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp)
+                            .recomposeHighlighter()
                     )
                 }
 
@@ -140,7 +141,7 @@ fun PerformanceScreen(
                     ListTitleBar(
                         text = "Watchlist",
                         onOptionsButtonClick = onWatchlistOptionsClick,
-                        modifier = Modifier.padding(start = 22.dp)
+                        modifier = Modifier.padding(start = 22.dp).recomposeHighlighter()
                     )
                 }
 
