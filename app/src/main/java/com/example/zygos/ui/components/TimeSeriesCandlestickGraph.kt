@@ -72,14 +72,7 @@ fun TimeSeriesCandlestickGraphPreview() {
     ZygosTheme {
         TimeSeriesGraph(
             grapher = candlestickGraph(),
-            values = viewModel.chartData,
-            ticksY = viewModel.accountPerformanceTicksY,
-            ticksX = viewModel.accountPerformanceTicksX,
-            minX = -1f,
-            maxX = viewModel.chartData.size.toFloat(),
-            minY = 0f,
-            maxY = 25f,
-            xAxisLoc = viewModel.accountStartingValue,
+            state = viewModel.chartState,
             modifier = Modifier.size(300.dp, 400.dp)
         )
     }

@@ -1,5 +1,6 @@
 package com.example.zygos.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -62,12 +63,7 @@ fun TimeSeriesLineGraphPreview() {
     ZygosTheme {
         TimeSeriesGraph(
             grapher = lineGraph(),
-            values = viewModel.accountPerformance,
-            ticksY = viewModel.accountPerformanceTicksY,
-            ticksX = viewModel.accountPerformanceTicksX,
-            minY = 0f,
-            maxY = 25f,
-            xAxisLoc = viewModel.accountStartingValue,
+            state = viewModel.accountPerformanceState,
             modifier = Modifier.size(300.dp, 400.dp)
         )
     }

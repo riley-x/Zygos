@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
+import com.example.zygos.ui.components.TimeSeriesGraphState
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.noAccountMessage
@@ -16,6 +17,7 @@ import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.sql.Time
 
 
 const val performanceGraphYPad = 0.1f // fractional padding for each top/bottom
@@ -34,6 +36,11 @@ class ZygosViewModelFactory(
 }
 
 
+typealias AccountPerformanceState = TimeSeriesGraphState<TimeSeries>
+typealias ChartState = TimeSeriesGraphState<Ohlc>
+
+
+
 
 class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
@@ -48,16 +55,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     var currentAccount by mutableStateOf(accounts[0])
         private set
 
-
     /** PerformanceScreen **/
-    var accountStartingValue by mutableStateOf(0f)
-    val accountPerformance = mutableStateListOf<TimeSeries>()
-    var accountPerformanceXRange by mutableStateOf(0..0)
-    var accountPerformanceMinY by mutableStateOf(0f)
-    var accountPerformanceMaxY by mutableStateOf(100f)
-    val accountPerformanceTicksY = mutableStateListOf<Float>()
-    val accountPerformanceTicksX = mutableStateListOf<Int>()
-    val accountPerformanceTimeRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
+    var accountPerformanceTimeRange = mutableStateOf(accountPerformanceRangeOptions.items.last()) // must be state to pass down to button group derivedStateOf
+        private set
+    var accountPerformanceState by mutableStateOf(AccountPerformanceState())
+        private set
+    private var equityHistorySeries = mutableListOf<TimeSeries>()
 
     fun updateAccountPerformanceRange(range: String) {
         if (accountPerformanceTimeRange.value != range)
@@ -66,41 +69,41 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     private fun setAccountPerformanceRange(range: String) {
         // don't check if time range is the same, since this is called in statup too. Use update instead
         accountPerformanceTimeRange.value = range
-        if (accountPerformance.isEmpty()) return
+        if (equityHistorySeries.isEmpty()) return
 
-        accountPerformanceMinY = -1000f
-        accountPerformanceMaxY = 10000f
-        accountPerformanceXRange = 0..accountPerformance.lastIndex
-
-        /** Set the y min/max and xrange of the performance plot **/
-        var yMin = accountPerformance.last().value
-        var yMax = accountPerformance.last().value
-        var startIndex = 0
-        val startDate = if (range == "All") 0 else {
-            val cal = Calendar.getInstance()
-            when (range) {
-                "1m" -> cal.add(Calendar.MONTH, -1)
-                "3m" -> cal.add(Calendar.MONTH, -3)
-                "1y" -> cal.add(Calendar.YEAR, -1)
-                "5y" -> cal.add(Calendar.YEAR, -5)
+        viewModelScope.launch(Dispatchers.IO) {
+            /** Set the y min/max and xrange of the performance plot **/
+            var yMin = equityHistorySeries.last().value
+            var yMax = equityHistorySeries.last().value
+            var startIndex = 0
+            val startDate = if (range == "All") 0 else {
+                val cal = Calendar.getInstance()
+                when (range) {
+                    "1m" -> cal.add(Calendar.MONTH, -1)
+                    "3m" -> cal.add(Calendar.MONTH, -3)
+                    "1y" -> cal.add(Calendar.YEAR, -1)
+                    "5y" -> cal.add(Calendar.YEAR, -5)
+                }
+                cal.toIntDate()
             }
-            cal.toIntDate()
-        }
-        for (i in accountPerformance.lastIndex downTo 0) {
-            val x = accountPerformance[i]
-            if (x.date < startDate) {
-                startIndex = i + 1
-                break
+            for (i in equityHistorySeries.lastIndex downTo 0) {
+                val x = equityHistorySeries[i]
+                if (x.date < startDate) {
+                    startIndex = i + 1
+                    break
+                }
+                if (x.value < yMin) yMin = x.value
+                if (x.value > yMax) yMax = x.value
             }
-            if (x.value < yMin) yMin = x.value
-            if (x.value > yMax) yMax = x.value
+            val pad = (yMax - yMin) * performanceGraphYPad
+            accountPerformanceState = AccountPerformanceState(
+                startingValue = 0f, // TODO
+                values = equityHistorySeries.slice(startIndex..equityHistorySeries.lastIndex),
+                minY = yMin - pad,
+                maxY = yMax + pad,
+                // ticks TODO
+            )
         }
-        val pad = (yMax - yMin) * performanceGraphYPad
-        accountPerformanceMinY = yMin - pad
-        accountPerformanceMaxY = yMax + pad
-        accountPerformanceXRange = startIndex..accountPerformance.lastIndex
-        Log.d("Zygos/ZygosViewModel/setAccountPerformanceRange", "$accountPerformanceMinY $accountPerformanceMaxY $accountPerformanceXRange")
-        // -5002.882 16775.822 0..949
     }
 
     val watchlist = mutableStateListOf(
@@ -221,11 +224,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     /** ChartScreen **/
     val chartTicker = mutableStateOf("")
-    val chartData = List(21) {
-        Ohlc(it.toFloat(), it * 2f, 0.5f * it,it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
-    }.drop(1).toMutableStateList()
-    val chartTicksY = mutableStateListOf(5f, 10f, 15f, 20f)
-    val chartTicksX = mutableStateListOf(5, 10, 15)
+    val chartState by mutableStateOf(ChartState())
     val chartRange = mutableStateOf(chartRangeOptions.items.last())
 
     fun setTicker(ticker: String) {
@@ -299,9 +298,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
                 transactions.addAll(transactionDao.getAll())
             }
 
-            accountPerformanceXRange = 0..0 // THIS MUST HAPPEN FIRST OR ELSE THE CLEAR BELOW MAY CAUSE A RANGE ERROR IN COMPOSABLES
-            accountPerformance.clear()
-            accountPerformance.addAll(equityHistoryDao.getAccount(currentAccount).map() {
+            equityHistorySeries.clear()
+            equityHistorySeries.addAll(equityHistoryDao.getAccount(currentAccount).map() {
                 TimeSeries(it.returns / 10000f, it.date, formatDateInt(it.date))
             })
             setAccountPerformanceRange(accountPerformanceTimeRange.value)

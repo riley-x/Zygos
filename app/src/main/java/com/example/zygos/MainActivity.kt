@@ -158,13 +158,7 @@ fun ZygosApp(
                     composable(route = Performance.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Performance.route")
                         PerformanceScreen(
-                            accountStartingValue = viewModel.accountStartingValue,
-                            accountPerformance = viewModel.accountPerformance,
-                            accountPerformanceXRange = viewModel.accountPerformanceXRange,
-                            accountPerformanceMinY = viewModel.accountPerformanceMinY,
-                            accountPerformanceMaxY = viewModel.accountPerformanceMaxY,
-                            accountPerformanceTicksX = viewModel.accountPerformanceTicksX,
-                            accountPerformanceTicksY = viewModel.accountPerformanceTicksY,
+                            accountPerformanceState = viewModel.accountPerformanceState,
                             accountPerformanceTimeRange = viewModel.accountPerformanceTimeRange,
                             watchlist = viewModel.watchlist,
                             watchlistDisplayOption = viewModel.watchlistDisplayOption,
@@ -219,9 +213,7 @@ fun ZygosApp(
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Chart.route")
                         ChartScreen(
                             ticker = viewModel.chartTicker,
-                            data = viewModel.chartData,
-                            ticksY = viewModel.chartTicksY,
-                            ticksX = viewModel.chartTicksX,
+                            chartState = viewModel.chartState,
                             chartRange = viewModel.chartRange,
                             onChartRangeSelected = viewModel::setChartRange,
                             onTickerChanged = viewModel::setTicker,

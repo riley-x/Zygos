@@ -18,13 +18,7 @@ import com.example.zygos.viewModel.*
 
 @Composable
 fun PerformanceScreen(
-    accountStartingValue: Float,
-    accountPerformance: SnapshotStateList<TimeSeries>,
-    accountPerformanceXRange: IntRange,
-    accountPerformanceMinY: Float,
-    accountPerformanceMaxY: Float,
-    accountPerformanceTicksY: SnapshotStateList<Float>,
-    accountPerformanceTicksX: SnapshotStateList<Int>, // index into accountPerformance
+    accountPerformanceState: AccountPerformanceState,
     accountPerformanceTimeRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     watchlist: SnapshotStateList<Quote>,
     watchlistDisplayOption: String,
@@ -52,9 +46,9 @@ fun PerformanceScreen(
             var hoverY by remember { mutableStateOf("") }
 
             fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
-                if (isHover && x >= 0 && x < accountPerformance.size) {
-                    hoverX = accountPerformance[x].name
-                    hoverY = formatDollar(accountPerformance[x].value)
+                if (isHover && x >= 0 && x < accountPerformanceState.values.size) {
+                    hoverX = accountPerformanceState.values[x].name
+                    hoverY = formatDollar(accountPerformanceState.values[x].value)
                 } else {
                     hoverX = ""
                     hoverY = ""
@@ -84,7 +78,7 @@ fun PerformanceScreen(
                 }
 
                 item("graph") {
-                    if (accountPerformance.size < 2) {
+                    if (accountPerformanceState.values.size < 2) {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
@@ -103,13 +97,7 @@ fun PerformanceScreen(
                         val grapher = lineGraph<TimeSeries>()
                         TimeSeriesGraph(
                             grapher = grapher,
-                            values = accountPerformance,
-                            ticksY = accountPerformanceTicksY,
-                            ticksX = accountPerformanceTicksX,
-                            xRange = accountPerformanceXRange,
-                            minY = accountPerformanceMinY,
-                            maxY = accountPerformanceMaxY,
-                            xAxisLoc = accountStartingValue,
+                            state = accountPerformanceState,
                             onHover = ::onGraphHover,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -194,13 +182,7 @@ fun PreviewPerformanceScreen() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
         PerformanceScreen(
-            accountStartingValue = viewModel.accountStartingValue,
-            accountPerformance = viewModel.accountPerformance,
-            accountPerformanceXRange = viewModel.accountPerformanceXRange,
-            accountPerformanceMinY = viewModel.accountPerformanceMinY,
-            accountPerformanceMaxY = viewModel.accountPerformanceMaxY,
-            accountPerformanceTicksX = viewModel.accountPerformanceTicksX,
-            accountPerformanceTicksY = viewModel.accountPerformanceTicksY,
+            accountPerformanceState = viewModel.accountPerformanceState,
             accountPerformanceTimeRange = viewModel.accountPerformanceTimeRange,
             watchlist = viewModel.watchlist,
             watchlistDisplayOption = viewModel.watchlistDisplayOption,

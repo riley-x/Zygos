@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -24,9 +23,7 @@ import com.example.zygos.viewModel.*
 @Composable
 fun ChartScreen(
     ticker: State<String>,
-    data: SnapshotStateList<Ohlc>,
-    ticksY: SnapshotStateList<Float>,
-    ticksX: SnapshotStateList<Int>, // index into accountPerformance
+    chartState: ChartState,
     chartRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     modifier: Modifier = Modifier,
     onChartRangeSelected: (String) -> Unit = { },
@@ -71,12 +68,12 @@ fun ChartScreen(
             var hoverValues by remember { mutableStateOf("") }
 
             fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
-                if (isHover && x >= 0 && x < data.size) {
-                    hoverTime = data[x].name
-                    val open = formatDollarNoSymbol(data[x].open)
-                    val close = formatDollarNoSymbol(data[x].close)
-                    val high = formatDollarNoSymbol(data[x].high)
-                    val low = formatDollarNoSymbol(data[x].low)
+                if (isHover && x >= 0 && x < chartState.values.size) {
+                    hoverTime = chartState.values[x].name
+                    val open = formatDollarNoSymbol(chartState.values[x].open)
+                    val close = formatDollarNoSymbol(chartState.values[x].close)
+                    val high = formatDollarNoSymbol(chartState.values[x].high)
+                    val low = formatDollarNoSymbol(chartState.values[x].low)
                     val maxLength = maxOf(open.length, close.length, high.length, low.length)
                     // can set a flag here to disable the hoverTime if length is too long
                     hoverValues = "O: " + open.padStart(maxLength) +
@@ -106,13 +103,7 @@ fun ChartScreen(
                     val grapher = candlestickGraph()
                     TimeSeriesGraph(
                         grapher = grapher,
-                        values = data,
-                        ticksY = ticksY,
-                        ticksX = ticksX,
-                        minX = -1f,
-                        maxX = data.size.toFloat(),
-                        minY = 0f,
-                        maxY = 25f,
+                        state = chartState,
                         onHover = ::onGraphHover,
                         onPress = ::onGraphPress,
                         modifier = Modifier
@@ -168,9 +159,7 @@ fun PreviewChartScreen() {
     ZygosTheme {
         ChartScreen(
             ticker = viewModel.chartTicker,
-            data = viewModel.chartData,
-            ticksX = viewModel.accountPerformanceTicksX,
-            ticksY = viewModel.accountPerformanceTicksY,
+            chartState = viewModel.chartState,
             chartRange = viewModel.accountPerformanceTimeRange,
         )
     }

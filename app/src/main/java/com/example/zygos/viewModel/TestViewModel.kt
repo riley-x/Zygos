@@ -12,18 +12,18 @@ import com.example.zygos.ui.holdings.holdingsListSortOptions
 class TestViewModel: ViewModel() {
     val accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
     var currentAccount by mutableStateOf(accounts[0])
-        private set
 
     /** PerformanceScreen **/
-    val accountStartingValue = 12f
-    val accountPerformance = List(20) {
-        TimeSeries(it * if (it % 2 == 0) 1.2f else 0.8f, it, "$it/${it * 2}")
-    }.toMutableStateList()
-    val accountPerformanceXRange = 1..19
-    val accountPerformanceMinY = 0f
-    val accountPerformanceMaxY = 25f
-    val accountPerformanceTicksY = mutableStateListOf(5f, 10f, 15f, 20f)
-    val accountPerformanceTicksX = mutableStateListOf(5, 10, 15)
+    var accountPerformanceState by mutableStateOf(AccountPerformanceState(
+        startingValue = 12f,
+        values = List(20) {
+            TimeSeries(it * if (it % 2 == 0) 1.2f else 0.8f, it, "$it/${it * 2}")
+        },
+        ticksY = listOf(5f, 10f, 15f, 20f),
+        ticksX = listOf(5, 10, 15),
+        minY = 0f,
+        maxY = 25f,
+    ))
     val accountPerformanceTimeRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
 
     val watchlist = mutableStateListOf(
@@ -71,11 +71,16 @@ class TestViewModel: ViewModel() {
 
     /** ChartScreen **/
     val chartTicker = mutableStateOf("")
-    val chartData = List(21) {
-        Ohlc(it.toFloat(), it * 2f, 0.5f * it,it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
-    }.drop(1).toMutableStateList()
-    val chartTicksY = mutableStateListOf(5f, 10f, 15f, 20f)
-    val chartTicksX = mutableStateListOf(5, 10, 15)
+    val chartState by mutableStateOf(ChartState(
+        values = List(21) {
+            Ohlc(it.toFloat(), it * 2f, 0.5f * it,it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
+        }.drop(1),
+        ticksY = listOf(5f, 10f, 15f, 20f),
+        ticksX = listOf(5, 10, 15),
+        padX = 1f,
+        minY = 0f,
+        maxY = 25f,
+    ))
     val chartRange = mutableStateOf(chartRangeOptions.items.last())
 
     /** TransactionScreen **/
