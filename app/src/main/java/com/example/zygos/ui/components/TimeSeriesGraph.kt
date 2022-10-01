@@ -99,11 +99,10 @@ fun <T: HasName> TimeSeriesGraph(
     onHover: (isHover: Boolean, x: Int, y: Float) -> Unit = { _, _, _ -> },
     onPress: () -> Unit = { },
 ) {
-    if (state.value.values.size < 2) {
+    if (state.value.values.isEmpty()) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = modifier
         ) {
             Text(
                 text = "No data!",
@@ -118,12 +117,17 @@ fun <T: HasName> TimeSeriesGraph(
         val textStyle = MaterialTheme.typography.subtitle2
         val textColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
         val labelYWidth = if (state.value.ticksY.isEmpty()) 0 else {
-            val textLayoutResult: TextLayoutResult =
-                textMeasurer.measure( // Use the last y tick (~widest value) to estimate text extent
+            val textLayoutResult1: TextLayoutResult =
+                textMeasurer.measure( // Use the first and last y tick to estimate text extent
                     text = AnnotatedString("${state.value.ticksY.last().roundToInt()}"),
                     style = textStyle,
                 )
-            textLayoutResult.size.width
+            val textLayoutResult2: TextLayoutResult = if (state.value.ticksY.size == 1) textLayoutResult1 else
+                textMeasurer.measure( // Use the last y tick (~widest value) to estimate text extent
+                    text = AnnotatedString("${state.value.ticksY.first().roundToInt()}"),
+                    style = textStyle,
+                )
+            maxOf(textLayoutResult1.size.width, textLayoutResult2.size.width)
         }
         val labelXHeight = if (state.value.ticksX.isEmpty()) 0 else {
             val textLayoutResult: TextLayoutResult =

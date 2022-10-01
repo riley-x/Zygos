@@ -17,10 +17,12 @@ import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.sql.Time
+import kotlin.math.roundToInt
 
 
 const val performanceGraphYPad = 0.1f // fractional padding for each top/bottom
+const val performanceGraphTickDivisionsX = 4 // the number of ticks shown is this - 1
+const val performanceGraphTickDivisionsY = 4 // the number of ticks shown is this - 1
 
 
 class ZygosViewModelFactory(
@@ -72,9 +74,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         if (equityHistorySeries.isEmpty()) return
 
         viewModelScope.launch(Dispatchers.IO) {
-            /** Set the y min/max and xrange of the performance plot **/
-            var yMin = equityHistorySeries.last().value
-            var yMax = equityHistorySeries.last().value
+            /** Get the y min/max and xrange of the performance plot **/
+            var minY = equityHistorySeries.last().value
+            var maxY = equityHistorySeries.last().value
             var startIndex = 0
             val startDate = if (range == "All") 0 else {
                 val cal = Calendar.getInstance()
@@ -92,15 +94,24 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
                     startIndex = i + 1
                     break
                 }
-                if (x.value < yMin) yMin = x.value
-                if (x.value > yMax) yMax = x.value
+                if (x.value < minY) minY = x.value
+                if (x.value > maxY) maxY = x.value
             }
-            val pad = (yMax - yMin) * performanceGraphYPad
+            val pad = (maxY - minY) * performanceGraphYPad
+            maxY += pad
+            minY -= pad
+
+            /** Get the axis positions **/
+            val stepX = (equityHistorySeries.lastIndex - startIndex).toFloat() / performanceGraphTickDivisionsX
+            val ticksX = IntRange(1, performanceGraphTickDivisionsX - 1).map { (stepX * it).roundToInt() }
+            val ticksY = autoYTicks(minY, maxY, performanceGraphTickDivisionsY, performanceGraphTickDivisionsY - 1)
+
             accountPerformanceState.value = AccountPerformanceState(
                 values = equityHistorySeries.slice(startIndex..equityHistorySeries.lastIndex),
-                minY = yMin - pad,
-                maxY = yMax + pad,
-                // ticks TODO
+                minY = minY,
+                maxY = maxY,
+                ticksX = ticksX,
+                ticksY = ticksY,
             )
         }
     }
