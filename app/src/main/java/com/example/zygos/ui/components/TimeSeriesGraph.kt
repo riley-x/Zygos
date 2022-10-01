@@ -65,6 +65,7 @@ typealias TimeSeriesGrapher<T> = (
  *                          into values for x and the dollar value for y. WARNING x, y can be out of
  *                          bounds! Make sure to catch.
  */
+@Immutable
 data class TimeSeriesGraphState<T>(
     val startingValue: Float = 0f,
     val values: List<T> = emptyList(),
