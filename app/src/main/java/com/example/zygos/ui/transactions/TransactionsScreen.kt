@@ -56,7 +56,7 @@ fun TransactionsScreen(
 
             LazyColumn {
 
-                itemsIndexed(transactions, key = { _, t -> t.id }) { // TODO is this key ok?
+                itemsIndexed(transactions, key = { _, t -> t.transactionId }) { // TODO is this key ok?
                     index, transaction ->
                     Column {
                         if (index > 0) Divider(

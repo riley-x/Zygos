@@ -29,7 +29,7 @@ data class TimeSeries(
 ): HasName, HasValue
 
 @Immutable
-data class Ohlc(
+data class OhlcNamed(
     val open: Float,
     val high: Float,
     val low: Float,

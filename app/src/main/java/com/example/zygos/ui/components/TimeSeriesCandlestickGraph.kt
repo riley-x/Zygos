@@ -3,20 +3,18 @@ package com.example.zygos.ui.components
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.theme.CandleGreen
 import com.example.zygos.ui.theme.CandleRed
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.Ohlc
+import com.example.zygos.viewModel.OhlcNamed
 import com.example.zygos.viewModel.TestViewModel
 import kotlin.math.abs
 
@@ -26,10 +24,10 @@ fun candlestickGraph(
     upColor: Color = CandleGreen,
     downColor: Color = CandleRed,
     lineColor: Color = MaterialTheme.colors.onSurface,
-): TimeSeriesGrapher<Ohlc> {
+): TimeSeriesGrapher<OhlcNamed> {
     return fun(
         drawScope: DrawScope,
-        values: List<Ohlc>,
+        values: List<OhlcNamed>,
         deltaX: Float,
         deltaY: Float,
         startY: Float,

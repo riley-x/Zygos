@@ -22,7 +22,7 @@ import kotlin.math.roundToInt
 
 const val performanceGraphYPad = 0.1f // fractional padding for each top/bottom
 const val performanceGraphTickDivisionsX = 4 // the number of ticks shown is this - 1
-const val performanceGraphTickDivisionsY = 4 // the number of ticks shown is this - 1
+const val performanceGraphTickDivisionsY = 5 // the number of ticks shown is this - 1
 
 
 class ZygosViewModelFactory(
@@ -39,7 +39,7 @@ class ZygosViewModelFactory(
 
 
 typealias AccountPerformanceState = TimeSeriesGraphState<TimeSeries>
-typealias ChartState = TimeSeriesGraphState<Ohlc>
+typealias ChartState = TimeSeriesGraphState<OhlcNamed>
 
 
 
@@ -57,12 +57,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     var currentAccount by mutableStateOf(accounts[0])
         private set
 
-    /** PerformanceScreen **/
+    /** Account Performance **/
     var accountPerformanceTimeRange = mutableStateOf(accountPerformanceRangeOptions.items.last()) // must be state to pass down to button group derivedStateOf
         private set
     var accountPerformanceState = mutableStateOf(AccountPerformanceState())
         private set
-    private var equityHistorySeries = mutableListOf<TimeSeries>()
+    private var equityHistorySeries = mutableListOf<TimeSeries>() // Caches time range changes; accountPerformanceState.values are sliced from this
 
     fun updateAccountPerformanceRange(range: String) {
         if (accountPerformanceTimeRange.value != range)
@@ -116,6 +116,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
     }
 
+    /** Watchlist **/
     val watchlist = mutableStateListOf(
         Quote("t1", Color.Blue,  123.23f,  21.20f, 0.123f),
         Quote("t2", Color.Black, 1263.23f, 3.02f,  -0.123f),

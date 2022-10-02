@@ -7,10 +7,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import java.io.File
 
-@Database(entities = [Transaction::class, EquityHistory::class], version = 1)
+@Database(entities = [Transaction::class, EquityHistory::class, Lot::class, LotTransactionCrossRef::class, Ohlc::class], version = 1)
 abstract class ZygosDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
+    abstract fun lotDao(): LotDao
     abstract fun equityHistoryDao(): EquityHistoryDao
+    abstract fun ohlcDao(): OhlcDao
 
     companion object {
         @Volatile
@@ -26,9 +28,11 @@ abstract class ZygosDatabase : RoomDatabase() {
                     "app_database"
                 )
                 if (prepopFile.exists()) {
-                    builder = builder.createFromFile(prepopFile)
+//                    builder = builder.createFromFile(prepopFile)
                 }
-                val instance = builder.build()
+                val instance = builder
+//                    .fallbackToDestructiveMigration() // this will delete the old database! But the prepop file has to be up-to-date with the schema
+                    .build()
                 INSTANCE = instance
 
                 instance

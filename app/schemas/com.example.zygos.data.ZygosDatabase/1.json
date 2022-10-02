@@ -2,15 +2,15 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ba8d4f2db151d61ec9fd620b2ec0edae",
+    "identityHash": "1689df1e2a77c883a8daeca9f470946f",
     "entities": [
       {
         "tableName": "transaction_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `account` TEXT NOT NULL, `ticker` TEXT NOT NULL, `note` TEXT NOT NULL, `type` TEXT NOT NULL, `shares` INTEGER NOT NULL, `date` INTEGER NOT NULL, `price` INTEGER NOT NULL, `value` INTEGER NOT NULL, `fees` INTEGER NOT NULL, `openId` INTEGER, `expiration` INTEGER NOT NULL, `strike` INTEGER NOT NULL, `priceUnderlying` INTEGER NOT NULL, FOREIGN KEY(`openId`) REFERENCES `transaction_table`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`transactionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `account` TEXT NOT NULL, `ticker` TEXT NOT NULL, `note` TEXT NOT NULL, `type` TEXT NOT NULL, `shares` INTEGER NOT NULL, `date` INTEGER NOT NULL, `price` INTEGER NOT NULL, `value` INTEGER NOT NULL, `fees` INTEGER NOT NULL, `expiration` INTEGER NOT NULL, `strike` INTEGER NOT NULL, `priceUnderlying` INTEGER NOT NULL)",
         "fields": [
           {
-            "fieldPath": "id",
-            "columnName": "id",
+            "fieldPath": "transactionId",
+            "columnName": "transactionId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -69,12 +69,6 @@
             "notNull": true
           },
           {
-            "fieldPath": "openId",
-            "columnName": "openId",
-            "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
             "fieldPath": "expiration",
             "columnName": "expiration",
             "affinity": "INTEGER",
@@ -95,35 +89,17 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "transactionId"
           ],
           "autoGenerate": true
         },
         "indices": [],
-        "foreignKeys": [
-          {
-            "table": "transaction_table",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "openId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "foreignKeys": []
       },
       {
         "tableName": "equity_history",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `account` TEXT NOT NULL, `date` INTEGER NOT NULL, `returns` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`account` TEXT NOT NULL, `date` INTEGER NOT NULL, `returns` INTEGER NOT NULL, PRIMARY KEY(`account`, `date`))",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
           {
             "fieldPath": "account",
             "columnName": "account",
@@ -145,9 +121,120 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "id"
+            "account",
+            "date"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "lot",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lotId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `openTransactionId` INTEGER NOT NULL, `isOpen` INTEGER NOT NULL, `realizedReturns` INTEGER NOT NULL, FOREIGN KEY(`openTransactionId`) REFERENCES `transaction_table`(`transactionId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "lotId",
+            "columnName": "lotId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "openTransactionId",
+            "columnName": "openTransactionId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isOpen",
+            "columnName": "isOpen",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "realizedReturns",
+            "columnName": "realizedReturns",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "lotId"
           ],
           "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "transaction_table",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "openTransactionId"
+            ],
+            "referencedColumns": [
+              "transactionId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "LotTransactionCrossRef",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`transactionId` INTEGER NOT NULL, `lotId` INTEGER NOT NULL, PRIMARY KEY(`transactionId`, `lotId`))",
+        "fields": [
+          {
+            "fieldPath": "transactionId",
+            "columnName": "transactionId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lotId",
+            "columnName": "lotId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "transactionId",
+            "lotId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ohlc",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ticker` TEXT NOT NULL, `date` INTEGER NOT NULL, `returns` INTEGER NOT NULL, PRIMARY KEY(`ticker`, `date`))",
+        "fields": [
+          {
+            "fieldPath": "ticker",
+            "columnName": "ticker",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "returns",
+            "columnName": "returns",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "ticker",
+            "date"
+          ],
+          "autoGenerate": false
         },
         "indices": [],
         "foreignKeys": []
@@ -156,7 +243,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ba8d4f2db151d61ec9fd620b2ec0edae')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1689df1e2a77c883a8daeca9f470946f')"
     ]
   }
 }

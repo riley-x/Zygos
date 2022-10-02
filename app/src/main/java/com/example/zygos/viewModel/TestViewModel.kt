@@ -1,6 +1,5 @@
 package com.example.zygos.viewModel
 
-import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
@@ -73,7 +72,7 @@ class TestViewModel: ViewModel() {
     val chartTicker = mutableStateOf("")
     val chartState = mutableStateOf(ChartState(
         values = List(21) {
-            Ohlc(it.toFloat(), it * 2f, 0.5f * it,it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
+            OhlcNamed(it.toFloat(), it * 2f, 0.5f * it,it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
         }.drop(1),
         ticksY = listOf(5f, 10f, 15f, 20f),
         ticksX = listOf(5, 10, 15),
@@ -86,7 +85,7 @@ class TestViewModel: ViewModel() {
     /** TransactionScreen **/
     val transactions = mutableStateListOf(
         Transaction(
-            id = 0,
+            transactionId = 0,
             account = "Robinhood",
             ticker = "MSFT",
             note = "",
@@ -99,7 +98,7 @@ class TestViewModel: ViewModel() {
             fees = 0
         ),
         Transaction(
-            id = 1,
+            transactionId = 1,
             account = "Arista",
             ticker = "AAPL",
             note = "",
@@ -112,7 +111,7 @@ class TestViewModel: ViewModel() {
             fees = 0
         ),
         Transaction(
-            id = 2,
+            transactionId = 2,
             account = "TD Ameritrade",
             ticker = "AMD",
             note = "",
