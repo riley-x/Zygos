@@ -16,7 +16,10 @@ import androidx.room.Query
 data class Ohlc(
     @NonNull val ticker: String, // can be "All Accounts"
     val date: Int,
-    val returns: Int,
+    val open: Int,
+    val high: Int,
+    val low: Int,
+    val close: Int,
 )
 
 

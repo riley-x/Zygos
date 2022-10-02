@@ -28,7 +28,7 @@ abstract class ZygosDatabase : RoomDatabase() {
                     "app_database"
                 )
                 if (prepopFile.exists()) {
-//                    builder = builder.createFromFile(prepopFile)
+                    builder = builder.createFromFile(prepopFile)
                 }
                 val instance = builder
                     .fallbackToDestructiveMigration() // this will delete the old database! But the prepop file has to be up-to-date with the schema

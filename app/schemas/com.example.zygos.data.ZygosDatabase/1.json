@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "1689df1e2a77c883a8daeca9f470946f",
+    "identityHash": "cf396afd908939f6095936afe8a00822",
     "entities": [
       {
         "tableName": "transaction_table",
@@ -208,7 +208,7 @@
       },
       {
         "tableName": "ohlc",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ticker` TEXT NOT NULL, `date` INTEGER NOT NULL, `returns` INTEGER NOT NULL, PRIMARY KEY(`ticker`, `date`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ticker` TEXT NOT NULL, `date` INTEGER NOT NULL, `open` INTEGER NOT NULL, `high` INTEGER NOT NULL, `low` INTEGER NOT NULL, `close` INTEGER NOT NULL, PRIMARY KEY(`ticker`, `date`))",
         "fields": [
           {
             "fieldPath": "ticker",
@@ -223,8 +223,26 @@
             "notNull": true
           },
           {
-            "fieldPath": "returns",
-            "columnName": "returns",
+            "fieldPath": "open",
+            "columnName": "open",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "high",
+            "columnName": "high",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "low",
+            "columnName": "low",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "close",
+            "columnName": "close",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -243,7 +261,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1689df1e2a77c883a8daeca9f470946f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cf396afd908939f6095936afe8a00822')"
     ]
   }
 }
