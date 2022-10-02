@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.zygos.data.database.ZygosDatabase
 import com.example.zygos.ui.*
+import com.example.zygos.ui.analytics.AnalyticsScreen
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.holdings.HoldingsScreen
@@ -124,7 +125,7 @@ fun ZygosApp(
         fun onHoldingsPositionSelected(pos: Position) = navController.navigateToPosition(pos)
         fun onTickerSelected(ticker: String) {
             viewModel.setTicker(ticker)
-            navController.navigateSingleTopTo(Chart.route)
+            navController.navigateSingleTopTo(ChartTab.route)
         }
 
         /** Set the top and bottom bars **/
@@ -151,11 +152,11 @@ fun ZygosApp(
             /** Pick the tab to show **/
             NavHost(
                 navController = navController,
-                startDestination = Performance.graph,
+                startDestination = PerformanceTab.graph,
                 modifier = Modifier.padding(innerPadding),
             ) {
-                navigation(startDestination = Performance.route, route = Performance.graph) {
-                    composable(route = Performance.route) {
+                navigation(startDestination = PerformanceTab.route, route = PerformanceTab.graph) {
+                    composable(route = PerformanceTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Performance.route")
                         PerformanceScreen(
                             accountPerformanceState = viewModel.accountPerformanceState,
@@ -178,8 +179,8 @@ fun ZygosApp(
                     }
                 }
 
-                navigation(startDestination = Holdings.route, route = Holdings.graph) {
-                    composable(route = Holdings.route) {
+                navigation(startDestination = HoldingsTab.route, route = HoldingsTab.graph) {
+                    composable(route = HoldingsTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Holdings.route")
                         HoldingsScreen(
                             positions = viewModel.positions,
@@ -208,8 +209,8 @@ fun ZygosApp(
                     }
                 }
 
-                navigation(startDestination = Chart.route, route = Chart.graph) {
-                    composable(route = Chart.route) {
+                navigation(startDestination = ChartTab.route, route = ChartTab.graph) {
+                    composable(route = ChartTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Chart.route")
                         ChartScreen(
                             ticker = viewModel.chartTicker,
@@ -221,11 +222,12 @@ fun ZygosApp(
                     }
                 }
 
-                navigation(startDestination = Transactions.route, route = Transactions.graph) {
-                    composable(route = Transactions.route) {
+                navigation(startDestination = AnalyticsTab.route, route = AnalyticsTab.graph) {
+                    composable(route = AnalyticsTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Transactions.route")
-                        TransactionsScreen(
+                        AnalyticsScreen(
                             transactions = viewModel.transactions,
+                            tickerColors = viewModel.tickerColors,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,

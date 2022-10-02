@@ -7,10 +7,16 @@ import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
+import com.example.zygos.ui.theme.defaultTickerColors
 
 class TestViewModel: ViewModel() {
     val accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
     var currentAccount by mutableStateOf(accounts[0])
+
+    val tickerColors = mutableStateMapOf( // TODO no way to create state map from map?
+        "AMD" to Color(0xffed1c24),
+        "MSFT" to Color(0xff00a1f1),
+    )
 
     /** PerformanceScreen **/
     var accountPerformanceState = mutableStateOf(AccountPerformanceState(

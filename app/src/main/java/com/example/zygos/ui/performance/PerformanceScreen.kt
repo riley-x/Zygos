@@ -132,7 +132,7 @@ fun PerformanceScreen(
                     Column {
                         if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
 
-                        TickerListRow(
+                        TickerListValueRow(
                             ticker = ticker.ticker,
                             color = ticker.color,
                             value = ticker.price,

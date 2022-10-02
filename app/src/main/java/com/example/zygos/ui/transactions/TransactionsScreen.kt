@@ -21,48 +21,36 @@ import com.example.zygos.viewModel.TestViewModel
 fun TransactionsScreen(
     transactions: SnapshotStateList<Transaction>,
     modifier: Modifier = Modifier,
-    accountBar: @Composable () -> Unit = { },
     onTransactionClick: (Position) -> Unit = { },
     transactionListOptionsCallback: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "TransactionsScreen")
     // TODO: Use a floating button here for adding transactions
     // TODO: Click transaction to edit/delete in a separate screen
-    // TODO: Add a "See All" and only show the most recent transactions
-    // TODO: Maybe this screen is a good place for dividend and option summaries
 
     Surface(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Column(
-            modifier = modifier
-                .fillMaxWidth(),
-        ) {
-            accountBar()
+        ListTitleBar(
+            text = "Transactions",
+            onOptionsButtonClick = transactionListOptionsCallback,
+            modifier = Modifier.padding(start = 22.dp)
+        )
 
-            Card() {
-                ListTitleBar(
-                    text = "Transactions",
-                    onOptionsButtonClick = transactionListOptionsCallback,
-                    modifier = Modifier.padding(start = 22.dp)
-                )
-            }
+        LazyColumn {
 
-            LazyColumn {
+            itemsIndexed(transactions, key = { _, t -> t.transactionId }) {
+                index, transaction ->
+                Column {
+                    if (index > 0) Divider(
+                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                        thickness = 1.dp,
+                        modifier = modifier
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                    )
 
-                itemsIndexed(transactions, key = { _, t -> t.transactionId }) { // TODO is this key ok?
-                    index, transaction ->
-                    Column {
-                        if (index > 0) Divider(
-                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                            thickness = 1.dp,
-                            modifier = modifier
-                                .padding(horizontal = 4.dp, vertical = 2.dp)
-                        )
-
-                        TransactionRow(transaction, modifier = Modifier.padding(horizontal = 4.dp))
-                    }
+                    TransactionRow(transaction, modifier = Modifier.padding(horizontal = 4.dp))
                 }
             }
         }

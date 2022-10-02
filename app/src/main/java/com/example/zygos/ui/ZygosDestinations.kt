@@ -1,10 +1,7 @@
 package com.example.zygos.ui
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.CandlestickChart
-import androidx.compose.material.icons.sharp.PieChart
-import androidx.compose.material.icons.sharp.Receipt
-import androidx.compose.material.icons.sharp.ShowChart
+import androidx.compose.material.icons.sharp.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -17,29 +14,30 @@ interface ZygosTab {
 
 // See https://fonts.google.com/icons?icon.category=Business%26Payments&icon.platform=web&icon.style=Sharp
 
-object Performance : ZygosTab {
+object PerformanceTab : ZygosTab {
     override val icon = Icons.Sharp.ShowChart
     override val route = "performance"
     override val graph = "performance_graph"
 }
 
-object Holdings : ZygosTab {
+object HoldingsTab : ZygosTab {
     override val icon = Icons.Sharp.PieChart
     override val route = "holdings"
     override val graph = "holdings_graph"
 }
 
-object Chart : ZygosTab {
+object ChartTab : ZygosTab {
     override val icon = Icons.Sharp.CandlestickChart
     override val route = "chart"
     override val graph = "chart_graph"
 }
 
-object Transactions : ZygosTab {
-    override val icon = Icons.Sharp.Receipt
-    override val route = "transactions"
-    override val graph = "transactions_graph"
+object AnalyticsTab : ZygosTab {
+    override val icon = Icons.Sharp.BubbleChart
+    override val route = "analytics"
+    override val graph = "analytics_graph"
 }
+
 
 object PositionDetails {
     const val route = "position"
@@ -50,4 +48,9 @@ object PositionDetails {
     )
 }
 
-val zygosTabs = listOf(Performance, Holdings, Chart, Transactions)
+object TransactionsDestination {
+    const val route = "transactions"
+}
+
+
+val zygosTabs = listOf(PerformanceTab, HoldingsTab, ChartTab, AnalyticsTab)

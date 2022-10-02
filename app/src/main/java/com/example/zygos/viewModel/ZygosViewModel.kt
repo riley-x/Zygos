@@ -47,6 +47,11 @@ typealias ChartState = TimeSeriesGraphState<OhlcNamed>
 
 class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
+    val tickerColors = mutableStateMapOf( // TODO no way to create state map from map?
+        "AMD" to Color(0xffed1c24),
+        "MSFT" to Color(0xff00a1f1),
+    )
+
     /** DAOs **/
     private val transactionDao = application.database.transactionDao()
     private val equityHistoryDao = application.database.equityHistoryDao()
