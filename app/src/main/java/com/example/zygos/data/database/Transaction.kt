@@ -1,10 +1,7 @@
-package com.example.zygos.data
+package com.example.zygos.data.database
 
-import android.content.Context
-import android.util.Log
 import androidx.annotation.NonNull
 import androidx.room.*
-import java.io.File
 
 enum class TransactionType {
     TRANSFER, INTEREST, DIVIDEND, STOCK, CALL_LONG, CALL_SHORT, PUT_LONG, PUT_SHORT, BOND,
@@ -40,8 +37,9 @@ data class Transaction(
 
 @Dao
 interface TransactionDao {
+    // TODO this returns the row id not the primary key...is this a problem?
     @Insert
-    fun addTransaction(transaction: Transaction)
+    fun insert(transaction: Transaction): Long
 
     @Query("SELECT * FROM transaction_table ORDER BY date DESC")
     fun getAll(): List<Transaction>
@@ -52,5 +50,8 @@ interface TransactionDao {
     @Query("SELECT COUNT(*) FROM transaction_table")
     fun count(): Int
 }
+
+
+
 
 

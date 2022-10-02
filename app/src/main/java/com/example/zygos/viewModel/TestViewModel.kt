@@ -3,8 +3,8 @@ package com.example.zygos.viewModel
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
-import com.example.zygos.data.Transaction
-import com.example.zygos.data.TransactionType
+import com.example.zygos.data.database.Transaction
+import com.example.zygos.data.database.TransactionType
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
 

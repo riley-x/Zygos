@@ -1,24 +1,18 @@
 package com.example.zygos.ui.transactions
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.Transaction
+import com.example.zygos.data.database.Transaction
 import com.example.zygos.ui.components.ListTitleBar
 import com.example.zygos.ui.components.LogCompositions
-import com.example.zygos.ui.components.TickerListDivider
-import com.example.zygos.ui.components.recomposeHighlighter
-import com.example.zygos.ui.holdings.HoldingsRow
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.Position
 import com.example.zygos.viewModel.TestViewModel
@@ -32,9 +26,10 @@ fun TransactionsScreen(
     transactionListOptionsCallback: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "TransactionsScreen")
-    // TODO: Use a floating button here for adding transactions?
-    // And click transaction to edit/delete in a separate screen?
-    // Sort by most recent first
+    // TODO: Use a floating button here for adding transactions
+    // TODO: Click transaction to edit/delete in a separate screen
+    // TODO: Add a "See All" and only show the most recent transactions
+    // TODO: Maybe this screen is a good place for dividend and option summaries
 
     Surface(
         modifier = Modifier

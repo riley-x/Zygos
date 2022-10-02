@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
+import com.example.zygos.data.database.Transaction
 import com.example.zygos.ui.components.TimeSeriesGraphState
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.formatDateInt

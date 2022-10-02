@@ -1,4 +1,4 @@
-package com.example.zygos.data
+package com.example.zygos.data.database
 
 import androidx.annotation.NonNull
 import androidx.room.Dao

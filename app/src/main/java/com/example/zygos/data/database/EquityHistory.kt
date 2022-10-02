@@ -1,10 +1,7 @@
-package com.example.zygos.data
+package com.example.zygos.data.database
 
-import android.content.Context
-import android.util.Log
 import androidx.annotation.NonNull
 import androidx.room.*
-import java.io.File
 
 
 /**
