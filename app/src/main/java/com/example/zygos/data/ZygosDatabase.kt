@@ -31,7 +31,7 @@ abstract class ZygosDatabase : RoomDatabase() {
 //                    builder = builder.createFromFile(prepopFile)
                 }
                 val instance = builder
-//                    .fallbackToDestructiveMigration() // this will delete the old database! But the prepop file has to be up-to-date with the schema
+                    .fallbackToDestructiveMigration() // this will delete the old database! But the prepop file has to be up-to-date with the schema
                     .build()
                 INSTANCE = instance
 

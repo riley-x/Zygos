@@ -14,7 +14,7 @@ import androidx.room.*
 )
 data class Lot(
     @PrimaryKey(autoGenerate = true) val lotId: Int = 0, // 0 to auto generate a key
-    val openTransactionId: Int,
+    val openTransactionId: Int, // this is needed so that queries can test the Lot's account, etc. easily
     val isOpen: Boolean = true,
     val realizedReturns: Int = 0,
 )
@@ -52,4 +52,9 @@ interface LotDao {
             "WHERE transaction_table.account = :account OR account = 'All'")
     fun getAll(account: String): List<LotWithTransactions>
 
+    @androidx.room.Transaction
+    @Query("SELECT COUNT(*) FROM lot " +
+            "INNER JOIN transaction_table ON transaction_table.transactionId = lot.openTransactionId " +
+            "WHERE transaction_table.account = :account OR account = 'All'")
+    fun count(account: String): Int
 }
