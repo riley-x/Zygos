@@ -12,7 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.ui.theme.defaultTickerColors
 
 /**
  * Base composable of any list of tickers and prices.
@@ -23,6 +22,7 @@ fun TickerListRow(
     ticker: String,
     color: Color,
     modifier: Modifier = Modifier,
+    tickerWeight: Float = 0f,
     afterTickerContent: @Composable (RowScope.() -> Unit) = { },
 ) {
     Row(
@@ -31,16 +31,21 @@ fun TickerListRow(
             .height(52.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(
-            Modifier
-                .size(4.dp, 46.dp)
-                .background(color = color)
-        )
-        Spacer(Modifier.width(12.dp))
-
-        Text(text = ticker, style = MaterialTheme.typography.body1)
-
-        Spacer(Modifier.width(12.dp))
+        Row(
+            modifier = Modifier.weight(tickerWeight),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Spacer(
+                Modifier
+                    .size(4.dp, 46.dp)
+                    .background(color = color)
+            )
+            Text(
+                text = ticker,
+                style = MaterialTheme.typography.body1,
+                modifier = Modifier.padding(horizontal = 12.dp)
+            )
+        }
 
         afterTickerContent(this)
     }
@@ -98,14 +103,14 @@ fun TickerListRowPreview() {
             Column {
                 TickerListRow(
                     ticker = "MSFT",
-                    color = defaultTickerColors.getOrDefault("MSFT", Color.Blue),
+                    color = Color(0xff00a1f1),
                 )
 
                 TickerListDivider()
 
                 TickerListValueRow(
                     ticker = "MSFT",
-                    color = defaultTickerColors.getOrDefault("MSFT", Color.Blue),
+                    color = Color(0xff00a1f1),
                     value = 4567.32f,
                     subvalue = -1342.01f,
                     isSubvalueDollar = true,
@@ -115,7 +120,7 @@ fun TickerListRowPreview() {
 
                 TickerListValueRow(
                     ticker = "MSFT",
-                    color = defaultTickerColors.getOrDefault("MSFT", Color.Blue),
+                    color = Color(0xff00a1f1),
                     value = 1357.32f,
                     subvalue = 0.1234f,
                     isSubvalueDollar = false,

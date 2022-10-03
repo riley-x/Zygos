@@ -1,13 +1,11 @@
 package com.example.zygos.ui.analytics
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
@@ -18,9 +16,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.Transaction
-import com.example.zygos.ui.components.LogCompositions
-import com.example.zygos.ui.components.TickerListRow
-import com.example.zygos.ui.components.TickerListValueRow
+import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.TestViewModel
 import kotlinx.coroutines.channels.ticker
@@ -31,7 +27,7 @@ fun AnalyticsScreen(
     tickerColors: SnapshotStateMap<String, Color>,
     modifier: Modifier = Modifier,
     accountBar: @Composable () -> Unit = { },
-    onTransactionClick: (Transaction) -> Unit = { },
+    onTransactionClick: () -> Unit = { },
     onTransactionSeeAll: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "AnalyticsScreen")
@@ -75,11 +71,26 @@ fun AnalyticsScreen(
                             transactions.take(4).forEach { transaction ->
                                 TickerListRow(
                                     ticker = transaction.ticker,
-                                    color = tickerColors.getOrDefault(transaction.ticker, Color.White),
+                                    color = tickerColors.getOrDefault(transaction.ticker, Color.Transparent),
+                                    tickerWeight = 10f,
                                     modifier = Modifier
-                                        .clickable { onTransactionClick(transaction) }
+                                        .clickable { onTransactionClick() }
                                         .padding(horizontal = 10.dp, vertical = 2.dp)
-                                )
+                                ) {
+                                    Column(Modifier.weight(15f)) {
+                                        Text(text = transaction.type.name)
+                                        Text(text = transaction.shares.toString())
+                                    }
+
+
+                                    Column(Modifier.weight(15f), horizontalAlignment = Alignment.End) {
+                                        Text(text = formatDollar(transaction.value / 10000f))
+                                        Text(
+                                            text = formatDollar(transaction.price / 10000f),
+                                            style = MaterialTheme.typography.subtitle1,
+                                        )
+                                    }
+                                }
 
                                 Divider(
                                     color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
@@ -91,7 +102,10 @@ fun AnalyticsScreen(
 
                             TextButton(
                                 onClick = onTransactionSeeAll,
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .padding(horizontal = 4.dp)
+                                    .fillMaxWidth()
                             ) {
                                 Text("SEE ALL")
                             }

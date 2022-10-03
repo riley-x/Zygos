@@ -13,7 +13,8 @@ val DarkBlue900 = Color(0xFF26282F)
 val CandleGreen = Color(0xFF2DBF78)
 val CandleRed = Color(0xFFEF4747)
 
-val defaultTickerColors = mapOf<String, Color>(
+val defaultTickerColors = mapOf(
+    "CASH" to Color(0xFF1EB969), // Green500
     "AMD" to Color(0xffed1c24),
     "MSFT" to Color(0xff00a1f1),
 )

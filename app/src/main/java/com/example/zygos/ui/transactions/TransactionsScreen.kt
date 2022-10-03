@@ -1,5 +1,6 @@
 package com.example.zygos.ui.transactions
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -21,7 +22,7 @@ import com.example.zygos.viewModel.TestViewModel
 fun TransactionsScreen(
     transactions: SnapshotStateList<Transaction>,
     modifier: Modifier = Modifier,
-    onTransactionClick: (Position) -> Unit = { },
+    onTransactionClick: () -> Unit = { },
     transactionListOptionsCallback: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "TransactionsScreen")
@@ -32,25 +33,28 @@ fun TransactionsScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        ListTitleBar(
-            text = "Transactions",
-            onOptionsButtonClick = transactionListOptionsCallback,
-            modifier = Modifier.padding(start = 22.dp)
-        )
+        Column {
+            ListTitleBar(
+                text = "Transactions",
+                onOptionsButtonClick = transactionListOptionsCallback,
+                modifier = Modifier.padding(start = 22.dp)
+            )
 
-        LazyColumn {
+            LazyColumn {
 
-            itemsIndexed(transactions, key = { _, t -> t.transactionId }) {
-                index, transaction ->
-                Column {
-                    if (index > 0) Divider(
-                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                        thickness = 1.dp,
-                        modifier = modifier
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    )
+                itemsIndexed(transactions, key = { _, t -> t.transactionId }) {
+                    index, transaction ->
+                    Column {
+                        if (index > 0) Divider(
+                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                            thickness = 1.dp,
+                            modifier = modifier
+                                .clickable { onTransactionClick() }
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
 
-                    TransactionRow(transaction, modifier = Modifier.padding(horizontal = 4.dp))
+                        TransactionRow(transaction, modifier = Modifier.padding(horizontal = 4.dp))
+                    }
                 }
             }
         }

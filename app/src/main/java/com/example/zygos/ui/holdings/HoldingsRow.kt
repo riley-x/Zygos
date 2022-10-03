@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.components.TickerListValueRow
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.ui.theme.defaultTickerColors
 
 @Composable
 fun HoldingsRow(
@@ -49,7 +48,7 @@ fun HoldingsRowPreview() {
             Column() {
                 HoldingsRow(
                     ticker = "MSFT",
-                    color = defaultTickerColors.getOrDefault("MSFT", Color.Blue),
+                    color = Color(0xff00a1f1),
                     shares = 27f,
                     value = 4567.32f,
                     subvalue = -1342.01f,
@@ -60,7 +59,7 @@ fun HoldingsRowPreview() {
 
                 HoldingsRow(
                     ticker = "MSFT",
-                    color = defaultTickerColors.getOrDefault("MSFT", Color.Blue),
+                    color = Color(0xff00a1f1),
                     shares = 27f,
                     value = 1357.32f,
                     subvalue = 0.1234f,

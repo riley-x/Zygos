@@ -123,6 +123,14 @@ fun ZygosApp(
             }
         }
         fun onHoldingsPositionSelected(pos: Position) = navController.navigateToPosition(pos)
+        fun toTransactionAll() = navController.navigate(TransactionAllDestination.route) {
+            launchSingleTop = true
+            restoreState = true
+        }
+        fun toTransactionDetails() = navController.navigate(TransactionDetailsDestination.route) {
+            launchSingleTop = true
+            restoreState = true
+        }
         fun onTickerSelected(ticker: String) {
             viewModel.setTicker(ticker)
             navController.navigateSingleTopTo(ChartTab.route)
@@ -228,6 +236,8 @@ fun ZygosApp(
                         AnalyticsScreen(
                             transactions = viewModel.transactions,
                             tickerColors = viewModel.tickerColors,
+                            onTransactionClick = ::toTransactionDetails,
+                            onTransactionSeeAll = ::toTransactionAll,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,
@@ -237,6 +247,13 @@ fun ZygosApp(
                                     modifier = Modifier.topBar(),
                                 )
                             },
+                        )
+                    }
+                    composable(route = TransactionAllDestination.route) {
+                        LogCompositions("Zygos", "ZygosApp/Scaffold/TransactionAllDestination.route")
+                        TransactionsScreen(
+                            transactions = viewModel.transactions,
+                            onTransactionClick = ::toTransactionDetails,
                         )
                     }
                 }

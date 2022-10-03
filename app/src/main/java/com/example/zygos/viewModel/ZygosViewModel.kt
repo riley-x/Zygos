@@ -3,6 +3,7 @@ package com.example.zygos.viewModel
 import android.icu.util.Calendar
 import android.util.Log
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +17,7 @@ import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
+import com.example.zygos.ui.theme.defaultTickerColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -47,10 +49,10 @@ typealias ChartState = TimeSeriesGraphState<OhlcNamed>
 
 class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
-    val tickerColors = mutableStateMapOf( // TODO no way to create state map from map?
-        "AMD" to Color(0xffed1c24),
-        "MSFT" to Color(0xff00a1f1),
-    )
+    val tickerColors = SnapshotStateMap<String, Color>()
+    init {
+        tickerColors.putAll(defaultTickerColors)
+    }
 
     /** DAOs **/
     private val transactionDao = application.database.transactionDao()

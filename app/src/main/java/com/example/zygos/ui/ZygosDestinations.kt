@@ -48,8 +48,12 @@ object PositionDetails {
     )
 }
 
-object TransactionsDestination {
-    const val route = "transactions"
+object TransactionAllDestination {
+    const val route = "transaction_all"
+}
+
+object TransactionDetailsDestination {
+    const val route = "transaction_details"
 }
 
 

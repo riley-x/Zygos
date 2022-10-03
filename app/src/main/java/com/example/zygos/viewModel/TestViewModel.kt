@@ -1,6 +1,7 @@
 package com.example.zygos.viewModel
 
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.example.zygos.data.database.Transaction
@@ -13,10 +14,10 @@ class TestViewModel: ViewModel() {
     val accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
     var currentAccount by mutableStateOf(accounts[0])
 
-    val tickerColors = mutableStateMapOf( // TODO no way to create state map from map?
-        "AMD" to Color(0xffed1c24),
-        "MSFT" to Color(0xff00a1f1),
-    )
+    val tickerColors = SnapshotStateMap<String, Color>()
+    init {
+        tickerColors.putAll(defaultTickerColors)
+    }
 
     /** PerformanceScreen **/
     var accountPerformanceState = mutableStateOf(AccountPerformanceState(
@@ -90,6 +91,14 @@ class TestViewModel: ViewModel() {
 
     /** TransactionScreen **/
     val transactions = mutableStateListOf(
+        Transaction(
+            ticker = "CASH",
+            account = "Robinhood",
+            date = 20201020,
+            note = "",
+            type = TransactionType.TRANSFER,
+            value = 100000000,
+        ),
         Transaction(
             transactionId = 0,
             account = "Robinhood",
