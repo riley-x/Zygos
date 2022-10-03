@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
-import com.example.zygos.data.database.Transaction
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.noAccountMessage
@@ -55,9 +54,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
     /** DAOs **/
-    private val transactionDao = application.database.transactionDao()
+    internal val transactionDao = application.database.transactionDao()
     private val equityHistoryDao = application.database.equityHistoryDao()
-    private val lotDao = application.database.lotDao()
+    internal val lotDao = application.database.lotDao()
     private val ohlcDao = application.database.ohlcDao()
 
     /** Account state **/
@@ -259,30 +258,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
      * Need two separate lists of transactions: one for the latest in the analytics screen and one
      * for the all transactions screen, which can be sorted and filtered.
      */
-    val transactionsLast = mutableStateListOf<Transaction>()
-    val transactionsAll = mutableStateListOf<Transaction>()
-    val focusedTransaction = mutableStateOf(Transaction()) // Current transaction that we're editing
-
-    fun addTransaction(t: Transaction) {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (focusedTransaction.value.transactionId > 0) { // we're currently editing a transaction
-                transactionDao.update(t)
-                // TODO need to update lots
-            } else {
-                addTransaction(t, transactionDao, lotDao)
-            }
-        }
-
-        // update transaction lists
-        if (currentAccount == t.account) transactionsLast.add(0, t)
-        // TODO transactionsAll
-    }
-    fun clearFocusTransaction() {
-        focusedTransaction.value = Transaction()
-    }
-    fun setFocusTransaction(t: Transaction) {
-        focusedTransaction.value = t
-    }
+    val transactions = TransactionModel(this)
 
 
     /** Main startup sequence that loads all data!
@@ -338,13 +314,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         if (currentAccount == account) return
         currentAccount = account
         viewModelScope.launch(Dispatchers.IO) {
-            transactionsLast.clear()
-            if (currentAccount != allAccounts && currentAccount != noAccountMessage) {
-                transactionsLast.addAll(transactionDao.getLast(currentAccount))
-            } else {
-                transactionsLast.addAll(transactionDao.getLast())
-            }
-            // TODO transactionsAll, based on current sort/filter
+            transactions.loadAccount(currentAccount)
+
 
             equityHistorySeries.clear()
             equityHistorySeries.addAll(equityHistoryDao.getAccount(currentAccount).map() {

@@ -130,14 +130,14 @@ fun ZygosApp(
             restoreState = true
         }
         fun toTransactionDetails() {
-            viewModel.clearFocusTransaction()
+            viewModel.transactions.clearFocus()
             navController.navigate(TransactionDetailsDestination.route) {
                 launchSingleTop = true
                 restoreState = true
             }
         }
         fun toTransactionDetails(t: Transaction) {
-            viewModel.setFocusTransaction(t)
+            viewModel.transactions.setFocus(t)
             navController.navigate(TransactionDetailsDestination.route) {
                 launchSingleTop = true
                 restoreState = true
@@ -249,7 +249,7 @@ fun ZygosApp(
                     composable(route = AnalyticsTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Transactions.route")
                         AnalyticsScreen(
-                            transactions = viewModel.transactionsLast,
+                            transactions = viewModel.transactions.latest,
                             tickerColors = viewModel.tickerColors,
                             onTransactionClick = ::toTransactionDetails,
                             onTransactionSeeAll = ::toTransactionAll,
@@ -268,16 +268,16 @@ fun ZygosApp(
                     composable(route = TransactionAllDestination.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/TransactionAllDestination.route")
                         TransactionsScreen(
-                            transactions = viewModel.transactionsAll,
+                            transactions = viewModel.transactions.all,
                             onTransactionClick = ::toTransactionDetails,
                         )
                     }
                     composable(route = TransactionDetailsDestination.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/TransactionDetailsDestination.route")
                         TransactionDetailsScreen(
-                            initialTransaction = viewModel.focusedTransaction,
+                            initialTransaction = viewModel.transactions.focused,
                             accounts = viewModel.accounts,
-                            onSave = viewModel::addTransaction,
+                            onSave = viewModel.transactions::add,
                             onCancel = ::popBackstack,
                         )
                     }
