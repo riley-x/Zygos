@@ -259,6 +259,16 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     val transactions = mutableStateListOf<Transaction>()
     val focusedTransaction = mutableStateOf(Transaction()) // Current transaction that we're editing
 
+    fun addTransaction(t: Transaction) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (focusedTransaction.value.transactionId > 0) { // we're currently editing a transaction
+                transactionDao.update(t)
+                // TODO need to update lots
+            } else {
+                addTransaction(t, transactionDao, lotDao)
+            }
+        }
+    }
     fun clearFocusTransaction() {
         focusedTransaction.value = Transaction()
     }

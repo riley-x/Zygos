@@ -42,6 +42,9 @@ interface TransactionDao {
     @Insert
     fun insert(transaction: Transaction): Long
 
+    @Update
+    fun update(transaction: Transaction)
+
     @Query("SELECT * FROM transaction_table ORDER BY date DESC")
     fun getAll(): List<Transaction>
 

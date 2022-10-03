@@ -3,7 +3,6 @@ package com.example.zygos.ui.transactions
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -34,6 +33,7 @@ fun TransactionDetailsScreen(
     accounts: SnapshotStateList<String>,
     modifier: Modifier = Modifier,
     onSave: (Transaction) -> Unit = { },
+    onCancel: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "TransactionDetails")
 
@@ -79,7 +79,7 @@ fun TransactionDetailsScreen(
     }
 
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .recomposeHighlighter()
     ) {
@@ -122,7 +122,7 @@ fun TransactionDetailsScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = {  },
+                    onClick = onCancel,
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = MaterialTheme.colors.error,
                     )
