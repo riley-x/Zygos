@@ -69,28 +69,13 @@ fun AnalyticsScreen(
                             )
 
                             transactions.take(4).forEach { transaction ->
-                                TickerListRow(
-                                    ticker = transaction.ticker,
-                                    color = tickerColors.getOrDefault(transaction.ticker, Color.Transparent),
-                                    tickerWeight = 10f,
+                                TransactionTickerRow(
+                                    transaction = transaction,
+                                    tickerColors = tickerColors,
                                     modifier = Modifier
                                         .clickable { onTransactionClick() }
                                         .padding(horizontal = 10.dp, vertical = 2.dp)
-                                ) {
-                                    Column(Modifier.weight(15f)) {
-                                        Text(text = transaction.type.name)
-                                        Text(text = transaction.shares.toString())
-                                    }
-
-
-                                    Column(Modifier.weight(15f), horizontalAlignment = Alignment.End) {
-                                        Text(text = formatDollar(transaction.value / 10000f))
-                                        Text(
-                                            text = formatDollar(transaction.price / 10000f),
-                                            style = MaterialTheme.typography.subtitle1,
-                                        )
-                                    }
-                                }
+                                )
 
                                 Divider(
                                     color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
@@ -109,14 +94,9 @@ fun AnalyticsScreen(
                             ) {
                                 Text("SEE ALL")
                             }
-
-
                         }
                     }
                 }
-
-
-
             }
         }
     }
