@@ -328,5 +328,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
     }
 
+    fun setFocusTransaction(t: Transaction) {
+        // TODO
+    }
+
 
 }

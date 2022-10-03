@@ -22,7 +22,7 @@ import com.example.zygos.viewModel.TestViewModel
 fun TransactionsScreen(
     transactions: SnapshotStateList<Transaction>,
     modifier: Modifier = Modifier,
-    onTransactionClick: () -> Unit = { },
+    onTransactionClick: (Transaction) -> Unit = { },
     transactionListOptionsCallback: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "TransactionsScreen")
@@ -49,7 +49,7 @@ fun TransactionsScreen(
                             color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                             thickness = 1.dp,
                             modifier = modifier
-                                .clickable { onTransactionClick() }
+                                .clickable { onTransactionClick(transaction) }
                                 .padding(horizontal = 4.dp, vertical = 2.dp)
                         )
 

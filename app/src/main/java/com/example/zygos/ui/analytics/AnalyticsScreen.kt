@@ -4,6 +4,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.Add
+import androidx.compose.material.icons.sharp.AddCircleOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -27,7 +30,8 @@ fun AnalyticsScreen(
     tickerColors: SnapshotStateMap<String, Color>,
     modifier: Modifier = Modifier,
     accountBar: @Composable () -> Unit = { },
-    onTransactionClick: () -> Unit = { },
+    onAddTransaction: () -> Unit = { },
+    onTransactionClick: (Transaction) -> Unit = { },
     onTransactionSeeAll: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "AnalyticsScreen")
@@ -55,11 +59,24 @@ fun AnalyticsScreen(
                     ) {
                         Column {
 
-                            Text(
-                                text = "Transactions",
-                                style = MaterialTheme.typography.h3,
-                                modifier = Modifier.padding(start = 10.dp, top = 10.dp),
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(start = 10.dp)
+                            ) {
+                                Text(
+                                    text = "Transactions",
+                                    style = MaterialTheme.typography.h3,
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                                IconButton(onClick = onAddTransaction) {
+                                    Icon(
+                                        imageVector = Icons.Sharp.Add,
+                                        contentDescription = null,
+                                    )
+                                }
+                            }
+
 
                             Divider(
                                 color = MaterialTheme.colors.primary,
@@ -73,7 +90,7 @@ fun AnalyticsScreen(
                                     transaction = transaction,
                                     tickerColors = tickerColors,
                                     modifier = Modifier
-                                        .clickable { onTransactionClick() }
+                                        .clickable { onTransactionClick(transaction) }
                                         .padding(horizontal = 10.dp, vertical = 2.dp)
                                 )
 

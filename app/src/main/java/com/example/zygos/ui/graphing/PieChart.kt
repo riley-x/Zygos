@@ -1,4 +1,4 @@
-package com.example.zygos.ui.components
+package com.example.zygos.ui.graphing
 
 import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.example.zygos.ui.components.formatDollar
 import com.example.zygos.ui.theme.ZygosTheme
 import java.lang.Math.toDegrees
 

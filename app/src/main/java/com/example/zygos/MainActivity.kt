@@ -18,6 +18,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.ZygosDatabase
 import com.example.zygos.ui.*
 import com.example.zygos.ui.analytics.AnalyticsScreen
@@ -127,9 +128,12 @@ fun ZygosApp(
             launchSingleTop = true
             restoreState = true
         }
-        fun toTransactionDetails() = navController.navigate(TransactionDetailsDestination.route) {
-            launchSingleTop = true
-            restoreState = true
+        fun toTransactionDetails(t: Transaction) {
+            viewModel.setFocusTransaction(t)
+            navController.navigate(TransactionDetailsDestination.route) {
+                launchSingleTop = true
+                restoreState = true
+            }
         }
         fun onTickerSelected(ticker: String) {
             viewModel.setTicker(ticker)
