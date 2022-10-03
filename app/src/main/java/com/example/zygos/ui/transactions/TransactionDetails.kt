@@ -19,12 +19,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
+import com.example.zygos.data.toFloatDollar
 import com.example.zygos.data.toIntDollar
 import com.example.zygos.ui.components.AccountSelector
 import com.example.zygos.ui.components.LogCompositions
 import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.TestViewModel
+import kotlin.reflect.KProperty1
 
 
 @Composable
@@ -37,20 +39,33 @@ fun TransactionDetailsScreen(
 ) {
     LogCompositions("Zygos", "TransactionDetails")
 
-    val focusManager = LocalFocusManager.current
+    fun toState(field: KProperty1<Transaction, Int>, isDollar: Boolean = false): MutableState<String> {
+        val x = field.get(initialTransaction.value)
+        return mutableStateOf(
+            if (x == 0) ""
+            else if (isDollar) x.toFloatDollar().toString()
+            else x.toString()
+        )
+    }
 
-    val account = remember { mutableStateOf("") }
-    val ticker = remember { mutableStateOf("") }
-    val note = remember { mutableStateOf("") }
-    val type = remember { mutableStateOf(TransactionType.NONE) }
-    val shares = remember { mutableStateOf("") }
-    val date = remember { mutableStateOf("") }
-    val price = remember { mutableStateOf("") }
-    val value = remember { mutableStateOf("") }
+    val account = remember { mutableStateOf(initialTransaction.value.account) }
+    val ticker = remember { mutableStateOf(initialTransaction.value.ticker) }
+    val note = remember { mutableStateOf(initialTransaction.value.note) }
+    val type = remember { mutableStateOf(initialTransaction.value.type) }
+    val shares = remember { toState(Transaction::shares) }
+    val date = remember { toState(Transaction::date) }
+    val price = remember { toState(Transaction::price, true) }
+    val value = remember { toState(Transaction::value, true) }
     val fees = remember { mutableStateOf("") }
-    val expiration = remember { mutableStateOf("") }
-    val strike = remember { mutableStateOf("") }
-    val priceUnderlying = remember { mutableStateOf("") }
+    val expiration = remember { toState(Transaction::expiration) }
+    val strike = remember { toState(Transaction::strike, true) }
+    val priceUnderlying = remember { toState(Transaction::priceUnderlying, true) }
+
+    fun toValue(x: State<String>, isDollar: Boolean = false) : Int {
+        return if (x.value.isBlank()) 0
+        else if (isDollar) x.value.toFloat().toIntDollar()
+        else x.value.toInt()
+    }
 
     fun toTransaction(): Transaction {
         return Transaction(
@@ -58,14 +73,14 @@ fun TransactionDetailsScreen(
             ticker = ticker.value,
             note = note.value,
             type = type.value,
-            shares = shares.value.toInt(),
-            date = date.value.toInt(),
-            price = if (price.value.isBlank()) 0 else price.value.toFloat().toIntDollar(),
-            value = if (value.value.isBlank()) 0 else value.value.toFloat().toIntDollar(),
+            shares = toValue(shares),
+            date = toValue(date),
+            price = toValue(price, true),
+            value = toValue(value, true),
 //            fees = fees.value.toFloat().toIntDollar(),
-            expiration = if (expiration.value.isBlank()) 0 else expiration.value.toInt(),
-            strike = if (strike.value.isBlank()) 0 else strike.value.toFloat().toIntDollar(),
-            priceUnderlying = if (priceUnderlying.value.isBlank()) 0 else priceUnderlying.value.toFloat().toIntDollar(),
+            expiration = toValue(expiration),
+            strike = toValue(strike, true),
+            priceUnderlying = toValue(priceUnderlying, true),
         )
     }
 
@@ -76,6 +91,25 @@ fun TransactionDetailsScreen(
             onCancel() // to exit
         } catch (e: NumberFormatException) {
             Toast.makeText(context, "Invalid transaction", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun defaultFields(t: TransactionType) {
+        when (t) {
+            TransactionType.TRANSFER,TransactionType.INTEREST -> {
+                ticker.value = "CASH"
+                shares.value = ""
+                price.value = ""
+            }
+            TransactionType.DIVIDEND -> {
+                shares.value = ""
+            }
+            else -> { }
+        }
+        if (!t.isOption) {
+            if (t != TransactionType.DIVIDEND) expiration.value = ""
+            priceUnderlying.value = ""
+            strike.value = ""
         }
     }
 
@@ -93,57 +127,46 @@ fun TransactionDetailsScreen(
 
             TransactionTypeSelector(type = type.value, modifier = Modifier.fillMaxWidth()) {
                 type.value = it
-                when (it) {
-                    TransactionType.TRANSFER,TransactionType.INTEREST -> {
-                        ticker.value = "CASH"
-                        shares.value = "0"
-                        price.value = "0"
-                    }
-                    TransactionType.DIVIDEND -> {
-                        shares.value = "0"
-                    }
-                    else -> { }
-                }
+                defaultFields(it)
             }
 
             TransactionField(date, "Date (YYYYMMDD)", Modifier.fillMaxWidth())
 
             Row {
-                TransactionField(ticker,"Ticker", Modifier.weight(1f), true,
-                    enabled = when (type.value) {
-                        TransactionType.TRANSFER,TransactionType.INTEREST -> false
-                        else -> true
+                when (type.value) {
+                    TransactionType.TRANSFER,TransactionType.INTEREST -> { }
+                    else -> {
+                        TransactionField(ticker, "Ticker", Modifier.weight(1f), true)
                     }
-                )
-                Spacer(Modifier.width(6.dp))
-                TransactionField(shares, "Shares", Modifier.weight(1f),
-                    enabled = when (type.value) {
-                        TransactionType.TRANSFER,TransactionType.INTEREST,
-                        TransactionType.DIVIDEND -> false
-                        else -> true
+                }
+
+                when (type.value) {
+                    TransactionType.TRANSFER, TransactionType.INTEREST,
+                    TransactionType.DIVIDEND -> { }
+                    else -> {
+                        Spacer(Modifier.width(6.dp))
+                        TransactionField(shares, "Shares", Modifier.weight(1f))
                     }
-                )
+                }
             }
 
             Row {
                 TransactionField(value, "Value", Modifier.weight(1f))
-                Spacer(Modifier.width(6.dp))
-                TransactionField(price, "Price", Modifier.weight(1f),
-                    enabled = when (type.value) {
-                        TransactionType.TRANSFER,TransactionType.INTEREST -> false
-                        else -> true
+                when (type.value) {
+                    TransactionType.TRANSFER, TransactionType.INTEREST -> { }
+                    else -> {
+                        Spacer(Modifier.width(6.dp))
+                        TransactionField(price, "Price", Modifier.weight(1f))
                     }
-                )
+                }
             }
 
-            if (type.value.isOption) {
-                TransactionField(strike, "Strike", Modifier.fillMaxWidth())
+            if (type.value.isOption) TransactionField(strike, "Strike", Modifier.fillMaxWidth())
+            if (type.value.isOption || type.value == TransactionType.DIVIDEND)
                 TransactionField(expiration, "Expiration (YYYYMMDD)", Modifier.fillMaxWidth())
-                TransactionField(priceUnderlying, "Price of Underlying", Modifier.fillMaxWidth())
-            }
+            if (type.value.isOption) TransactionField(priceUnderlying, "Price of Underlying", Modifier.fillMaxWidth())
 
             TransactionField(note,"Note", Modifier.fillMaxWidth(), true)
-
 
             Row(
                 modifier = Modifier

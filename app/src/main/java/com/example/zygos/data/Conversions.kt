@@ -25,4 +25,3 @@ fun floatFromIntDollar(x: Int) : Float {
 fun Int.toFloatDollar() : Float {
     return floatFromIntDollar(this)
 }
-
