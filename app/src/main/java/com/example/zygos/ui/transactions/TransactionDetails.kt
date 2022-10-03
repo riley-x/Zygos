@@ -91,20 +91,49 @@ fun TransactionDetailsScreen(
         ) {
             AccountSelector(account = account, accounts = accounts, modifier = Modifier.fillMaxWidth())
 
-            TransactionTypeSelector(type = type, modifier = Modifier.fillMaxWidth())
+            TransactionTypeSelector(type = type.value, modifier = Modifier.fillMaxWidth()) {
+                type.value = it
+                when (it) {
+                    TransactionType.TRANSFER,TransactionType.INTEREST -> {
+                        ticker.value = "CASH"
+                        shares.value = "0"
+                        price.value = "0"
+                    }
+                    TransactionType.DIVIDEND -> {
+                        shares.value = "0"
+                    }
+                    else -> { }
+                }
+            }
 
             TransactionField(date, "Date (YYYYMMDD)", Modifier.fillMaxWidth())
 
             Row {
-                TransactionField(ticker,"Ticker", Modifier.weight(1f), true)
+                TransactionField(ticker,"Ticker", Modifier.weight(1f), true,
+                    enabled = when (type.value) {
+                        TransactionType.TRANSFER,TransactionType.INTEREST -> false
+                        else -> true
+                    }
+                )
                 Spacer(Modifier.width(6.dp))
-                TransactionField(shares, "Shares", Modifier.weight(1f))
+                TransactionField(shares, "Shares", Modifier.weight(1f),
+                    enabled = when (type.value) {
+                        TransactionType.TRANSFER,TransactionType.INTEREST,
+                        TransactionType.DIVIDEND -> false
+                        else -> true
+                    }
+                )
             }
 
             Row {
                 TransactionField(value, "Value", Modifier.weight(1f))
                 Spacer(Modifier.width(6.dp))
-                TransactionField(price, "Price", Modifier.weight(1f))
+                TransactionField(price, "Price", Modifier.weight(1f),
+                    enabled = when (type.value) {
+                        TransactionType.TRANSFER,TransactionType.INTEREST -> false
+                        else -> true
+                    }
+                )
             }
 
             if (type.value.isOption) {
@@ -145,9 +174,11 @@ fun TransactionField(
     label: String,
     modifier: Modifier = Modifier,
     isText: Boolean = false,
+    enabled: Boolean = true,
 ) {
     OutlinedTextField(
         value = state.value,
+        enabled = enabled,
         label = { Text(label) },
         onValueChange = { state.value = it },
         singleLine = true,

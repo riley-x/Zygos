@@ -10,38 +10,42 @@ import com.example.zygos.ui.theme.ZygosTheme
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TransactionTypeSelector(type: MutableState<TransactionType>, modifier: Modifier = Modifier) {
-    var typeExpanded by remember { mutableStateOf(false) }
+fun TransactionTypeSelector(
+    type: TransactionType,
+    modifier: Modifier = Modifier,
+    onSelection: (TransactionType) -> Unit = { },
+) {
+    var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
-        expanded = typeExpanded,
+        expanded = expanded,
         onExpandedChange = {
-            typeExpanded = !typeExpanded
+            expanded = !expanded
         },
         modifier = modifier
     ) {
         OutlinedTextField(
             readOnly = true,
-            value = type.value.name,
-            onValueChange = { type.value = TransactionType.valueOf(it) },
+            value = type.name,
+            onValueChange = {  },
             label = { Text("Type") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(
-                    expanded = typeExpanded
+                    expanded = expanded
                 )
             },
             modifier = Modifier.fillMaxWidth()
         )
         ExposedDropdownMenu(
-            expanded = typeExpanded,
+            expanded = expanded,
             onDismissRequest = {
-                typeExpanded = false
+                expanded = false
             }
         ) {
             TransactionType.values().forEach {
                 DropdownMenuItem(
                     onClick = {
-                        type.value = it
-                        typeExpanded = false
+                        onSelection(it)
+                        expanded = false
                     }
                 ) {
                     Text(text = it.name)
@@ -54,10 +58,9 @@ fun TransactionTypeSelector(type: MutableState<TransactionType>, modifier: Modif
 @Preview
 @Composable
 fun PreviewTransactionTypeSelector() {
-    val type = remember { mutableStateOf(TransactionType.TRANSFER) }
     ZygosTheme {
         Surface {
-            TransactionTypeSelector(type)
+            TransactionTypeSelector(TransactionType.TRANSFER)
         }
     }
 }
