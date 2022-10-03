@@ -1,6 +1,5 @@
-package com.example.zygos.ui.components
+package com.example.zygos.ui.graphing
 
-import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
@@ -8,7 +7,6 @@ import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -29,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.HasName
 import com.example.zygos.viewModel.TestViewModel
+import com.example.zygos.viewModel.TimeSeries
 import kotlin.math.roundToInt
 
 
@@ -290,7 +289,7 @@ fun <T: HasName> TimeSeriesGraph(
 fun TimeSeriesGraphPreview() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
-        TimeSeriesGraph(
+        TimeSeriesGraph<TimeSeries>(
             state = viewModel.accountPerformanceState
         )
     }

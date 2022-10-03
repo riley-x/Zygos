@@ -1,4 +1,4 @@
-package com.example.zygos.ui.components
+package com.example.zygos.ui.graphing
 
 import android.util.Log
 import androidx.compose.foundation.layout.size
