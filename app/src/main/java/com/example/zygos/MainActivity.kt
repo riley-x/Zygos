@@ -256,6 +256,10 @@ fun ZygosApp(
                             onTransactionClick = ::toTransactionDetails,
                         )
                     }
+                    composable(route = TransactionDetailsDestination.route) {
+                        LogCompositions("Zygos", "ZygosApp/Scaffold/TransactionDetailsDestination.route")
+                        Text("Transaction Details Screen!")
+                    }
                 }
 
             }

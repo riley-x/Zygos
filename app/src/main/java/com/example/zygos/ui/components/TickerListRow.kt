@@ -3,8 +3,7 @@ package com.example.zygos.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,7 +31,7 @@ fun TickerListRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier.weight(tickerWeight),
+            modifier = if (tickerWeight > 0f) Modifier.weight(tickerWeight) else Modifier,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(
