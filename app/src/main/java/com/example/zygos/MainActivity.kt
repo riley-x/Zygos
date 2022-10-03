@@ -128,12 +128,15 @@ fun ZygosApp(
             launchSingleTop = true
             restoreState = true
         }
-        fun toTransactionDetails(t: Transaction) {
-            viewModel.setFocusTransaction(t)
+        fun toTransactionDetails() {
             navController.navigate(TransactionDetailsDestination.route) {
                 launchSingleTop = true
                 restoreState = true
             }
+        }
+        fun toTransactionDetails(t: Transaction) {
+            viewModel.setFocusTransaction(t)
+            toTransactionDetails()
         }
         fun onTickerSelected(ticker: String) {
             viewModel.setTicker(ticker)
@@ -242,6 +245,7 @@ fun ZygosApp(
                             tickerColors = viewModel.tickerColors,
                             onTransactionClick = ::toTransactionDetails,
                             onTransactionSeeAll = ::toTransactionAll,
+                            onAddTransaction = ::toTransactionDetails,
                             accountBar = {
                                 AccountSelection(
                                     accounts = viewModel.accounts,
