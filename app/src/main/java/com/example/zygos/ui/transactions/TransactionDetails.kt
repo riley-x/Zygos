@@ -60,12 +60,12 @@ fun TransactionDetailsScreen(
             type = type.value,
             shares = shares.value.toInt(),
             date = date.value.toInt(),
-            price = price.value.toFloat().toIntDollar(),
-            value = value.value.toFloat().toIntDollar(),
-            fees = fees.value.toFloat().toIntDollar(),
-            expiration = expiration.value.toInt(),
-            strike = strike.value.toFloat().toIntDollar(),
-            priceUnderlying = priceUnderlying.value.toFloat().toIntDollar(),
+            price = if (price.value.isBlank()) 0 else price.value.toFloat().toIntDollar(),
+            value = if (value.value.isBlank()) 0 else value.value.toFloat().toIntDollar(),
+//            fees = fees.value.toFloat().toIntDollar(),
+            expiration = if (expiration.value.isBlank()) 0 else expiration.value.toInt(),
+            strike = if (strike.value.isBlank()) 0 else strike.value.toFloat().toIntDollar(),
+            priceUnderlying = if (priceUnderlying.value.isBlank()) 0 else priceUnderlying.value.toFloat().toIntDollar(),
         )
     }
 
@@ -73,6 +73,7 @@ fun TransactionDetailsScreen(
     fun save() {
         try {
             onSave(toTransaction())
+            onCancel() // to exit
         } catch (e: NumberFormatException) {
             Toast.makeText(context, "Invalid transaction", Toast.LENGTH_SHORT).show()
         }

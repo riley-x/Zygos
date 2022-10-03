@@ -18,7 +18,6 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.example.zygos.data.addTransaction
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.ZygosDatabase
 import com.example.zygos.ui.*
@@ -250,7 +249,7 @@ fun ZygosApp(
                     composable(route = AnalyticsTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Transactions.route")
                         AnalyticsScreen(
-                            transactions = viewModel.transactions,
+                            transactions = viewModel.transactionsLast,
                             tickerColors = viewModel.tickerColors,
                             onTransactionClick = ::toTransactionDetails,
                             onTransactionSeeAll = ::toTransactionAll,
@@ -269,7 +268,7 @@ fun ZygosApp(
                     composable(route = TransactionAllDestination.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/TransactionAllDestination.route")
                         TransactionsScreen(
-                            transactions = viewModel.transactions,
+                            transactions = viewModel.transactionsAll,
                             onTransactionClick = ::toTransactionDetails,
                         )
                     }

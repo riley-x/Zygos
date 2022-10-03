@@ -255,8 +255,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         chartRange.value = range
     }
 
-    /** TransactionScreen **/
-    val transactions = mutableStateListOf<Transaction>()
+    /** TransactionScreen
+     * Need two separate lists of transactions: one for the latest in the analytics screen and one
+     * for the all transactions screen, which can be sorted and filtered.
+     */
+    val transactionsLast = mutableStateListOf<Transaction>()
+    val transactionsAll = mutableStateListOf<Transaction>()
     val focusedTransaction = mutableStateOf(Transaction()) // Current transaction that we're editing
 
     fun addTransaction(t: Transaction) {
@@ -268,6 +272,10 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
                 addTransaction(t, transactionDao, lotDao)
             }
         }
+
+        // update transaction lists
+        if (currentAccount == t.account) transactionsLast.add(0, t)
+        // TODO transactionsAll
     }
     fun clearFocusTransaction() {
         focusedTransaction.value = Transaction()
@@ -330,12 +338,13 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         if (currentAccount == account) return
         currentAccount = account
         viewModelScope.launch(Dispatchers.IO) {
-            transactions.clear()
+            transactionsLast.clear()
             if (currentAccount != allAccounts && currentAccount != noAccountMessage) {
-                transactions.addAll(transactionDao.getAccount(currentAccount))
+                transactionsLast.addAll(transactionDao.getLast(currentAccount))
             } else {
-                transactions.addAll(transactionDao.getAll())
+                transactionsLast.addAll(transactionDao.getLast())
             }
+            // TODO transactionsAll, based on current sort/filter
 
             equityHistorySeries.clear()
             equityHistorySeries.addAll(equityHistoryDao.getAccount(currentAccount).map() {
