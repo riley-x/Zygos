@@ -257,7 +257,14 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     /** TransactionScreen **/
     val transactions = mutableStateListOf<Transaction>()
+    val focusedTransaction = mutableStateOf(Transaction()) // Current transaction that we're editing
 
+    fun clearFocusTransaction() {
+        focusedTransaction.value = Transaction()
+    }
+    fun setFocusTransaction(t: Transaction) {
+        focusedTransaction.value = t
+    }
 
 
     /** Main startup sequence that loads all data!
@@ -327,10 +334,4 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             setAccountPerformanceRange(accountPerformanceTimeRange.value)
         }
     }
-
-    fun setFocusTransaction(t: Transaction) {
-        // TODO
-    }
-
-
 }

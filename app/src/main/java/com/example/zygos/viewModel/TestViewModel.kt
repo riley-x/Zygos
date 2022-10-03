@@ -140,4 +140,6 @@ class TestViewModel: ViewModel() {
             fees = 0
         ),
     )
+    val focusedTransaction = mutableStateOf(transactions[0]) // Current transaction that we're editing
+
 }

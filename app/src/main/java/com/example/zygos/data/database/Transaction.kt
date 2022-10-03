@@ -3,9 +3,10 @@ package com.example.zygos.data.database
 import androidx.annotation.NonNull
 import androidx.room.*
 
-enum class TransactionType {
-    TRANSFER, INTEREST, DIVIDEND, STOCK, CALL_LONG, CALL_SHORT, PUT_LONG, PUT_SHORT, BOND,
-    SPLIT, SPINOFF, RENAME, NONE
+enum class TransactionType(val isOption: Boolean = false) {
+    TRANSFER, INTEREST, DIVIDEND, STOCK,
+    CALL_LONG(true), CALL_SHORT(true), PUT_LONG(true), PUT_SHORT(true),
+    BOND, SPLIT, SPINOFF, RENAME, NONE;
 }
 
 
@@ -18,12 +19,12 @@ data class Transaction(
     @PrimaryKey(autoGenerate = true) val transactionId: Int = 0, // 0 to auto generate a key
 
     /** Common info **/
-    @NonNull val account: String, // can be "All" for some special events like split or rename
-    @NonNull val ticker: String,
-    @NonNull val note: String, // for TransactionType::RENAME, MUST be the new ticker name
-    val type: TransactionType,
+    @NonNull val account: String = "", // can be "All" for some special events like split or rename
+    @NonNull val ticker: String = "",
+    @NonNull val note: String = "", // for TransactionType::RENAME, MUST be the new ticker name
+    val type: TransactionType = TransactionType.NONE,
     val shares: Int = 0, // should be multiple of 100 for options
-    val date: Int,
+    val date: Int = 0,
     val price: Int = 0, // price to track gain/loss, not the actual value of trade
     val value: Int = 0, // actual dollar change due to the trade
     val fees: Int = 0, // known fees associated with opening this position

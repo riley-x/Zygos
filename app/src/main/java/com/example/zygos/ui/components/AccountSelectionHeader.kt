@@ -3,9 +3,7 @@ package com.example.zygos.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.AddCircle
 import androidx.compose.material.icons.sharp.AddCircleOutline
-import androidx.compose.material.icons.sharp.PlusOne
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -20,7 +18,7 @@ const val allAccounts = "All Accounts"
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AccountSelection(
+fun AccountSelectionHeader(
     currentAccount: String,
     accounts: SnapshotStateList<String>,
     modifier: Modifier = Modifier,
@@ -109,7 +107,7 @@ fun AccountSelection(
 
 @Preview
 @Composable
-fun AccountSelectionPreview() {
+fun AccountSelectionHeaderPreview() {
     val accounts = remember { mutableStateListOf(
         "Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts"
     ) }
@@ -118,12 +116,12 @@ fun AccountSelectionPreview() {
     ) }
     ZygosTheme {
         Column {
-            AccountSelection(
+            AccountSelectionHeader(
                 accounts = accounts,
                 currentAccount = accounts[0],
             )
             Spacer(modifier = Modifier.height(20.dp))
-            AccountSelection(
+            AccountSelectionHeader(
                 accounts = accounts2,
                 currentAccount = accounts2[0],
             )

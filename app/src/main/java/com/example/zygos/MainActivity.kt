@@ -30,6 +30,7 @@ import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.positionDetails.PositionDetailsScreen
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.ui.transactions.TransactionDetailsScreen
 import com.example.zygos.ui.transactions.TransactionsScreen
 import com.example.zygos.viewModel.*
 import kotlinx.coroutines.launch
@@ -182,7 +183,7 @@ fun ZygosApp(
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
                             onAccountPerformanceRangeSelected = viewModel::updateAccountPerformanceRange,
                             accountBar = {
-                                AccountSelection(
+                                AccountSelectionHeader(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
                                     onAccountSelected = viewModel::setAccount,
@@ -203,7 +204,7 @@ fun ZygosApp(
                             onPositionClick = ::onHoldingsPositionSelected,
                             holdingsListOptionsCallback = ::onHoldingsListOptionsShow,
                             accountBar = {
-                                AccountSelection(
+                                AccountSelectionHeader(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
                                     onAccountSelected = viewModel::setAccount,
@@ -247,7 +248,7 @@ fun ZygosApp(
                             onTransactionSeeAll = ::toTransactionAll,
                             onAddTransaction = ::toTransactionDetails,
                             accountBar = {
-                                AccountSelection(
+                                AccountSelectionHeader(
                                     accounts = viewModel.accounts,
                                     currentAccount = viewModel.currentAccount,
                                     onAccountSelected = viewModel::setAccount,
@@ -266,7 +267,11 @@ fun ZygosApp(
                     }
                     composable(route = TransactionDetailsDestination.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/TransactionDetailsDestination.route")
-                        Text("Transaction Details Screen!")
+                        TransactionDetailsScreen(
+                            initialTransaction = viewModel.focusedTransaction,
+                            accounts = viewModel.accounts,
+//                            onSave = { },
+                        )
                     }
                 }
 
