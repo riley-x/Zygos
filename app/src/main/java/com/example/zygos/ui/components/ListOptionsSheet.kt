@@ -10,8 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.zygos.ui.holdings.holdingsListDisplayOptions
-import com.example.zygos.ui.holdings.holdingsListSortOptions
+import com.example.zygos.viewModel.holdingsListDisplayOptions
+import com.example.zygos.viewModel.holdingsListSortOptions
 import com.example.zygos.ui.theme.ZygosTheme
 
 fun listOptionsSheet(

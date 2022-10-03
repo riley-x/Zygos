@@ -26,8 +26,8 @@ import com.example.zygos.ui.analytics.AnalyticsScreen
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.holdings.HoldingsScreen
-import com.example.zygos.ui.holdings.holdingsListDisplayOptions
-import com.example.zygos.ui.holdings.holdingsListSortOptions
+import com.example.zygos.viewModel.holdingsListDisplayOptions
+import com.example.zygos.viewModel.holdingsListSortOptions
 import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.positionDetails.PositionDetailsScreen
 import com.example.zygos.ui.theme.ZygosTheme
@@ -218,8 +218,8 @@ fun ZygosApp(
                     composable(route = HoldingsTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Holdings.route")
                         HoldingsScreen(
-                            positions = viewModel.positions,
-                            displayOption = viewModel.holdingsDisplayOption,
+                            positions = viewModel.holdings.positions,
+                            displayOption = viewModel.holdings.displayOption,
                             onPositionClick = ::onHoldingsPositionSelected,
                             holdingsListOptionsCallback = ::onHoldingsListOptionsShow,
                             accountBar = {
@@ -365,13 +365,13 @@ fun bottomSheetContent(
 ): (@Composable ColumnScope.() -> Unit) {
     return when (version) {
         "holdings" -> listOptionsSheet(
-            currentSortOption = viewModel.holdingsSortOption,
-            currentDisplayOption = viewModel.holdingsDisplayOption,
-            isSortedAscending = viewModel.holdingsSortIsAscending,
+            currentSortOption = viewModel.holdings.sortOption,
+            currentDisplayOption = viewModel.holdings.displayOption,
+            isSortedAscending = viewModel.holdings.sortIsAscending,
             displayOptions = holdingsListDisplayOptions,
             sortOptions = holdingsListSortOptions,
-            onDisplayOptionSelected = { viewModel.holdingsDisplayOption = it },
-            onSortOptionSelected = { viewModel.setHoldingsSortMethod(it) },
+            onDisplayOptionSelected = { viewModel.holdings.displayOption = it },
+            onSortOptionSelected = viewModel.holdings::setSortMethod,
         )
         else -> listOptionsSheet(
             currentSortOption = viewModel.watchlistSortOption,

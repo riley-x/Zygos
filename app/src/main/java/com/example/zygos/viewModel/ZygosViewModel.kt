@@ -14,8 +14,6 @@ import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
-import com.example.zygos.ui.holdings.holdingsListDisplayOptions
-import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.theme.defaultTickerColors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -181,68 +179,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
     /** Holdings **/
-    val positions = mutableStateListOf(
-        Position("p1", 0.2f, Color(0xFF004940)),
-        Position("p2", 0.3f, Color(0xFF005D57)),
-        Position("p3", 0.4f, Color(0xFF04B97F)),
-        Position("p4", 0.1f, Color(0xFF37EFBA)),
-        Position("p5", 0.2f, Color(0xFF004940)),
-        Position("p6", 0.3f, Color(0xFF005D57)),
-        Position("p7", 0.4f, Color(0xFF04B97F)),
-        Position("p8", 0.1f, Color(0xFF37EFBA))
-    )
-
-    // These variables are merely the ui state of the options selection menu
-    // The actual sorting is called in sortHoldingsList() via a callback when
-    // the menu is hidden.
-    var holdingsSortOption by mutableStateOf(holdingsListSortOptions.items[0])
-        private set
-    var holdingsSortIsAscending by mutableStateOf(true)
-        private set
-    var holdingsDisplayOption by mutableStateOf(holdingsListDisplayOptions.items[0])
-
-    // Cached sort options to not re-sort if nothing was changed
-    private var holdingsLastSortOption = ""
-    private var holdingsLastSortIsAscending = true
-
-    // Called from composable onClick callbacks
-    fun setHoldingsSortMethod(opt: String) {
-        if (holdingsSortOption == opt) holdingsSortIsAscending = !holdingsSortIsAscending
-        else holdingsSortOption = opt
-    }
-
-    // This happens asynchronously! Make sure that all other state is ok with the positions list being modified
-    fun sortHoldingsList() {
-        //Log.i("ZygosViewModel", "$holdingsSortOption $lastSortOption")
-        if (holdingsLastSortOption == holdingsSortOption) {
-            if (holdingsLastSortIsAscending != holdingsSortIsAscending) {
-                positions.reverse()
-            }
-        } else {
-            if (holdingsSortIsAscending) {
-                when (holdingsSortOption) {
-                    "Ticker" -> positions.sortBy(Position::ticker)
-                    else -> positions.sortBy(Position::value)
-                }
-            } else {
-                when (holdingsSortOption) {
-                    "Ticker" -> positions.sortByDescending(Position::ticker)
-                    else -> positions.sortByDescending(Position::value)
-                }
-            }
-        }
-        holdingsLastSortIsAscending = holdingsSortIsAscending
-        holdingsLastSortOption = holdingsSortOption
-    }
-
-    fun sortList(whichList: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            when(whichList) {
-                "holdings" -> sortHoldingsList()
-                "watchlist" -> sortWatchlist()
-            }
-        }
-    }
+    val holdings = HoldingsModel(this)
 
     /** ChartScreen **/
     val chartTicker = mutableStateOf("")
@@ -324,6 +261,15 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
                 TimeSeries(it.returns / 10000f, it.date, formatDateInt(it.date))
             })
             setAccountPerformanceRange(accountPerformanceTimeRange.value)
+        }
+    }
+
+    fun sortList(whichList: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            when(whichList) {
+                "holdings" -> holdings.sort()
+                "watchlist" -> sortWatchlist()
+            }
         }
     }
 }

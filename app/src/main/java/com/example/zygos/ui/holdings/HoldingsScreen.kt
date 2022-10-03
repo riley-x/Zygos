@@ -5,13 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,9 +17,6 @@ import com.example.zygos.viewModel.Position
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.graphing.PieChart
 import com.example.zygos.ui.theme.ZygosTheme
-
-val holdingsListSortOptions = ImmutableList(listOf("Ticker", "Equity", "Returns", "% Change"))
-val holdingsListDisplayOptions = ImmutableList(listOf("Returns", "% Change"))
 
 @Composable
 fun HoldingsScreen(
