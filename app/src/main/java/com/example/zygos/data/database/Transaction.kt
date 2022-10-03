@@ -1,5 +1,6 @@
 package com.example.zygos.data.database
 
+import android.util.Log
 import androidx.annotation.NonNull
 import androidx.room.*
 import androidx.sqlite.db.SimpleSQLiteQuery
@@ -60,22 +61,23 @@ interface TransactionDao {
     @Query("SELECT * FROM transaction_table ORDER BY transactionId DESC LIMIT :n")
     fun getLast(n: Int = 5): List<Transaction>
 
-    @RawQuery
-    fun getRaw(q: SimpleSQLiteQuery): List<Transaction>
-
     @Query("SELECT COUNT(*) FROM transaction_table")
     fun count(): Int
 
+    @RawQuery
+    fun getRaw(q: SimpleSQLiteQuery): List<Transaction>
     fun get(
         account: String = "",
         ticker: String = "",
         type: TransactionType = TransactionType.NONE,
+        sort: String = "",
         ascending: Boolean = true,
     ): List<Transaction> {
         return getRaw(getTransactionFilteredQuery(
             account = account,
             ticker = ticker,
             type = type,
+            sort = sort,
             ascending = ascending
         ))
     }
@@ -86,6 +88,7 @@ fun getTransactionFilteredQuery(
     account: String = "",
     ticker: String = "",
     type: TransactionType = TransactionType.NONE,
+    sort: String = "",
     ascending: Boolean = true,
 ): SimpleSQLiteQuery {
     val args = mutableListOf<Any>()
@@ -102,10 +105,13 @@ fun getTransactionFilteredQuery(
     if (type != TransactionType.NONE) {
         q += if ("WHERE" in q) " AND" else " WHERE"
         q += " type = ?"
-        args.add(type)
+        args.add(type.name)
     }
-    q += " ORDER BY date"
-    q += if (ascending) " ASC" else " DESC"
+    if (sort.isNotBlank()) {
+        q += " ORDER BY $sort" // can't use args here since it'll wrap the string type in quotes, but this is injection safe since you can't input sort method text anyways
+        q += if (ascending) " ASC" else " DESC"
+    }
+    Log.i("Zygos/Transaction", q)
     return SimpleSQLiteQuery(q, args.toTypedArray())
 }
 

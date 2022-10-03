@@ -79,6 +79,7 @@ class TransactionModel(private val parent: ZygosViewModel) {
             account = account,
             ticker = ticker,
             type = type,
+            sort = sortOption.lowercase(),
             ascending = sortIsAscending,
         ))
 //        Log.i("Zygos/TransactionModel/loadAllWithFilter", q.sql)
