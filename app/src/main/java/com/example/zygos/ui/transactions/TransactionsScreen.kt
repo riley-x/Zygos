@@ -15,7 +15,6 @@ import com.example.zygos.data.database.Transaction
 import com.example.zygos.ui.components.ListTitleBar
 import com.example.zygos.ui.components.LogCompositions
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.Position
 import com.example.zygos.viewModel.TestViewModel
 
 @Composable
@@ -23,7 +22,7 @@ fun TransactionsScreen(
     transactions: SnapshotStateList<Transaction>,
     modifier: Modifier = Modifier,
     onTransactionClick: (Transaction) -> Unit = { },
-    transactionListOptionsCallback: () -> Unit = { },
+    transactionsListOptionsCallback: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "TransactionsScreen")
     // TODO: Use a floating button here for adding transactions
@@ -36,7 +35,7 @@ fun TransactionsScreen(
         Column {
             ListTitleBar(
                 text = "Transactions",
-                onOptionsButtonClick = transactionListOptionsCallback,
+                onOptionsButtonClick = transactionsListOptionsCallback,
                 modifier = Modifier.padding(start = 22.dp)
             )
 

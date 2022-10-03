@@ -69,6 +69,7 @@ fun TransactionDetailsScreen(
 
     fun toTransaction(): Transaction {
         return Transaction(
+            transactionId = initialTransaction.value.transactionId,
             account = account.value,
             ticker = ticker.value,
             note = note.value,

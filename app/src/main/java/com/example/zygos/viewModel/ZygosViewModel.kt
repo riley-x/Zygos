@@ -55,9 +55,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     /** DAOs **/
     internal val transactionDao = application.database.transactionDao()
-    private val equityHistoryDao = application.database.equityHistoryDao()
+    internal val equityHistoryDao = application.database.equityHistoryDao()
     internal val lotDao = application.database.lotDao()
-    private val ohlcDao = application.database.ohlcDao()
+    internal val ohlcDao = application.database.ohlcDao()
 
     /** Account state **/
     val accounts = mutableStateListOf(noAccountMessage)
@@ -236,9 +236,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
     fun sortList(whichList: String) {
-        when(whichList) {
-            "holdings" -> sortHoldingsList()
-            "watchlist" -> sortWatchlist()
+        viewModelScope.launch(Dispatchers.IO) {
+            when(whichList) {
+                "holdings" -> sortHoldingsList()
+                "watchlist" -> sortWatchlist()
+                "transactions" -> transactions.sortAll()
+            }
         }
     }
 

@@ -141,5 +141,10 @@ class TestViewModel: ViewModel() {
         ),
     )
     val focusedTransaction = mutableStateOf(transactions[0]) // Current transaction that we're editing
-
+    var transactionListSortOption by mutableStateOf(transactionSortOptions.items[0])
+        private set
+    var transactionListSortIsAscending by mutableStateOf(true)
+        private set
+    val filterTicker = mutableStateOf("") // these are passed directly to the text fields!
+    val filterType = mutableStateOf(TransactionType.NONE)
 }

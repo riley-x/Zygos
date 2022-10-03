@@ -32,6 +32,7 @@ import com.example.zygos.ui.positionDetails.PositionDetailsScreen
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionDetailsScreen
 import com.example.zygos.ui.transactions.TransactionsScreen
+import com.example.zygos.ui.transactions.transactionsListOptionsSheet
 import com.example.zygos.viewModel.*
 import kotlinx.coroutines.launch
 
@@ -113,6 +114,10 @@ fun ZygosApp(
         }
         fun onWatchlistOptionsShow() = appScope.launch {
             listOptionsSheetVersion = "watchlist"
+            listOptionsSheetState.show()
+        }
+        fun onTransactionsListOptionsShow() = appScope.launch {
+            listOptionsSheetVersion = "transactions"
             listOptionsSheetState.show()
         }
         fun onAddAccountClick() {
@@ -270,6 +275,7 @@ fun ZygosApp(
                         TransactionsScreen(
                             transactions = viewModel.transactions.all,
                             onTransactionClick = ::toTransactionDetails,
+                            transactionsListOptionsCallback = ::onTransactionsListOptionsShow,
                         )
                     }
                     composable(route = TransactionDetailsDestination.route) {
@@ -296,10 +302,8 @@ fun ZygosApp(
             modifier = Modifier.recomposeHighlighter(),
         ) { }
         if (listOptionsSheetIsClosing) {
-            // You could just call the sort function here, but it'll block the thread? Also maybe
-            // recomposition would kill it? In which case you could use SideEffect or DisposableEffect's
-            // onDispose, but they both still block the UI thread when adding a Thread.sleep() call.
-            // Also still not sure why you can't access viewModel from the bottomSheet callback...
+            // For some reason this can't be placed into the bottomSheet callback. Calling the viewModel
+            // inside the callback causes the callback to never be executed??? And the bottom sheet will never open
             LaunchedEffect(true) {
                 //delay(3000) // this happens asynchronously! Make sure that all other state is ok with the positions list being modified
                 viewModel.sortList(listOptionsSheetVersion)
@@ -353,7 +357,7 @@ fun bottomSheetContent(
             onDisplayOptionSelected = { viewModel.holdingsDisplayOption = it },
             onSortOptionSelected = { viewModel.setHoldingsSortMethod(it) },
         )
-        else -> listOptionsSheet(
+        "watchlist" -> listOptionsSheet(
             currentSortOption = viewModel.watchlistSortOption,
             currentDisplayOption = viewModel.watchlistDisplayOption,
             isSortedAscending = viewModel.watchlistSortIsAscending,
@@ -361,6 +365,16 @@ fun bottomSheetContent(
             sortOptions = watchlistSortOptions,
             onDisplayOptionSelected = { viewModel.watchlistDisplayOption = it },
             onSortOptionSelected = { viewModel.setWatchlistSortMethod(it) },
+        )
+        else -> transactionsListOptionsSheet(
+            currentSortOption = viewModel.transactions.sortOption,
+            isSortedAscending = viewModel.transactions.sortIsAscending,
+            sortOptions = transactionSortOptions,
+            tickerFilter = viewModel.transactions.filterTicker,
+            typeFilter = viewModel.transactions.filterType,
+            onSortOptionSelected = viewModel.transactions::setSortMethod,
+            onTickerChange = viewModel.transactions::onFilterTickerChange,
+            onTypeChange = viewModel.transactions::onFilterTypeChange,
         )
     }
 }
