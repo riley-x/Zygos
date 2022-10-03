@@ -240,7 +240,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             when(whichList) {
                 "holdings" -> sortHoldingsList()
                 "watchlist" -> sortWatchlist()
-                "transactions" -> transactions.sortAll()
             }
         }
     }

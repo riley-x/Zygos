@@ -2,6 +2,9 @@ package com.example.zygos.data.database
 
 import androidx.annotation.NonNull
 import androidx.room.*
+import androidx.sqlite.db.SimpleSQLiteQuery
+import com.example.zygos.ui.components.allAccounts
+import java.util.*
 
 enum class TransactionType(val isOption: Boolean = false) {
     TRANSFER, INTEREST, DIVIDEND, STOCK,
@@ -57,11 +60,52 @@ interface TransactionDao {
     @Query("SELECT * FROM transaction_table ORDER BY transactionId DESC LIMIT :n")
     fun getLast(n: Int = 5): List<Transaction>
 
+    @RawQuery
+    fun getRaw(q: SimpleSQLiteQuery): List<Transaction>
+
     @Query("SELECT COUNT(*) FROM transaction_table")
     fun count(): Int
+
+    fun get(
+        account: String = "",
+        ticker: String = "",
+        type: TransactionType = TransactionType.NONE,
+        ascending: Boolean = true,
+    ): List<Transaction> {
+        return getRaw(getTransactionFilteredQuery(
+            account = account,
+            ticker = ticker,
+            type = type,
+            ascending = ascending
+        ))
+    }
 }
 
 
-
-
+fun getTransactionFilteredQuery(
+    account: String = "",
+    ticker: String = "",
+    type: TransactionType = TransactionType.NONE,
+    ascending: Boolean = true,
+): SimpleSQLiteQuery {
+    val args = mutableListOf<Any>()
+    var q = "SELECT * FROM transaction_table"
+    if (account.isNotBlank() && account != allAccounts) {
+        q += " WHERE (account = ? OR account = 'All')"
+        args.add(account)
+    }
+    if (ticker.isNotBlank()) {
+        q += if ("WHERE" in q) " AND" else " WHERE"
+        q += " ticker = ?"
+        args.add(ticker)
+    }
+    if (type != TransactionType.NONE) {
+        q += if ("WHERE" in q) " AND" else " WHERE"
+        q += " type = ?"
+        args.add(type)
+    }
+    q += " ORDER BY date"
+    q += if (ascending) " ASC" else " DESC"
+    return SimpleSQLiteQuery(q, args.toTypedArray())
+}
 

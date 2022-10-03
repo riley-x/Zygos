@@ -19,6 +19,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.zygos.data.database.Transaction
+import com.example.zygos.data.database.TransactionType
 import com.example.zygos.data.database.ZygosDatabase
 import com.example.zygos.ui.*
 import com.example.zygos.ui.analytics.AnalyticsScreen
@@ -31,8 +32,8 @@ import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.positionDetails.PositionDetailsScreen
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionDetailsScreen
+import com.example.zygos.ui.transactions.TransactionsListOptionsDialog
 import com.example.zygos.ui.transactions.TransactionsScreen
-import com.example.zygos.ui.transactions.transactionsListOptionsSheet
 import com.example.zygos.viewModel.*
 import kotlinx.coroutines.launch
 
@@ -84,6 +85,7 @@ fun ZygosApp(
 
         /** Dialog state **/
         var openAddAccountDialog by remember { mutableStateOf(false) }
+        var openTransactionsListOptionsDialog by remember { mutableStateOf(false) }
 
         /** ModalBottomSheetLayout state **/
         var listOptionsSheetVersion by remember { mutableStateOf("") }
@@ -116,10 +118,6 @@ fun ZygosApp(
             listOptionsSheetVersion = "watchlist"
             listOptionsSheetState.show()
         }
-        fun onTransactionsListOptionsShow() = appScope.launch {
-            listOptionsSheetVersion = "transactions"
-            listOptionsSheetState.show()
-        }
         fun onAddAccountClick() {
             openAddAccountDialog = true
         }
@@ -127,6 +125,15 @@ fun ZygosApp(
             openAddAccountDialog = false
             if (account.isNotBlank()) {
                 viewModel.addAccount(account)
+            }
+        }
+        fun onTransactionsListOptionsShow() {
+            openTransactionsListOptionsDialog = true
+        }
+        fun onTransactionsListOptionsDialogClose(isCancel: Boolean, ticker: String, type: TransactionType) {
+            openTransactionsListOptionsDialog = false
+            if (!isCancel) {
+                viewModel.transactions.filterLaunch(ticker, type)
             }
         }
         fun onHoldingsPositionSelected(pos: Position) = navController.navigateToPosition(pos)
@@ -315,6 +322,15 @@ fun ZygosApp(
                 onDismiss = ::onAddAccount
             )
         }
+        if (openTransactionsListOptionsDialog) {
+            TransactionsListOptionsDialog(
+                currentSortOption = viewModel.transactions.sortOption,
+                isSortedAscending = viewModel.transactions.sortIsAscending,
+                sortOptions = transactionSortOptions,
+                onSortOptionSelected = viewModel.transactions::setSortMethod,
+                onDismiss = ::onTransactionsListOptionsDialogClose,
+            )
+        }
     }
 }
 
@@ -357,7 +373,7 @@ fun bottomSheetContent(
             onDisplayOptionSelected = { viewModel.holdingsDisplayOption = it },
             onSortOptionSelected = { viewModel.setHoldingsSortMethod(it) },
         )
-        "watchlist" -> listOptionsSheet(
+        else -> listOptionsSheet(
             currentSortOption = viewModel.watchlistSortOption,
             currentDisplayOption = viewModel.watchlistDisplayOption,
             isSortedAscending = viewModel.watchlistSortIsAscending,
@@ -365,16 +381,6 @@ fun bottomSheetContent(
             sortOptions = watchlistSortOptions,
             onDisplayOptionSelected = { viewModel.watchlistDisplayOption = it },
             onSortOptionSelected = { viewModel.setWatchlistSortMethod(it) },
-        )
-        else -> transactionsListOptionsSheet(
-            currentSortOption = viewModel.transactions.sortOption,
-            isSortedAscending = viewModel.transactions.sortIsAscending,
-            sortOptions = transactionSortOptions,
-            tickerFilter = viewModel.transactions.filterTicker,
-            typeFilter = viewModel.transactions.filterType,
-            onSortOptionSelected = viewModel.transactions::setSortMethod,
-            onTickerChange = viewModel.transactions::onFilterTickerChange,
-            onTypeChange = viewModel.transactions::onFilterTypeChange,
         )
     }
 }

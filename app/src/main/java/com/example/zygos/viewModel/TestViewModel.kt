@@ -145,6 +145,4 @@ class TestViewModel: ViewModel() {
         private set
     var transactionListSortIsAscending by mutableStateOf(true)
         private set
-    val filterTicker = mutableStateOf("") // these are passed directly to the text fields!
-    val filterType = mutableStateOf(TransactionType.NONE)
 }

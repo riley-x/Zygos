@@ -1,5 +1,6 @@
 package com.example.zygos.viewModel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -7,10 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
+import com.example.zygos.data.database.getTransactionFilteredQuery
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
-import com.example.zygos.ui.holdings.holdingsListDisplayOptions
-import com.example.zygos.ui.holdings.holdingsListSortOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -37,16 +37,9 @@ class TransactionModel(private val parent: ZygosViewModel) {
      */
     var sortOption by mutableStateOf(transactionSortOptions.items[0])
         private set
-    var sortIsAscending by mutableStateOf(true)
+    var sortIsAscending by mutableStateOf(false)
         private set
-    val filterTicker = mutableStateOf("") // these are passed directly to the text fields!
-    val filterType = mutableStateOf(TransactionType.NONE)
-    fun onFilterTickerChange(ticker: String) { filterTicker.value = ticker }
-    fun onFilterTypeChange(type: TransactionType) { filterType.value = type }
 
-    // Cached sort options to not re-sort if nothing was changed
-    private var lastSortOption = ""
-    private var lastSortIsAscending = true
 
     // Called from composable onClick callbacks. This only adjusts the UI state, not the actual sort
     fun setSortMethod(opt: String) {
@@ -68,9 +61,7 @@ class TransactionModel(private val parent: ZygosViewModel) {
         }
     }
 
-    /**
-     * MAKE SURE TO CALL FROM A COROUTINE!
-     */
+    /** Make sure to call from coroutines! **/
     fun loadAccount(currentAccount: String) {
         latest.clear()
         if (currentAccount != allAccounts && currentAccount != noAccountMessage) {
@@ -78,10 +69,24 @@ class TransactionModel(private val parent: ZygosViewModel) {
         } else {
             latest.addAll(parent.transactionDao.getLast())
         }
-        // TODO transactionsAll, based on current sort/filter
+        loadAllWithFilter("", TransactionType.NONE)
     }
 
-    fun sortAll() {
+    /** Make sure to call from coroutines! **/
+    fun loadAllWithFilter(ticker: String, type: TransactionType, account: String = parent.currentAccount) {
+        all.clear()
+        all.addAll(parent.transactionDao.get(
+            account = account,
+            ticker = ticker,
+            type = type,
+            ascending = sortIsAscending,
+        ))
+//        Log.i("Zygos/TransactionModel/loadAllWithFilter", q.sql)
+    }
 
+    fun filterLaunch(ticker: String, type: TransactionType) {
+        parent.viewModelScope.launch(Dispatchers.IO) {
+            loadAllWithFilter(ticker, type)
+        }
     }
 }
