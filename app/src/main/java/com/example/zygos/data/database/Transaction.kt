@@ -7,10 +7,20 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.zygos.ui.components.allAccounts
 import java.util.*
 
-enum class TransactionType(val isOption: Boolean = false) {
-    TRANSFER, INTEREST, DIVIDEND, STOCK,
-    CALL_LONG(true), CALL_SHORT(true), PUT_LONG(true), PUT_SHORT(true),
-    BOND, SPLIT, SPINOFF, RENAME, NONE;
+enum class TransactionType(val displayName: String, val isOption: Boolean = false) {
+    TRANSFER("Transfer"),
+    INTEREST("Interest"),
+    DIVIDEND("Dividend"),
+    STOCK("Stock"),
+    CALL_LONG("Long Call", true),
+    CALL_SHORT("Short Call", true),
+    PUT_LONG("Long Put", true),
+    PUT_SHORT("Short Put", true),
+    BOND("Bond"),
+    SPLIT("Split"),
+    SPINOFF("Spin-off"),
+    RENAME("Rename"),
+    NONE("None");
 }
 
 
