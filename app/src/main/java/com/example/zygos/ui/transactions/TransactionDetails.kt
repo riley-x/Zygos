@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -20,7 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.data.toFloatDollar
-import com.example.zygos.data.toIntDollar
+import com.example.zygos.data.toLongDollar
 import com.example.zygos.ui.components.AccountSelector
 import com.example.zygos.ui.components.LogCompositions
 import com.example.zygos.ui.components.recomposeHighlighter
@@ -39,10 +38,10 @@ fun TransactionDetailsScreen(
 ) {
     LogCompositions("Zygos", "TransactionDetails")
 
-    fun toState(field: KProperty1<Transaction, Int>, isDollar: Boolean = false): MutableState<String> {
+    fun toState(field: KProperty1<Transaction, Long>, isDollar: Boolean = false): MutableState<String> {
         val x = field.get(initialTransaction.value)
         return mutableStateOf(
-            if (x == 0) ""
+            if (x == 0L) ""
             else if (isDollar) x.toFloatDollar().toString()
             else x.toString()
         )
@@ -61,10 +60,10 @@ fun TransactionDetailsScreen(
     val strike = remember { toState(Transaction::strike, true) }
     val priceUnderlying = remember { toState(Transaction::priceUnderlying, true) }
 
-    fun toValue(x: State<String>, isDollar: Boolean = false) : Int {
+    fun toValue(x: State<String>, isDollar: Boolean = false) : Long {
         return if (x.value.isBlank()) 0
-        else if (isDollar) x.value.toFloat().toIntDollar()
-        else x.value.toInt()
+        else if (isDollar) x.value.toFloat().toLongDollar()
+        else x.value.toLong()
     }
 
     fun toTransaction(): Transaction {

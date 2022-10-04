@@ -2,6 +2,7 @@ package com.example.zygos.data
 
 import android.icu.util.Calendar
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
 fun Calendar.toIntDate() : Int {
     val year: Int = get(Calendar.YEAR)
@@ -10,18 +11,18 @@ fun Calendar.toIntDate() : Int {
     return year * 10000 + month * 100 + day
 }
 
-fun floatToIntDollar(x: Float) : Int {
-    return (x * 10000f).roundToInt()
+fun floatToLongDollar(x: Float) : Long {
+    return (x * 10000f).roundToLong()
 }
 
-fun Float.toIntDollar(): Int {
-    return floatToIntDollar(this)
+fun Float.toLongDollar(): Long {
+    return floatToLongDollar(this)
 }
 
-fun floatFromIntDollar(x: Int) : Float {
+fun floatFromLongDollar(x: Long) : Float {
     return (x / 10000f)
 }
 
-fun Int.toFloatDollar() : Float {
-    return floatFromIntDollar(this)
+fun Long.toFloatDollar() : Float {
+    return floatFromLongDollar(this)
 }

@@ -16,19 +16,19 @@ import androidx.room.*
 )
 data class Lot(
     // some fields are needed so that queries can easily filter and sort by the Lot's account, etc.
-    @PrimaryKey(autoGenerate = true) val lotId: Int = 0, // 0 to auto generate a key
-    val openTransactionId: Int,
+    @PrimaryKey(autoGenerate = true) val lotId: Long = 0, // 0 to auto generate a key
+    val openTransactionId: Long,
     val account: String, // these are duplicated from the transaction since we query on them a lot
     val ticker: String,
-    val sharesOpen: Int = 0, // for options, also a multiple of 100
-    val realizedClosed: Int = 0, // sum of realized returns of all closed shares
+    val sharesOpen: Long = 0, // for options, also a multiple of 100
+    val realizedClosed: Long = 0, // sum of realized returns of all closed shares
 )
 
 
 @Entity(primaryKeys = ["transactionId", "lotId"])
 data class LotTransactionCrossRef(
-    val transactionId: Int,
-    val lotId: Int
+    val transactionId: Long,
+    val lotId: Long
 )
 
 
@@ -46,7 +46,7 @@ data class LotWithTransactions(
 
 data class RealizedClosed(
     val ticker: String?,
-    val realizedClosed: Int?
+    val realizedClosed: Long?
 )
 
 
@@ -108,9 +108,9 @@ interface LotDao {
     fun tickers(account: String): List<String>
 
     @androidx.room.Transaction // does all the queries here at once
-    fun getOpenAndRealized(account: String): MutableMap<String, Pair<Int, List<LotWithTransactions>>> {
+    fun getOpenAndRealized(account: String): MutableMap<String, Pair<Long, List<LotWithTransactions>>> {
         val realized = realizedClosed(account)
-        val out = mutableMapOf<String, Pair<Int, List<LotWithTransactions>>>()
+        val out = mutableMapOf<String, Pair<Long, List<LotWithTransactions>>>()
         realized.forEach {
             if (it.ticker != null)
                 out[it.ticker] = Pair(it.realizedClosed ?: 0, getOpen(account, it.ticker))

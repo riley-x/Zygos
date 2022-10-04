@@ -21,8 +21,8 @@ import com.example.zygos.data.database.TransactionType
  */
 @Immutable
 data class Position(
-    val type: TransactionType = TransactionType.NONE,
     val ticker: String,
+    val type: TransactionType = TransactionType.NONE,
     val shares: Int = 0,
     val costBasis: Float = 0f,
     val taxBasis: Float = 0f,

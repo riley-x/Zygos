@@ -34,23 +34,23 @@ enum class TransactionType(val displayName: String, val isOption: Boolean = fals
 @Entity(tableName = "transaction_table",  // transaction is a keyword!!!!!!!
 )
 data class Transaction(
-    @PrimaryKey(autoGenerate = true) val transactionId: Int = 0, // 0 to auto generate a key
+    @PrimaryKey(autoGenerate = true) val transactionId: Long = 0, // 0 to auto generate a key
 
     /** Common info **/
     @NonNull val account: String = "", // can be "All" for some special events like split or rename
     @NonNull val ticker: String = "",
     @NonNull val note: String = "", // for TransactionType::RENAME, MUST be the new ticker name
     val type: TransactionType = TransactionType.NONE,
-    val shares: Int = 0, // should be multiple of 100 for options
-    val date: Int = 0,
-    val price: Int = 0, // price to track gain/loss, not the actual value of trade
-    val value: Int = 0, // actual dollar change due to the trade
-    val fees: Int = 0, // known fees associated with opening this position
+    val shares: Long = 0, // should be multiple of 100 for options
+    val date: Long = 0,
+    val price: Long = 0, // price to track gain/loss, not the actual value of trade
+    val value: Long = 0, // actual dollar change due to the trade
+    val fees: Long = 0, // known fees associated with opening this position
 
     /** Option fields **/
-    val expiration: Int = 0,
-    val strike: Int = 0,
-    val priceUnderlying: Int = 0, // when position was opened. Can be 0 for old parthenos transactions, in which case price is only the extrinsic
+    val expiration: Long = 0,
+    val strike: Long = 0,
+    val priceUnderlying: Long = 0, // when position was opened. Can be 0 for old parthenos transactions, in which case price is only the extrinsic
 )
 
 
