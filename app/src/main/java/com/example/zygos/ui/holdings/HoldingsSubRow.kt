@@ -2,9 +2,6 @@ package com.example.zygos.ui.holdings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.ExpandLess
-import androidx.compose.material.icons.sharp.ExpandMore
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier

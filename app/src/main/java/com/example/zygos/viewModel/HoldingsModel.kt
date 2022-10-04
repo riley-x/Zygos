@@ -76,11 +76,22 @@ class HoldingsModel(private val parent: ZygosViewModel) {
 
     // This happens asynchronously! Make sure that all other state is ok with the positions list being modified
     fun sort() {
+        if (longPositions.isEmpty()) return
+
+        /** Cash position is always last **/
+        var cash: Position? = null
+        if (longPositions.last().ticker == "CASH") {
+            cash = longPositions.removeLast()
+        }
+
+        /** Reverse **/
         if (lastSortOption == sortOption) {
             if (lastSortIsAscending != sortIsAscending) {
                 longPositions.reverse()
             }
-        } else {
+        }
+        /** Sort **/
+        else {
             if (sortIsAscending) {
                 when (sortOption) {
                     "Ticker" -> longPositions.sortBy(Position::ticker)
@@ -93,9 +104,12 @@ class HoldingsModel(private val parent: ZygosViewModel) {
                 }
             }
         }
+
+        /** Add back cash **/
+        if (cash != null) longPositions.add(cash)
+
+        /** Update cached sort parameters **/
         lastSortIsAscending = sortIsAscending
         lastSortOption = sortOption
     }
-
-
 }
