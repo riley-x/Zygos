@@ -1,13 +1,16 @@
 package com.example.zygos.ui.holdings
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.ExpandLess
 import androidx.compose.material.icons.sharp.ExpandMore
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -49,14 +52,27 @@ fun HoldingsRow(
             }
         }
 
-        if (expanded) {
-            position.subPositions.forEachIndexed { index, pos ->
-                HoldingsSubRow(
-                    position = pos,
-                    color = color,
-                    displayOption = displayOption,
-                    last = index == position.subPositions.lastIndex,
-                )
+        val density = LocalDensity.current
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(
+                // Expand from the top.
+                expandFrom = Alignment.Top
+            ) + fadeIn(
+                // Fade in with the initial alpha of 0.3f.
+                initialAlpha = 0.3f
+            ),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column {
+                position.subPositions.forEachIndexed { index, pos ->
+                    HoldingsSubRow(
+                        position = pos,
+                        color = color,
+                        displayOption = displayOption,
+                        last = index == position.subPositions.lastIndex,
+                    )
+                }
             }
         }
     }
