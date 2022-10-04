@@ -39,13 +39,6 @@ data class OhlcNamed(
 
 
 @Immutable
-data class Position(
-    val ticker: String,
-    val value: Float,
-    val color: Color,
-)
-
-@Immutable
 data class Quote (
     val ticker: String,
     val color: Color,

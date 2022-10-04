@@ -4,9 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.example.zygos.data.Position
 
 class HoldingsModel(private val parent: ZygosViewModel) {
-    val positions = mutableStateListOf<Position>()
+    val stocks = mutableStateListOf<Position>()
+    val options = mutableStateListOf<Position>()
+    val bonds = mutableStateListOf<Position>()
 
     // These variables are merely the ui state of the options selection menu.
     // The actual sorting is called in sort() via a callback when the menu is hidden.
@@ -30,18 +33,18 @@ class HoldingsModel(private val parent: ZygosViewModel) {
     fun sort() {
         if (lastSortOption == sortOption) {
             if (lastSortIsAscending != sortIsAscending) {
-                positions.reverse()
+                stocks.reverse()
             }
         } else {
             if (sortIsAscending) {
                 when (sortOption) {
-                    "Ticker" -> positions.sortBy(Position::ticker)
-                    else -> positions.sortBy(Position::value)
+                    "Ticker" -> stocks.sortBy(Position::ticker)
+                    else -> stocks.sortBy(Position::equity)
                 }
             } else {
                 when (sortOption) {
-                    "Ticker" -> positions.sortByDescending(Position::ticker)
-                    else -> positions.sortByDescending(Position::value)
+                    "Ticker" -> stocks.sortByDescending(Position::ticker)
+                    else -> stocks.sortByDescending(Position::equity)
                 }
             }
         }

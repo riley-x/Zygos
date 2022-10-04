@@ -2,6 +2,7 @@ package com.example.zygos.ui.analytics
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -34,9 +35,10 @@ fun TransactionTickerRow(
     TickerListRow(
         ticker = transaction.ticker,
         color = tickerColors.getOrDefault(transaction.ticker, Color.Transparent),
-        tickerWeight = 10f,
         modifier = modifier
     ) {
+        Spacer(Modifier.weight(5f))
+
         Column(Modifier.weight(15f)) {
             Text(text = transaction.type.name)
             Text(text = transaction.shares.toString())

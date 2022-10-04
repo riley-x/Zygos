@@ -21,7 +21,6 @@ fun TickerListRow(
     ticker: String,
     color: Color,
     modifier: Modifier = Modifier,
-    tickerWeight: Float = 0f,
     afterTickerContent: @Composable (RowScope.() -> Unit) = { },
 ) {
     Row(
@@ -31,7 +30,7 @@ fun TickerListRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = if (tickerWeight > 0f) Modifier.weight(tickerWeight) else Modifier,
+            modifier = Modifier.width(75.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(
@@ -61,9 +60,14 @@ fun TickerListValueRow(
     subvalue: Float,
     isSubvalueDollar: Boolean,
     modifier: Modifier = Modifier,
+    tickerModifier: Modifier = Modifier,
     afterTickerContent: @Composable (RowScope.() -> Unit) = { },
 ) {
-    TickerListRow(ticker = ticker, color = color, modifier = modifier) {
+    TickerListRow(
+        ticker = ticker,
+        color = color,
+        modifier = modifier,
+    ) {
 
         afterTickerContent(this)
 

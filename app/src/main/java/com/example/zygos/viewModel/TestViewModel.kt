@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import com.example.zygos.data.Position
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.ui.theme.defaultTickerColors
@@ -52,16 +53,44 @@ class TestViewModel: ViewModel() {
 
 
     /** Holdings **/
-    val positions = mutableStateListOf(
-        Position("p1", 0.2f, Color(0xFF004940)),
-        Position("p2", 0.3f, Color(0xFF005D57)),
-        Position("p3", 0.4f, Color(0xFF04B97F)),
-        Position("p4", 0.1f, Color(0xFF37EFBA)),
-        Position("p5", 0.2f, Color(0xFF004940)),
-        Position("p6", 0.3f, Color(0xFF005D57)),
-        Position("p7", 0.4f, Color(0xFF04B97F)),
-        Position("p8", 0.1f, Color(0xFF37EFBA))
+    val longPositions = mutableStateListOf(
+        Position(
+            ticker = "MSFT",
+            shares = 5,
+            costBasis = 1000f,
+            taxBasis = 1000f,
+            realizedOpen = 20f,
+            realizedClosed = 500f,
+            unrealized = 500f,
+            subPositions = listOf(
+                Position(
+                    ticker = "MSFT",
+                    type = TransactionType.CALL_LONG,
+                    shares = 100,
+                    costBasis = 5000f,
+                    unrealized = 2000f,
+                    expiration = 20231010,
+                    strike = 200f,
+                )
+            )
+        ),
+        Position(
+            ticker = "AMD",
+            shares = 10,
+            costBasis = 1000f,
+            taxBasis = 1000f,
+            realizedOpen = 20f,
+            realizedClosed = 0f,
+            unrealized = -500f
+        ),
+        Position(
+            ticker = "CASH",
+            costBasis = 2000f,
+            realizedClosed = 67.09f,
+            equity = 2067.09f,
+        ),
     )
+    val shortPositions = longPositions // TODO
 
     // These variables are merely the ui state of the options selection menu
     // The actual sorting is called in sortHoldingsList() via a callback when

@@ -18,6 +18,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import com.example.zygos.data.Position
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.data.database.ZygosDatabase
@@ -218,7 +219,9 @@ fun ZygosApp(
                     composable(route = HoldingsTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Holdings.route")
                         HoldingsScreen(
-                            positions = viewModel.holdings.positions,
+                            tickerColors = viewModel.tickerColors,
+                            longPositions = viewModel.holdings.stocks,
+                            shortPositions = viewModel.holdings.options,
                             displayOption = viewModel.holdings.displayOption,
                             onPositionClick = ::onHoldingsPositionSelected,
                             holdingsListOptionsCallback = ::onHoldingsListOptionsShow,
