@@ -97,7 +97,7 @@ fun HoldingsScreen(
                 item("short") {
                     ListTitleBar(
                         text = "Short Positions",
-                        modifier = Modifier.padding(start = 22.dp),
+                        modifier = Modifier.padding(start = 22.dp, top = 20.dp),
                         onOptionsButtonClick = holdingsListOptionsCallback,
                     )
                 }

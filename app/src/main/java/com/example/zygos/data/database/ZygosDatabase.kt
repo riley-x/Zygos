@@ -7,7 +7,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import java.io.File
 
-@Database(entities = [Transaction::class, EquityHistory::class, Lot::class, LotTransactionCrossRef::class, Ohlc::class], version = 1)
+@Database(
+    entities = [Transaction::class, EquityHistory::class, Lot::class, LotTransactionCrossRef::class, Ohlc::class],
+    version = 2
+)
 abstract class ZygosDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun lotDao(): LotDao

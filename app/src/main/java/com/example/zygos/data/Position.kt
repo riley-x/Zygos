@@ -14,8 +14,10 @@ import com.example.zygos.data.database.TransactionType
  * @param realizedClosed Realized returns from closed positions. These returns are not included in % return calculations.
  * @param unrealized Includes time value from open options positions.
  * @param averageCost Cost per share on purchase. For stocks it's just [costBasis] / [shares], but can be different for options.
- * @param equity Liquidating value. For stocks it's usually just [costBasis] + [unrealized], but can be different for options.
+ * @param equity Liquidating value of open positions. For stocks it's usually just [costBasis] + [unrealized], but can be different for options.
+ * @param cashEffect Effect of this position on net cash. For stocks it's just realized - [costBasis]
  * @param subPositions Constituent positions, if any. For example a stock position can consist of many lot positions.
+ * @param collateral For short positions, amount of cash collateral. Not used for covered calls. This is usually [costBasis] + STO proceeds
  */
 @Immutable
 data class Position(
@@ -29,10 +31,12 @@ data class Position(
     val unrealized: Float = 0f,
     val averageCost: Float = if (shares > 0) costBasis / shares else 0f,
     val equity: Float = costBasis + unrealized,
+    val cashEffect: Float = realizedClosed + realizedOpen - costBasis,
     val subPositions: List<Position> = emptyList(),
     /** Options **/
     val expiration: Int = 0,
     val strike: Float = 0f,
+    val collateral: Float = 0f,
 ) {
     val realized = realizedOpen + realizedClosed
     val returns = realized + unrealized
