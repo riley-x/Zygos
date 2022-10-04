@@ -49,6 +49,25 @@ fun TickerListRow(
     }
 }
 
+@Composable
+fun ValueAndSubvalue(
+    value: Float,
+    subvalue: Float,
+    modifier: Modifier = Modifier,
+    isSubvalueDollar: Boolean = true,
+) {
+    Column(modifier, horizontalAlignment = Alignment.End) {
+        Text(text = formatDollar(value), style = MaterialTheme.typography.body1)
+        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+            Text(text = if (isSubvalueDollar) formatDollar(subvalue) else formatPercent(subvalue),
+                style = MaterialTheme.typography.subtitle1,
+                color = if (subvalue >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error
+            )
+        }
+    }
+}
+
+
 /**
  * Right aligns a value and subvalue field
  */
@@ -60,7 +79,6 @@ fun TickerListValueRow(
     subvalue: Float,
     isSubvalueDollar: Boolean,
     modifier: Modifier = Modifier,
-    tickerModifier: Modifier = Modifier,
     afterTickerContent: @Composable (RowScope.() -> Unit) = { },
 ) {
     TickerListRow(
@@ -73,15 +91,7 @@ fun TickerListValueRow(
 
         Spacer(Modifier.weight(1f))
 
-        Column(Modifier, horizontalAlignment = Alignment.End) {
-            Text(text = formatDollar(value), style = MaterialTheme.typography.body1)
-            CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                Text(text = if (isSubvalueDollar) formatDollar(subvalue) else formatPercent(subvalue),
-                    style = MaterialTheme.typography.subtitle1,
-                    color = if (subvalue >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error
-                )
-            }
-        }
+        ValueAndSubvalue(value = value, subvalue = subvalue, isSubvalueDollar = isSubvalueDollar)
     }
 }
 

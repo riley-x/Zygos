@@ -56,13 +56,22 @@ class TestViewModel: ViewModel() {
     val longPositions = mutableStateListOf(
         Position(
             ticker = "MSFT",
-            shares = 5,
-            costBasis = 1000f,
-            taxBasis = 1000f,
+            type = TransactionType.NONE,
+            costBasis = 6000f,
             realizedOpen = 20f,
-            realizedClosed = 500f,
-            unrealized = 500f,
+            realizedClosed = 100f,
+            unrealized = 2500f,
             subPositions = listOf(
+                Position(
+                    ticker = "MSFT",
+                    type = TransactionType.STOCK,
+                    shares = 5,
+                    costBasis = 1000f,
+                    taxBasis = 1000f,
+                    realizedOpen = 20f,
+                    realizedClosed = 100f,
+                    unrealized = 500f,
+                ),
                 Position(
                     ticker = "MSFT",
                     type = TransactionType.CALL_LONG,

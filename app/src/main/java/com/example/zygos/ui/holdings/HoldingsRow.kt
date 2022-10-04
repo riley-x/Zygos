@@ -7,7 +7,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.ExpandLess
 import androidx.compose.material.icons.sharp.ExpandMore
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,8 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.Position
-import com.example.zygos.ui.components.ComponentIndicatorLine
-import com.example.zygos.ui.components.TickerListValueRow
+import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.TestViewModel
 
@@ -28,6 +29,7 @@ fun HoldingsRow(
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(true) }
+    val dividerColor = MaterialTheme.colors.onBackground.copy(alpha = 0.2f)
 
     Column(modifier = modifier) {
         TickerListValueRow(
@@ -53,29 +55,53 @@ fun HoldingsRow(
             }
         }
 
-
-        position.subPositions.forEachIndexed { index, pos ->
-
-            Row(
-                modifier = Modifier.height(52.dp)
-            ) {
-                ComponentIndicatorLine(
-                    last = index == position.subPositions.lastIndex,
+        if (expanded) {
+            position.subPositions.forEachIndexed { index, pos ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(start = 26.dp, end = 4.dp)
-                        .size(width = 20.dp, height = 52.dp)
-                )
-                if (pos.type.isOption) {
-                    Column {
-                        Text(pos.type.toString())
-                        Text(pos.shares.toString())
-                    }
-                    Column {
-                        Text(pos.expiration.toString())
-                        Text(pos.strike.toString())
-                    }
-                }
+                        .height(52.dp)
+                        .drawBehind { // Can't use Divider because that adds a space between the ComponentIndicatorLines
+                            val strokeWidth = 1.dp.value * density
+                            val y = strokeWidth / 2
+                            drawLine(
+                                color = dividerColor,
+                                start = Offset(50.dp.value * density, y),
+                                end = Offset(size.width, y),
+                                strokeWidth = strokeWidth
+                            )
+                        }
+                ) {
+                    ComponentIndicatorLine(
+                        last = index == position.subPositions.lastIndex,
+                        color = color.copy(alpha = 0.5f),
+                        modifier = Modifier
+                            .padding(start = 26.dp, end = 4.dp)
+                            .size(width = 20.dp, height = 52.dp)
+                    )
+                    if (pos.type.isOption) {
+                        Column(Modifier.weight(10f)) {
+                            Text(pos.type.toString())
+                            Text("x${pos.shares}")
+                        }
+                        Column(Modifier.weight(10f)) {
+                            Text(formatDateInt(pos.expiration))
+                            Text(pos.strike.toString())
+                        }
 
+                    } else {
+                        Column(Modifier.weight(10f)) {
+                            Text("${pos.shares} shares")
+                            Text(formatDollar(pos.averageCost))
+                        }
+                    }
+                    ValueAndSubvalue(
+                        value = pos.equity,
+                        subvalue = if (displayOption == "Returns") pos.returns else pos.returnsPercent,
+                        isSubvalueDollar = (displayOption == "Returns"),
+                        modifier = Modifier.weight(10f)
+                    )
+                }
             }
         }
     }

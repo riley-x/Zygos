@@ -21,6 +21,10 @@ enum class TransactionType(val displayName: String, val isOption: Boolean = fals
     SPINOFF("Spin-off"),
     RENAME("Rename"),
     NONE("None");
+
+    override fun toString(): String {
+        return displayName
+    }
 }
 
 
