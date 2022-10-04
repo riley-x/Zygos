@@ -13,9 +13,9 @@ All transactions should have transaction type, account, and date set.
 
 ## Lots
 
-WARNING: `realizedOpen` and `realizedClosed` have special use for CASH lots!
+WARNING: `sharesOpen` and `realizedClosed` have special use for CASH lots!
 
 - *CASH*: Cash lots summarize *Transfers* and *Interest*. Every account should have exactly one CASH lot
   after initial setup. The `openTransactionId` keeps track of when the account was opened/first funded.
-  `realizedOpen` is the net value sum of all transfers, while `realizedClosed` is the net sum of all
-  other transactions. `sharesOpen` is always 1.
+  `sharesOpen` is the net value sum of all transfers, while `realizedClosed` is the net sum of all
+  other transactions.

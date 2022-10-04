@@ -24,8 +24,10 @@ fun createLot(t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
     val transactionId = transactionDao.insert(t)
     val lot = Lot(
         openTransactionId = transactionId.toInt(),
-        sharesOpen = if (t.ticker == "CASH") 1 else t.shares,
-        realizedOpen = if (t.ticker == "CASH") t.value else 0,
+        account = t.account,
+        ticker = t.ticker,
+        sharesOpen = if (t.ticker == "CASH") t.value else t.shares,
+        realizedClosed = 0,
     )
     lotDao.insert(lot)
 }
@@ -47,7 +49,7 @@ fun addCashTransaction(
         /** Update current lot **/
         val lotOld = lots[0].lot
         val lot = when (t.type) {
-            TransactionType.TRANSFER -> lotOld.copy(realizedOpen = lotOld.realizedOpen + t.value)
+            TransactionType.TRANSFER -> lotOld.copy(sharesOpen = lotOld.sharesOpen + t.value)
             else -> lotOld.copy(realizedClosed = lotOld.realizedClosed + t.value)
         }
 
