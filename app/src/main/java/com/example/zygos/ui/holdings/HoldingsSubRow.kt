@@ -90,9 +90,6 @@ fun HoldingsSubRowPreview() {
                     last = false,
                     color = Color(0xff00a1f1),
                 )
-
-                Spacer(modifier = Modifier.padding(vertical = 12.dp))
-
                 HoldingsSubRow(
                     position = viewModel.longPositions[1],
                     displayOption = "% Change",

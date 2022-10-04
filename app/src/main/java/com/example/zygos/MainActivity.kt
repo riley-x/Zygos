@@ -220,8 +220,8 @@ fun ZygosApp(
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Holdings.route")
                         HoldingsScreen(
                             tickerColors = viewModel.tickerColors,
-                            longPositions = viewModel.holdings.stocks,
-                            shortPositions = viewModel.holdings.options,
+                            longPositions = viewModel.holdings.longPositions,
+                            shortPositions = viewModel.holdings.shortPositions,
                             displayOption = viewModel.holdings.displayOption,
                             onPositionClick = ::onHoldingsPositionSelected,
                             holdingsListOptionsCallback = ::onHoldingsListOptionsShow,

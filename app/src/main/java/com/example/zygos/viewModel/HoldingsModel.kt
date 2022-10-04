@@ -5,11 +5,56 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.example.zygos.data.Position
+import com.example.zygos.data.database.TransactionType
 
 class HoldingsModel(private val parent: ZygosViewModel) {
-    val stocks = mutableStateListOf<Position>()
-    val options = mutableStateListOf<Position>()
-    val bonds = mutableStateListOf<Position>()
+    val longPositions = mutableStateListOf<Position>(
+        Position(
+            ticker = "MSFT",
+            type = TransactionType.NONE,
+            costBasis = 6000f,
+            realizedOpen = 20f,
+            realizedClosed = 100f,
+            unrealized = 2500f,
+            subPositions = listOf(
+                Position(
+                    ticker = "MSFT",
+                    type = TransactionType.STOCK,
+                    shares = 5,
+                    costBasis = 1000f,
+                    taxBasis = 1000f,
+                    realizedOpen = 20f,
+                    realizedClosed = 100f,
+                    unrealized = 500f,
+                ),
+                Position(
+                    ticker = "MSFT",
+                    type = TransactionType.CALL_LONG,
+                    shares = 100,
+                    costBasis = 5000f,
+                    unrealized = 2000f,
+                    expiration = 20231010,
+                    strike = 200f,
+                )
+            )
+        ),
+        Position(
+            ticker = "AMD",
+            shares = 10,
+            costBasis = 1000f,
+            taxBasis = 1000f,
+            realizedOpen = 20f,
+            realizedClosed = 0f,
+            unrealized = -500f
+        ),
+        Position(
+            ticker = "CASH",
+            costBasis = 2000f,
+            realizedClosed = 67.09f,
+            equity = 2067.09f,
+        ),
+    )
+    val shortPositions = mutableStateListOf<Position>()
 
     // These variables are merely the ui state of the options selection menu.
     // The actual sorting is called in sort() via a callback when the menu is hidden.
@@ -33,18 +78,18 @@ class HoldingsModel(private val parent: ZygosViewModel) {
     fun sort() {
         if (lastSortOption == sortOption) {
             if (lastSortIsAscending != sortIsAscending) {
-                stocks.reverse()
+                longPositions.reverse()
             }
         } else {
             if (sortIsAscending) {
                 when (sortOption) {
-                    "Ticker" -> stocks.sortBy(Position::ticker)
-                    else -> stocks.sortBy(Position::equity)
+                    "Ticker" -> longPositions.sortBy(Position::ticker)
+                    else -> longPositions.sortBy(Position::equity)
                 }
             } else {
                 when (sortOption) {
-                    "Ticker" -> stocks.sortByDescending(Position::ticker)
-                    else -> stocks.sortByDescending(Position::equity)
+                    "Ticker" -> longPositions.sortByDescending(Position::ticker)
+                    else -> longPositions.sortByDescending(Position::equity)
                 }
             }
         }
