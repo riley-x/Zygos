@@ -21,7 +21,7 @@ data class Lot(
     val ticker: String,
     val sharesOpen: Long = 0, // for options, also a multiple of 100
     val feesAndRounding: Long = 0, // -value = feesAndRounding + price * sharesAll. Fees are positive here, and is not altered if sharesOpen changes.
-    val realizedOpen: Long = 0,
+    val dividendsPerShare: Long = 0, // any rounding errors should be placed into feesAndRounding above
     val realizedClosed: Long = 0, // sum of realized returns of all closed shares
 )
 

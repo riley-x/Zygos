@@ -4,7 +4,9 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
-import com.example.zygos.data.Position
+import com.example.zygos.data.LotPosition
+import com.example.zygos.data.PositionType
+import com.example.zygos.data.TickerPosition
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.ui.theme.defaultTickerColors
@@ -51,55 +53,57 @@ class TestViewModel: ViewModel() {
         private set
     var watchlistDisplayOption by mutableStateOf(watchlistDisplayOptions.items[0])
 
+    val prices = mapOf<String, Long>(
+        "MSFT" to 2000000,
+        "AMD" to 1000000,
+    )
 
     /** Holdings **/
     val longPositions = mutableStateListOf(
         Position(
-            ticker = "MSFT",
-            type = TransactionType.NONE,
-            costBasis = 6000f,
-            realizedOpen = 20f,
-            realizedClosed = 100f,
-            unrealized = 2500f,
-            subPositions = listOf(
-                Position(
+            lot = LotPosition(
+                account = "Robinhood",
+                ticker = "MSFT",
+                type = PositionType.STOCK,
+                shares = 5,
+                priceOpen = 2000000,
+                costBasis = 10000000,
+                realizedOpen = 200000,
+                realizedClosed = 1000000,
+            ),
+            prices = prices,
+            subPositions = listOf(Position(
+                lot = LotPosition(
+                    account = "Robinhood",
                     ticker = "MSFT",
-                    type = TransactionType.STOCK,
-                    shares = 5,
-                    costBasis = 1000f,
-                    taxBasis = 1000f,
-                    realizedOpen = 20f,
-                    realizedClosed = 100f,
-                    unrealized = 500f,
-                ),
-                Position(
-                    ticker = "MSFT",
-                    type = TransactionType.CALL_LONG,
+                    type = PositionType.CALL_LONG,
                     shares = 100,
-                    costBasis = 5000f,
-                    unrealized = 2000f,
-                    expiration = 20231010,
-                    strike = 200f,
-                )
-            )
+                    costBasis = 50000000,
+                    expiration = "10/10/23",
+                    strike = "125"
+                ),
+                prices = prices,
+            ))
         ),
-        Position(
+        Position(lot =  LotPosition(
+            account = "Robinhood",
             ticker = "AMD",
+            type = PositionType.STOCK,
             shares = 10,
-            costBasis = 1000f,
-            taxBasis = 1000f,
-            realizedOpen = 20f,
-            realizedClosed = 0f,
-            unrealized = -500f
-        ),
-        Position(
+            priceOpen = 1000000,
+            costBasis = 10000000,
+            realizedOpen = 200000,
+            realizedClosed = 0,
+        ), prices = prices),
+        Position(lot =  LotPosition(
+            account = "Robinhood",
             ticker = "CASH",
-            costBasis = 2000f,
-            realizedClosed = 67.09f,
-            equity = 2067.09f,
-        ),
+            type = PositionType.CASH,
+            costBasis = 20000000,
+            realizedClosed = 670900,
+        ), prices = prices),
     )
-    val shortPositions = longPositions // TODO
+    val shortPositions = mutableStateListOf<Position>()
 
     // These variables are merely the ui state of the options selection menu
     // The actual sorting is called in sortHoldingsList() via a callback when

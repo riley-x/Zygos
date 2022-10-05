@@ -8,15 +8,15 @@ import com.example.zygos.ui.components.formatDollarNoSymbol
 import kotlin.math.abs
 
 
-fun getCashPosition(lot: Lot): Position {
-    return Position(
+fun getCashPosition(lot: Lot): LotPosition {
+    return LotPosition(
         /** Identifiers **/
         account = lot.account,
         ticker = "CASH",
         type = PositionType.CASH,
         /** Basis and returns **/
-        costBasis = lot.sharesOpen.toFloatDollar(),
-        realizedClosed = lot.realizedClosed.toFloatDollar(),
+        costBasis = lot.sharesOpen,
+        realizedClosed = lot.realizedClosed,
     )
 }
 
@@ -32,7 +32,7 @@ fun getTickerPosition(
 ): TickerPosition {
     if (openLots.isEmpty()) throw UnsupportedOperationException("getPositions() passed an empty list")
 
-    var stockPosition = Position(
+    var stockPosition = LotPosition(
         ticker = ticker,
         account = account,
         type = PositionType.STOCK,
@@ -48,11 +48,11 @@ fun getTickerPosition(
     }
 
     val (coveredCalls, longOptions, shortOptions) = collateOptions(optionLots)
-    if (coveredCalls.sumOf(Position::shares) > stockPosition.shares)
-        throw NotImplementedError("Naked Calls")
+    if (coveredCalls.sumOf(LotPosition::shares) > stockPosition.shares)
+        throw NotImplementedError("Naked Shorts")
 
     return TickerPosition(
-        realizedClosed = realizedClosed.toFloatDollar(),
+        realizedFromClosedLots = realizedClosed,
         stock = stockPosition,
         coveredCalls = coveredCalls,
         longOptions = longOptions,
@@ -61,12 +61,12 @@ fun getTickerPosition(
 }
 
 
-fun collateOptions(optionLots: List<LotWithTransactions>): List<List<Position>> {
+fun collateOptions(optionLots: List<LotWithTransactions>): List<List<LotPosition>> {
 
     /** Outputs **/
-    val coveredCalls = mutableListOf<Position>()
-    val longOptions = mutableListOf<Position>() // includes debit spreads
-    val shortOptions = mutableListOf<Position>() // includes credit spreads
+    val coveredCalls = mutableListOf<LotPosition>()
+    val longOptions = mutableListOf<LotPosition>() // includes debit spreads
+    val shortOptions = mutableListOf<LotPosition>() // includes credit spreads
 
     /** Add options from the end (should be time-ordered). When on a short option,
         invalidate corresponding long options by decrementing their shares. Fees, rounding, and
@@ -113,25 +113,25 @@ private fun matches(short: LotWithTransactions, long: LotWithTransactions) : Boo
 }
 
 
-fun stockLotToPosition(lot: LotWithTransactions): Position {
-    return Position(
+fun stockLotToPosition(lot: LotWithTransactions): LotPosition {
+    return LotPosition(
         /** Identifiers **/
         account = lot.lot.account,
         ticker = lot.lot.ticker,
         type = PositionType.STOCK,
         /** Per share **/
         shares = lot.lot.sharesOpen,
-        priceOpen = lot.openTransaction.price.toFloatDollar(),
+        priceOpen = lot.openTransaction.price,
         /** Basis and returns **/
-        costBasis = (lot.lot.sharesOpen * lot.openTransaction.price + lot.lot.feesAndRounding).toFloatDollar(),
-        taxBasis = 0f, // TODO
-        realizedOpen = lot.lot.realizedOpen.toFloatDollar(),
-        realizedClosed = lot.lot.realizedClosed.toFloatDollar(),
+        costBasis = lot.lot.sharesOpen * lot.openTransaction.price + lot.lot.feesAndRounding,
+        taxBasis = 0, // TODO
+        realizedOpen = lot.lot.dividendsPerShare * lot.lot.sharesOpen,
+        realizedClosed = lot.lot.realizedClosed,
     )
 }
 
 /** This is the final position generated from the lot, so include fees, rounding, and realized here **/
-fun makeSingleOptionPosition(shares: Long, lot: LotWithTransactions): Position {
+fun makeSingleOptionPosition(shares: Long, lot: LotWithTransactions): LotPosition {
     val type: PositionType
     var costBasis = 0L
     var collateral = 0L
@@ -157,28 +157,29 @@ fun makeSingleOptionPosition(shares: Long, lot: LotWithTransactions): Position {
         else -> throw RuntimeException("makeSingleOptionPosition() passed unknown transaction type ${lot.openTransaction.type}")
     }
 
-    return Position(
+    return LotPosition(
         /** Identifiers **/
         account = lot.lot.account,
         ticker = lot.lot.ticker,
         type = type,
         /** Per share **/
         shares = shares,
-        priceOpen = lot.openTransaction.price.toFloatDollar(),
+        priceOpen = lot.openTransaction.price,
         /** Basis and returns **/
-        costBasis = costBasis.toFloatDollar(),
-        taxBasis = 0f, // TODO
-        realizedOpen = lot.lot.realizedOpen.toFloatDollar() * shares.toFloat() / lot.lot.sharesOpen, // TODO is this fine?
-        realizedClosed = lot.lot.realizedClosed.toFloatDollar(),
+        costBasis = costBasis,
+        taxBasis = 0, // TODO
+        realizedOpen = lot.lot.dividendsPerShare * shares,
+        realizedClosed = lot.lot.realizedClosed,
         /** Options **/
-        name = "$type ${formatDollarNoSymbol(lot.openTransaction.strike.toFloatDollar())} ${formatDateInt(lot.openTransaction.expiration)}",
-        collateral = collateral.toFloatDollar(),
-        cashEffect = cashEffect.toFloatDollar()
+        strike = formatDollarNoSymbol(lot.openTransaction.strike.toFloatDollar()),
+        expiration = formatDateInt(lot.openTransaction.expiration),
+        collateral = collateral,
+        cashEffect = cashEffect
     )
 }
 
 
-fun makeSpreadPosition(shares: Long, short: LotWithTransactions, long: LotWithTransactions): Pair<Position, Boolean> {
+fun makeSpreadPosition(shares: Long, short: LotWithTransactions, long: LotWithTransactions): Pair<LotPosition, Boolean> {
     val isLong = long.openTransaction.price > short.openTransaction.price
     val type = when (short.openTransaction.type) {
         TransactionType.CALL_SHORT -> if (isLong) PositionType.CALL_DEBIT_SPREAD else PositionType.CALL_CREDIT_SPREAD
@@ -186,10 +187,10 @@ fun makeSpreadPosition(shares: Long, short: LotWithTransactions, long: LotWithTr
         else -> throw RuntimeException("makeSpreadPosition() passed a non-short lot: ${short.openTransaction.type}")
     }
 
-    val strike1 = (if (isLong) long.openTransaction.strike else short.openTransaction.strike).toFloatDollar()
-    val strike2 = (if (isLong) short.openTransaction.strike else long.openTransaction.strike).toFloatDollar()
-    val price = (long.openTransaction.price - short.openTransaction.price).toFloatDollar()
-    val collateral = if (isLong) 0f else abs(strike1 - strike2) * shares
+    val strike1 = if (isLong) long.openTransaction.strike else short.openTransaction.strike
+    val strike2 = if (isLong) short.openTransaction.strike else long.openTransaction.strike
+    val price = long.openTransaction.price - short.openTransaction.price
+    val collateral = if (isLong) 0 else abs(strike1 - strike2) * shares
 
     /** If this is the final position generated from the lot, include fees, rounding, and realized here **/
     var fees = 0L
@@ -203,7 +204,7 @@ fun makeSpreadPosition(shares: Long, short: LotWithTransactions, long: LotWithTr
         realizedClosed += short.lot.realizedClosed
     }
 
-    val pos = Position(
+    val pos = LotPosition(
         /** Identifiers **/
         account = short.lot.account,
         ticker = short.lot.ticker,
@@ -212,13 +213,13 @@ fun makeSpreadPosition(shares: Long, short: LotWithTransactions, long: LotWithTr
         shares = shares,
         priceOpen = abs(price),
         /** Basis and returns **/
-        costBasis = collateral + (price * shares + fees.toFloatDollar()),
-        taxBasis = 0f, // TODO
-        realizedOpen = long.lot.realizedOpen.toFloatDollar() * shares / long.lot.sharesOpen +
-                       short.lot.realizedOpen.toFloatDollar() * shares / short.lot.sharesOpen,
-        realizedClosed = realizedClosed.toFloatDollar(),
+        costBasis = collateral + (price * shares + fees),
+        taxBasis = 0, // TODO
+        realizedOpen = long.lot.dividendsPerShare * shares + short.lot.dividendsPerShare * shares,
+        realizedClosed = realizedClosed,
         /** Options **/
-        name = "$type ${formatDollarNoSymbol(strike1)}-${formatDollarNoSymbol(strike2)} ${formatDateInt(short.openTransaction.expiration)}",
+        strike = "${formatDollarNoSymbol(strike1.toFloatDollar())}-${formatDollarNoSymbol(strike2.toFloatDollar())}",
+        expiration = formatDateInt(short.openTransaction.expiration),
         collateral = collateral,
     )
 

@@ -14,9 +14,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.Position
+import com.example.zygos.data.TickerPosition
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.viewModel.Position
 import com.example.zygos.viewModel.TestViewModel
 
 @Composable
@@ -40,7 +41,7 @@ fun HoldingsRow(
             if (position.subPositions.isEmpty()) {
                 Column(Modifier) {
                     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                        Text(text = "${position.shares}", style = MaterialTheme.typography.subtitle1)
+                        Text(text = "${position.lot.shares}", style = MaterialTheme.typography.subtitle1)
                         Text(text = "shares", style = MaterialTheme.typography.subtitle1)
                     }
                 }
@@ -65,7 +66,7 @@ fun HoldingsRow(
             exit = shrinkVertically() + fadeOut()
         ) {
             Column {
-                position.subPositions.forEachIndexed { index, pos ->
+                (position.subPositions).forEachIndexed { index, pos ->
                     HoldingsSubRow(
                         position = pos,
                         color = color,

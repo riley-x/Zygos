@@ -2,6 +2,8 @@ package com.example.zygos.viewModel
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import com.example.zygos.data.LotPosition
+import com.example.zygos.data.toFloatDollar
 
 /**
  * This file contains data classes that are passed into composables
@@ -46,3 +48,34 @@ data class Quote (
     val change: Float,
     val percentChange: Float,
 )
+
+@Immutable
+data class Position (
+    val lot: LotPosition,
+    val unrealized: Float,
+    val returns: Float,
+    val returnsPercent: Float,
+    val equity: Float,
+    val subPositions: List<Position> = emptyList(),
+) {
+    val ticker = lot.ticker
+    val account = lot.account
+
+    companion object Factory {
+        operator fun invoke(
+            lot: LotPosition,
+            subPositions: List<Position> = emptyList(),
+            prices: Map<String, Long> = emptyMap()
+        ): Position {
+            return Position(
+                lot = lot,
+                unrealized = lot.unrealized(prices[lot.ticker]).toFloatDollar(),
+                returns = lot.returns(prices[lot.ticker]).toFloatDollar(),
+                returnsPercent = lot.returnsPercent(prices[lot.ticker]).toFloat(),
+                equity = lot.equity(prices[lot.ticker]).toFloatDollar(),
+                subPositions = subPositions,
+            )
+        }
+    }
+}
+

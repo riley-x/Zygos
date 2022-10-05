@@ -38,6 +38,10 @@ fun TransactionDetailsScreen(
 ) {
     LogCompositions("Zygos", "TransactionDetails")
 
+    fun toState(field: KProperty1<Transaction, Int>): MutableState<String> {
+        val x = field.get(initialTransaction.value)
+        return mutableStateOf(if (x == 0) "" else x.toString())
+    }
     fun toState(field: KProperty1<Transaction, Long>, isDollar: Boolean = false): MutableState<String> {
         val x = field.get(initialTransaction.value)
         return mutableStateOf(
@@ -74,11 +78,11 @@ fun TransactionDetailsScreen(
             note = note.value,
             type = type.value,
             shares = toValue(shares),
-            date = toValue(date),
+            date = toValue(date).toInt(),
             price = toValue(price, true),
             value = toValue(value, true),
 //            fees = fees.value.toFloat().toIntDollar(),
-            expiration = toValue(expiration),
+            expiration = toValue(expiration).toInt(),
             strike = toValue(strike, true),
             priceUnderlying = toValue(priceUnderlying, true),
         )

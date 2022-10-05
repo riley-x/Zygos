@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "c11109ddbce04bd166f1a0c8990588e2",
+    "identityHash": "d3ec2323ef5c9c9bf725877f39e4f59f",
     "entities": [
       {
         "tableName": "transaction_table",
@@ -131,17 +131,11 @@
       },
       {
         "tableName": "lot",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lotId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `openTransactionId` INTEGER NOT NULL, `account` TEXT NOT NULL, `ticker` TEXT NOT NULL, `sharesOpen` INTEGER NOT NULL, `realizedClosed` INTEGER NOT NULL, FOREIGN KEY(`openTransactionId`) REFERENCES `transaction_table`(`transactionId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lotId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `account` TEXT NOT NULL, `ticker` TEXT NOT NULL, `sharesOpen` INTEGER NOT NULL, `feesAndRounding` INTEGER NOT NULL, `dividendsPerShare` INTEGER NOT NULL, `realizedClosed` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "lotId",
             "columnName": "lotId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "openTransactionId",
-            "columnName": "openTransactionId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -164,6 +158,18 @@
             "notNull": true
           },
           {
+            "fieldPath": "feesAndRounding",
+            "columnName": "feesAndRounding",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dividendsPerShare",
+            "columnName": "dividendsPerShare",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "realizedClosed",
             "columnName": "realizedClosed",
             "affinity": "INTEGER",
@@ -177,19 +183,7 @@
           "autoGenerate": true
         },
         "indices": [],
-        "foreignKeys": [
-          {
-            "table": "transaction_table",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "openTransactionId"
-            ],
-            "referencedColumns": [
-              "transactionId"
-            ]
-          }
-        ]
+        "foreignKeys": []
       },
       {
         "tableName": "LotTransactionCrossRef",
@@ -273,7 +267,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c11109ddbce04bd166f1a0c8990588e2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd3ec2323ef5c9c9bf725877f39e4f59f')"
     ]
   }
 }

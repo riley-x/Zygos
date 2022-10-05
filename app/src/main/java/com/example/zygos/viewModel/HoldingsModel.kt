@@ -4,55 +4,60 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.example.zygos.data.Position
-import com.example.zygos.data.database.TransactionType
+import com.example.zygos.data.LotPosition
+import com.example.zygos.data.PositionType
+import com.example.zygos.data.TickerPosition
 
 class HoldingsModel(private val parent: ZygosViewModel) {
-    val longPositions = mutableStateListOf<Position>(
+
+    val prices = mapOf<String, Long>(
+        "MSFT" to 2000000,
+        "AMD" to 1000000,
+    )
+
+    val longPositions = mutableStateListOf(
         Position(
-            ticker = "MSFT",
-            type = TransactionType.NONE,
-            costBasis = 6000f,
-            realizedOpen = 20f,
-            realizedClosed = 100f,
-            unrealized = 2500f,
-            subPositions = listOf(
-                Position(
+            lot = LotPosition(
+                account = "Robinhood",
+                ticker = "MSFT",
+                type = PositionType.STOCK,
+                shares = 5,
+                priceOpen = 2000000,
+                costBasis = 10000000,
+                realizedOpen = 200000,
+                realizedClosed = 1000000,
+            ),
+            prices = prices,
+            subPositions = listOf(Position(
+                lot = LotPosition(
+                    account = "Robinhood",
                     ticker = "MSFT",
-                    type = TransactionType.STOCK,
-                    shares = 5,
-                    costBasis = 1000f,
-                    taxBasis = 1000f,
-                    realizedOpen = 20f,
-                    realizedClosed = 100f,
-                    unrealized = 500f,
-                ),
-                Position(
-                    ticker = "MSFT",
-                    type = TransactionType.CALL_LONG,
+                    type = PositionType.CALL_LONG,
                     shares = 100,
-                    costBasis = 5000f,
-                    unrealized = 2000f,
-                    expiration = 20231010,
-                    strike = 200f,
-                )
-            )
+                    costBasis = 50000000,
+                    expiration = "10/10/23",
+                    strike = "125"
+                ),
+                prices = prices,
+            ))
         ),
-        Position(
+        Position(lot =  LotPosition(
+            account = "Robinhood",
             ticker = "AMD",
+            type = PositionType.STOCK,
             shares = 10,
-            costBasis = 1000f,
-            taxBasis = 1000f,
-            realizedOpen = 20f,
-            realizedClosed = 0f,
-            unrealized = -500f
-        ),
-        Position(
+            priceOpen = 1000000,
+            costBasis = 10000000,
+            realizedOpen = 200000,
+            realizedClosed = 0,
+        ), prices = prices),
+        Position(lot =  LotPosition(
+            account = "Robinhood",
             ticker = "CASH",
-            costBasis = 2000f,
-            realizedClosed = 67.09f,
-            equity = 2067.09f,
-        ),
+            type = PositionType.CASH,
+            costBasis = 20000000,
+            realizedClosed = 670900,
+        ), prices = prices),
     )
     val shortPositions = mutableStateListOf<Position>()
 

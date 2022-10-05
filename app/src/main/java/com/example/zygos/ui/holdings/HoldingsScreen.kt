@@ -6,6 +6,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
@@ -13,19 +15,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.Position
+import com.example.zygos.data.LotPosition
+import com.example.zygos.data.TickerPosition
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.graphing.PieChart
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.viewModel.Position
 import com.example.zygos.viewModel.TestViewModel
 
 /**
- * @param longPositions should have one entry per ticker, and correspond to each pie chart wedge and
- * main list ticker row. It can optionally have subPositions for shares (exactly one), long options,
- * and covered calls. The second will appear as fragments in the pie chart and the third will appear
- * as subwedges, and will show up in the watchlist when the ticker row is expanded.
- * @param shortPositions should have no subPositions. They appear as subwedges under the CASH wedge
- * and in a separate watchlist.
+ * @param positions should have one entry per ticker, and correspond to each pie chart wedge and
+ * main list ticker row. Long options will appear as fragments in the pie chart and covered calls
+ * will appear as subwedges, and will show up in the watchlist when the ticker row is expanded.
+ * Short positions appear as subwedges under the CASH wedge and in a separate watchlist.
  */
 @Composable
 fun HoldingsScreen(
@@ -35,10 +37,11 @@ fun HoldingsScreen(
     displayOption: String,
     modifier: Modifier = Modifier,
     accountBar: @Composable () -> Unit = { },
-    onPositionClick: (Position) -> Unit = { },
+    onPositionClick: (String) -> Unit = { },
     holdingsListOptionsCallback: () -> Unit = { },
 ) {
     LogCompositions("Zygos/Compositions", "HoldingsScreen")
+
     Column(
         modifier = modifier
             .fillMaxWidth(),
@@ -87,7 +90,7 @@ fun HoldingsScreen(
                             color = tickerColors.getOrDefault(pos.ticker, Color.Black),
                             displayOption = displayOption,
                             modifier = Modifier
-                                .clickable { onPositionClick(pos) }
+                                .clickable { onPositionClick(pos.ticker) }
                                 .padding(horizontal = 6.dp) // this needs to be second so that the clickable
                                                             // animation covers the full width
                         )
@@ -126,7 +129,7 @@ fun PreviewHoldingsScreen() {
     ZygosTheme {
         HoldingsScreen(
             longPositions = viewModel.longPositions,
-            shortPositions = viewModel.longPositions, // TODO
+            shortPositions = viewModel.shortPositions,
             tickerColors = viewModel.tickerColors,
             displayOption = "Returns",
         )

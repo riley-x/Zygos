@@ -11,9 +11,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.Position
+import com.example.zygos.data.LotPosition
+import com.example.zygos.data.toFloatDollar
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.viewModel.Position
 import com.example.zygos.viewModel.TestViewModel
 
 @Composable
@@ -48,20 +50,20 @@ fun HoldingsSubRow(
                 .padding(start = 26.dp, end = 4.dp)
                 .size(width = 20.dp, height = 52.dp)
         )
-        if (position.type.isOption) {
+        if (position.lot.type.isOption) {
             Column(Modifier.weight(10f)) {
-                Text(position.type.toString())
-                Text("x${position.shares}")
+                Text(position.lot.type.toString())
+                Text("x${position.lot.shares}")
             }
             Column(Modifier.weight(10f)) {
-                Text(formatDateInt(position.expiration))
-                Text(position.strike.toString())
+                Text(position.lot.expiration)
+                Text(position.lot.strike)
             }
 
         } else {
             Column(Modifier.weight(10f)) {
-                Text("${position.shares} shares")
-                Text(formatDollar(position.averageCost))
+                Text("${position.lot.shares} shares")
+                Text(formatDollar(position.lot.priceOpen.toFloatDollar()))
             }
         }
         ValueAndSubvalue(
