@@ -117,11 +117,12 @@ class TickerPosition(
     val ticker = stock.ticker
     val cashEffect = sumWith { cashEffect }
     val realizedClosed = realizedFromClosedLots + sumWith { realizedClosed }
-    val realizedLong = sumWith(true) { realized }
     val realizedOpenLong = sumWith(true) { realizedOpen }
     val costBasisLong = sumWith(true) { costBasis }
-    fun unrealizedLong(prices: Map<String, Long> = emptyMap()) = sumWith(prices, true) { unrealized(it) }
-    fun returnsLong(prices: Map<String, Long> = emptyMap()) = sumWith(prices, true) { returns(it) }
-    fun returnsPercentLong(prices: Map<String, Long> = emptyMap()) = returnsLong(prices).toDouble() / costBasisLong
-    fun equityLong(prices: Map<String, Long> = emptyMap()) = sumWith(prices, true) { equity(it) }
+    val costBasisShort = shortOptions.sumOf(LotPosition::costBasis)
+    val costBasis = costBasisLong + costBasisShort
+    fun unrealized(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { unrealized(it) }
+    fun returns(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { returns(it) }
+    fun returnsPercent(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = returns(prices, longOnly).toDouble() / (if (longOnly) costBasisLong else costBasis)
+    fun equity(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { equity(it) }
 }

@@ -11,13 +11,15 @@ import com.example.zygos.data.TickerPosition
 class HoldingsModel(private val parent: ZygosViewModel) {
 
     val prices = mapOf<String, Long>(
-        "MSFT" to 2000000,
-        "AMD" to 1000000,
+        "MSFT" to 2500000,
+        "MSFT 10/10/23 125" to 600000,
+        "AMD" to 1300000,
     )
 
+    /** Holdings **/
     val longPositions = mutableStateListOf(
-        Position(
-            lot = LotPosition(
+        Position.getLongPosition(TickerPosition(
+            stock = LotPosition(
                 account = "Robinhood",
                 ticker = "MSFT",
                 type = PositionType.STOCK,
@@ -27,19 +29,19 @@ class HoldingsModel(private val parent: ZygosViewModel) {
                 realizedOpen = 200000,
                 realizedClosed = 1000000,
             ),
-            prices = prices,
-            subPositions = listOf(Position(
-                lot = LotPosition(
+            longOptions = listOf(
+                LotPosition(
                     account = "Robinhood",
                     ticker = "MSFT",
                     type = PositionType.CALL_LONG,
                     shares = 100,
+                    priceOpen = 500000,
                     costBasis = 50000000,
                     expiration = "10/10/23",
                     strike = "125"
-                ),
-                prices = prices,
-            ))
+                )
+            )),
+            prices = prices
         ),
         Position(lot =  LotPosition(
             account = "Robinhood",

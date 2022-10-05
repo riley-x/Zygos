@@ -14,7 +14,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.TickerPosition
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.Position
@@ -34,14 +33,14 @@ fun HoldingsRow(
             ticker = position.ticker,
             color = color,
             value = position.equity,
-            subvalue = if (displayOption == "Returns") position.returns else position.returnsPercent,
+            subvalue = if (displayOption == "Returns") position.returnsOpen else position.returnsPercent,
             isSubvalueDollar = (displayOption == "Returns"),
             modifier = Modifier
         ) {
             if (position.subPositions.isEmpty()) {
                 Column(Modifier) {
                     CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                        Text(text = "${position.lot.shares}", style = MaterialTheme.typography.subtitle1)
+                        Text(text = "${position.shares}", style = MaterialTheme.typography.subtitle1)
                         Text(text = "shares", style = MaterialTheme.typography.subtitle1)
                     }
                 }

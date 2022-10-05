@@ -11,8 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.LotPosition
-import com.example.zygos.data.toFloatDollar
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.Position
@@ -50,25 +48,25 @@ fun HoldingsSubRow(
                 .padding(start = 26.dp, end = 4.dp)
                 .size(width = 20.dp, height = 52.dp)
         )
-        if (position.lot.type.isOption) {
+        if (position.type.isOption) {
             Column(Modifier.weight(10f)) {
-                Text(position.lot.type.toString())
-                Text("x${position.lot.shares}")
+                Text(position.type.toString())
+                Text("x${position.shares}")
             }
             Column(Modifier.weight(10f)) {
-                Text(position.lot.expiration)
-                Text(position.lot.strike)
+                Text(position.expiration)
+                Text(position.strike)
             }
 
         } else {
             Column(Modifier.weight(10f)) {
-                Text("${position.lot.shares} shares")
-                Text(formatDollar(position.lot.priceOpen.toFloatDollar()))
+                Text("${position.shares} shares")
+                Text(formatDollar(position.priceOpen))
             }
         }
         ValueAndSubvalue(
             value = position.equity,
-            subvalue = if (displayOption == "Returns") position.returns else position.returnsPercent,
+            subvalue = if (displayOption == "Returns") position.returnsOpen else position.returnsPercent,
             isSubvalueDollar = (displayOption == "Returns"),
             modifier = Modifier.weight(10f)
         )
