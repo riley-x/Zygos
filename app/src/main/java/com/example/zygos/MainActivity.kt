@@ -218,7 +218,8 @@ fun ZygosApp(
                     composable(route = HoldingsTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Holdings.route")
                         HoldingsScreen(
-                            longIsLoading = viewModel.holdings.longIsLoading,
+                            longPositionsAreLoading = viewModel.holdings.longPositionsAreLoading,
+                            shortPositionsAreLoading = viewModel.holdings.shortPositionsAreLoading,
                             tickerColors = viewModel.tickerColors,
                             longPositions = viewModel.holdings.longPositions,
                             shortPositions = viewModel.holdings.shortPositions,

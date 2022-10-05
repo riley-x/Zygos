@@ -7,8 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
@@ -17,8 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.LotPosition
-import com.example.zygos.data.TickerPosition
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.graphing.PieChart
 import com.example.zygos.ui.theme.ZygosTheme
@@ -33,7 +29,8 @@ import com.example.zygos.viewModel.TestViewModel
  */
 @Composable
 fun HoldingsScreen(
-    longIsLoading: Boolean,
+    longPositionsAreLoading: Boolean,
+    shortPositionsAreLoading: Boolean,
     longPositions: SnapshotStateList<Position>,
     shortPositions: SnapshotStateList<Position>,
     tickerColors: SnapshotStateMap<String, Color>,
@@ -67,7 +64,7 @@ fun HoldingsScreen(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        if (!longIsLoading) {
+                        if (!longPositionsAreLoading && !shortPositionsAreLoading) {
                             PieChart(
                                 tickers = longPositions.map { it.ticker },
                                 values = longPositions.map { it.equity },
@@ -104,10 +101,9 @@ fun HoldingsScreen(
                     )
                 }
 
-                if (!longIsLoading) {
+                if (!longPositionsAreLoading) {
                     itemsIndexed(longPositions, key = { _, pos -> pos.ticker } ) { index, pos ->
                         Column {
-                            Log.w("Zygos", "$index ${longPositions.size}")
                             if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
 
                             HoldingsRow(
@@ -121,6 +117,17 @@ fun HoldingsScreen(
                             )
                         }
                     }
+                } else {
+                    item("long spinner") {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .height(60.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
                 }
 
                 item("short") {
@@ -131,11 +138,24 @@ fun HoldingsScreen(
                     )
                 }
 
-                itemsIndexed(shortPositions) { index, pos ->
-                    Column {
-                        if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
+                if (!shortPositionsAreLoading) {
+                    itemsIndexed(shortPositions) { index, pos ->
+                        Column {
+                            if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
 
-                        // TODO
+                            // TODO
+                        }
+                    }
+                } else {
+                    item("short spinner") {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .height(60.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
             }
@@ -154,7 +174,8 @@ fun PreviewHoldingsScreen() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
         HoldingsScreen(
-            false,
+            longPositionsAreLoading = false,
+            shortPositionsAreLoading = true,
             longPositions = viewModel.longPositions,
             shortPositions = viewModel.shortPositions,
             tickerColors = viewModel.tickerColors,
