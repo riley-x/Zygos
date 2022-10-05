@@ -20,8 +20,7 @@ data class Lot(
     val account: String, // these are duplicated from the transaction since we query on them a lot
     val ticker: String,
     val sharesOpen: Long = 0, // for options, also a multiple of 100
-    val costBasisOpen: Long = 0,
-    val taxBasisOpen: Long = 0,
+    val feesAndRounding: Long = 0, // -value = feesAndRounding + price * sharesAll. Fees are positive here, and is not altered if sharesOpen changes.
     val realizedOpen: Long = 0,
     val realizedClosed: Long = 0, // sum of realized returns of all closed shares
 )

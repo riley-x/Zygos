@@ -11,10 +11,12 @@ enum class PositionType(val displayName: String, val isShort: Boolean = false) {
     STOCK("Stock"),
     CALL_LONG("Call"),
     PUT_LONG("Put"),
-    CALL_DEBIT_SPREAD("Call Debit Spread"),
+    CALL_DEBIT_SPREAD("Call Debit Spread"), // all spreads can include diagonals/calendars
+    CALL_CREDIT_SPREAD("Call Credit Spread"),
     PUT_DEBIT_SPREAD("Put Debit Spread"),
-    SHORT_OPTION("Short Option", true), // includes credit spreads, but not covered calls
-    COVERED_CALL("Covered Call", true), // unique since they have shares as collateral
+    PUT_CREDIT_SPREAD("Put Credit Spread"),
+    CASH_SECURED_PUT("CSP", true),
+    COVERED_CALL("Covered Call", true),
     BOND("Bond"),
     NONE("None");
 
@@ -29,7 +31,7 @@ enum class PositionType(val displayName: String, val isShort: Boolean = false) {
  * Summarizes the current holdings and returns of a position, whether the entire account or a single
  * lot.
  *
- * @param shares should be negative for short positions!
+ * @param shares is always positive
  *
  * @param costBasis Used for % return calculation, the amount of cash needed to open the position.
  * For long positions this is essentially [shares] * [priceOpen], but can be different due to
@@ -61,13 +63,14 @@ data class Position(
     /** Options **/
     val name: String = "",
     val collateral: Float = 0f,
+    val cashEffect: Float = realizedOpen + realizedClosed + collateral +
+            if (type == PositionType.CASH) costBasis else -costBasis // this is valid for everything but covered calls
 ) {
     val realized = realizedOpen + realizedClosed
-    val cashEffect = realized + collateral + if (type == PositionType.CASH) costBasis else -costBasis // works for short positions too!
-    fun unrealized(priceCurrent: Float) = (priceCurrent - priceOpen) * shares
+    fun unrealized(priceCurrent: Float) = (priceCurrent - priceOpen) * shares * if (type.isShort) -1 else 1
     fun returns(priceCurrent: Float) = realized + unrealized(priceCurrent)
     fun returnsPercent(priceCurrent: Float) = (realizedOpen + unrealized(priceCurrent)) / costBasis
-    fun equity(priceCurrent: Float) = if (type == PositionType.CASH) cashEffect else priceCurrent * shares
+    fun equity(priceCurrent: Float) = if (type == PositionType.CASH) cashEffect else priceCurrent * shares * if (type.isShort) -1 else 1
 
     operator fun plus(b: Position): Position {
         if (type == PositionType.STOCK && b.type == PositionType.STOCK && ticker == b.ticker) {
