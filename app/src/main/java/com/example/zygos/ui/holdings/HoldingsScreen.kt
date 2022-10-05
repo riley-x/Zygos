@@ -102,6 +102,7 @@ fun HoldingsScreen(
                 }
 
                 if (!longPositionsAreLoading) {
+                    Log.w("Zygos", "start ${longPositions.size}")
                     itemsIndexed(longPositions, key = { _, pos -> pos.ticker } ) { index, pos ->
                         Column {
                             if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
@@ -117,6 +118,7 @@ fun HoldingsScreen(
                             )
                         }
                     }
+                    Log.w("Zygos", "end ${longPositions.size}\n\n")
                 } else {
                     item("long spinner") {
                         Box(
