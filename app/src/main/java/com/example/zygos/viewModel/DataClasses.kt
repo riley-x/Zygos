@@ -115,9 +115,9 @@ data class Position (
             prices: Map<String, Long> = emptyMap()
         ): Position {
             val subPositions = mutableListOf<Position>()
-            if (tickerPosition.stock.shares > 0) subPositions.add(Position(tickerPosition.stock))
-            tickerPosition.longOptions.forEach { subPositions.add(Position(it)) }
-            tickerPosition.coveredCalls.forEach { subPositions.add(Position(it)) }
+            if (tickerPosition.stock.shares > 0) subPositions.add(Position(tickerPosition.stock, prices))
+            tickerPosition.longOptions.forEach { subPositions.add(Position(it, prices)) }
+            tickerPosition.coveredCalls.forEach { subPositions.add(Position(it, prices)) }
 
             val realizedOpen = tickerPosition.realizedOpenLong.toFloatDollar()
             val unrealized = tickerPosition.unrealized(prices, true).toFloatDollar()

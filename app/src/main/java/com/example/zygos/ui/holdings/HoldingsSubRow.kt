@@ -82,13 +82,13 @@ fun HoldingsSubRowPreview() {
         Surface() {
             Column() {
                 HoldingsSubRow(
-                    position = viewModel.longPositions[0],
+                    position = viewModel.longPositions[0].subPositions[0],
                     displayOption = "Returns",
                     last = false,
                     color = Color(0xff00a1f1),
                 )
                 HoldingsSubRow(
-                    position = viewModel.longPositions[1],
+                    position = viewModel.longPositions[0].subPositions[1],
                     displayOption = "% Change",
                     last = true,
                     color = Color(0xff00a1f1),

@@ -1,5 +1,6 @@
 package com.example.zygos.ui.holdings
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +11,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +33,7 @@ import com.example.zygos.viewModel.TestViewModel
  */
 @Composable
 fun HoldingsScreen(
+    longIsLoading: Boolean,
     longPositions: SnapshotStateList<Position>,
     shortPositions: SnapshotStateList<Position>,
     tickerColors: SnapshotStateMap<String, Color>,
@@ -53,23 +56,43 @@ fun HoldingsScreen(
                 .fillMaxSize()
         ) {
             LazyColumn {
+
                 item("pie_chart") {
-                    Row( // For some reason couldn't just use Modifier.alignment in PieChart
+                    Row(
+                        // For some reason couldn't just use Modifier.alignment in PieChart
                         modifier = Modifier
                             .padding(start = 30.dp, end = 30.dp)
+                            .heightIn(0.dp, 300.dp)
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        PieChart(
-                            tickers = longPositions.map { it.ticker },
-                            values = longPositions.map { it.equity },
-                            colors = longPositions.map { tickerColors.getOrDefault(it.ticker, Color.Black) },
-                            modifier = Modifier
-                                .heightIn(0.dp, 300.dp)
-                                .aspectRatio(1f)
-                                .fillMaxWidth(),
-                            stroke = 30.dp,
-                        )
+                        if (!longIsLoading) {
+                            PieChart(
+                                tickers = longPositions.map { it.ticker },
+                                values = longPositions.map { it.equity },
+                                colors = longPositions.map {
+                                    tickerColors.getOrDefault(
+                                        it.ticker,
+                                        Color.Black
+                                    )
+                                },
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .fillMaxWidth(),
+                                stroke = 30.dp,
+                            )
+                        }
+                        else {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .fillMaxWidth(),
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
                     }
                 }
 
@@ -81,19 +104,22 @@ fun HoldingsScreen(
                     )
                 }
 
-                itemsIndexed(longPositions, key = { _, pos -> pos.ticker }) { index, pos ->
-                    Column {
-                        if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
+                if (!longIsLoading) {
+                    itemsIndexed(longPositions, key = { _, pos -> pos.ticker } ) { index, pos ->
+                        Column {
+                            Log.w("Zygos", "$index ${longPositions.size}")
+                            if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
 
-                        HoldingsRow(
-                            position = pos,
-                            color = tickerColors.getOrDefault(pos.ticker, Color.Black),
-                            displayOption = displayOption,
-                            modifier = Modifier
-                                .clickable { onPositionClick(pos.ticker) }
-                                .padding(horizontal = 6.dp) // this needs to be second so that the clickable
-                                                            // animation covers the full width
-                        )
+                            HoldingsRow(
+                                position = pos,
+                                color = tickerColors.getOrDefault(pos.ticker, Color.Black),
+                                displayOption = displayOption,
+                                modifier = Modifier
+                                    .clickable { onPositionClick(pos.ticker) }
+                                    .padding(horizontal = 6.dp) // this needs to be second so that the clickable
+                                                                // animation covers the full width
+                            )
+                        }
                     }
                 }
 
@@ -128,6 +154,7 @@ fun PreviewHoldingsScreen() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
         HoldingsScreen(
+            false,
             longPositions = viewModel.longPositions,
             shortPositions = viewModel.shortPositions,
             tickerColors = viewModel.tickerColors,

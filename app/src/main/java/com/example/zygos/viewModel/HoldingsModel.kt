@@ -7,8 +7,11 @@ import androidx.compose.runtime.setValue
 import com.example.zygos.data.LotPosition
 import com.example.zygos.data.PositionType
 import com.example.zygos.data.TickerPosition
+import kotlinx.coroutines.delay
 
 class HoldingsModel(private val parent: ZygosViewModel) {
+
+    var longIsLoading by mutableStateOf(false)
 
     val prices = mapOf<String, Long>(
         "MSFT" to 2500000,
@@ -82,41 +85,53 @@ class HoldingsModel(private val parent: ZygosViewModel) {
     }
 
     // This happens asynchronously! Make sure that all other state is ok with the positions list being modified
-    fun sort() {
+    suspend fun sort() {
         if (longPositions.isEmpty()) return
+        longIsLoading = true
 
-        /** Cash position is always last **/
-        var cash: Position? = null
-        if (longPositions.last().ticker == "CASH") {
-            cash = longPositions.removeLast()
-        }
+        val oldList = listOf(longPositions[0], longPositions[1], longPositions[2])
+        longPositions.clear()
+        delay(1000)
+        longPositions.add(oldList[0])
+        delay(1000)
+        longPositions.add(oldList[1])
+        delay(1000)
+        longPositions.add(oldList[2])
 
-        /** Reverse **/
-        if (lastSortOption == sortOption) {
-            if (lastSortIsAscending != sortIsAscending) {
-                longPositions.reverse()
-            }
-        }
-        /** Sort **/
-        else {
-            if (sortIsAscending) {
-                when (sortOption) {
-                    "Ticker" -> longPositions.sortBy(Position::ticker)
-                    else -> longPositions.sortBy(Position::equity)
-                }
-            } else {
-                when (sortOption) {
-                    "Ticker" -> longPositions.sortByDescending(Position::ticker)
-                    else -> longPositions.sortByDescending(Position::equity)
-                }
-            }
-        }
+//        /** Cash position is always last **/
+//        var cash: Position? = null
+//        if (longPositions.last().ticker == "CASH") {
+//            cash = longPositions.removeLast()
+//        }
+//
+//        /** Reverse **/
+//        if (lastSortOption == sortOption) {
+//            if (lastSortIsAscending != sortIsAscending) {
+//                longPositions.reverse()
+//            }
+//        }
+//        /** Sort **/
+//        else {
+//            if (sortIsAscending) {
+//                when (sortOption) {
+//                    "Ticker" -> longPositions.sortBy(Position::ticker)
+//                    else -> longPositions.sortBy(Position::equity)
+//                }
+//            } else {
+//                when (sortOption) {
+//                    "Ticker" -> longPositions.sortByDescending(Position::ticker)
+//                    else -> longPositions.sortByDescending(Position::equity)
+//                }
+//            }
+//        }
+//
+//        /** Add back cash **/
+//        if (cash != null) longPositions.add(cash)
+//
+//        /** Update cached sort parameters **/
+//        lastSortIsAscending = sortIsAscending
+//        lastSortOption = sortOption
+        longIsLoading = false
 
-        /** Add back cash **/
-        if (cash != null) longPositions.add(cash)
-
-        /** Update cached sort parameters **/
-        lastSortIsAscending = sortIsAscending
-        lastSortOption = sortOption
     }
 }
