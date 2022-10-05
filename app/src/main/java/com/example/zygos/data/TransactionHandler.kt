@@ -23,13 +23,16 @@ fun addTransaction(
 fun createLot(t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
     val transactionId = transactionDao.insert(t)
     val lot = Lot(
-        openTransactionId = transactionId.toLong(),
         account = t.account,
         ticker = t.ticker,
         sharesOpen = if (t.ticker == "CASH") t.value else t.shares,
         realizedClosed = 0,
     )
-    lotDao.insert(lot)
+    val lotId = lotDao.insert(lot)
+    lotDao.insert(LotTransactionCrossRef(
+        lotId = lotId,
+        transactionId = transactionId
+    ))
 }
 
 /**

@@ -7,15 +7,15 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.zygos.ui.components.allAccounts
 import java.util.*
 
-enum class TransactionType(val displayName: String, val isOption: Boolean = false) {
+enum class TransactionType(val displayName: String, val isOption: Boolean = false, val isShort: Boolean = false) {
     TRANSFER("Transfer"),
     INTEREST("Interest"),
     DIVIDEND("Dividend"),
     STOCK("Stock"),
     CALL_LONG("Long Call", true),
-    CALL_SHORT("Short Call", true),
+    CALL_SHORT("Short Call", true, true),
     PUT_LONG("Long Put", true),
-    PUT_SHORT("Short Put", true),
+    PUT_SHORT("Short Put", true, true),
     BOND("Bond"),
     SPLIT("Split"),
     SPINOFF("Spin-off"),
@@ -42,13 +42,13 @@ data class Transaction(
     @NonNull val note: String = "", // for TransactionType::RENAME, MUST be the new ticker name
     val type: TransactionType = TransactionType.NONE,
     val shares: Long = 0, // should be multiple of 100 for options
-    val date: Long = 0,
+    val date: Int = 0,
     val price: Long = 0, // price to track gain/loss, not the actual value of trade
     val value: Long = 0, // actual dollar change due to the trade
     val fees: Long = 0, // known fees associated with opening this position
 
     /** Option fields **/
-    val expiration: Long = 0,
+    val expiration: Int = 0,
     val strike: Long = 0,
     val priceUnderlying: Long = 0, // when position was opened. Can be 0 for old parthenos transactions, in which case price is only the extrinsic
 )

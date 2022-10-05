@@ -8,19 +8,21 @@ import androidx.room.*
  * Values are 1/100th of a cent, and dates are in YYYYMMDD format.
  */
 @Entity(tableName = "lot",
-    foreignKeys = [ForeignKey(
-        entity = Transaction::class,
-        parentColumns = arrayOf("transactionId"),
-        childColumns = arrayOf("openTransactionId")
-    )]
+//    foreignKeys = [ForeignKey(
+//        entity = Transaction::class,
+//        parentColumns = arrayOf("transactionId"),
+//        childColumns = arrayOf("openTransactionId")
+//    )]
 )
 data class Lot(
-    // some fields are needed so that queries can easily filter and sort by the Lot's account, etc.
     @PrimaryKey(autoGenerate = true) val lotId: Long = 0, // 0 to auto generate a key
-    val openTransactionId: Long,
+//    val openTransactionId: Long,
     val account: String, // these are duplicated from the transaction since we query on them a lot
     val ticker: String,
     val sharesOpen: Long = 0, // for options, also a multiple of 100
+    val costBasisOpen: Long = 0,
+    val taxBasisOpen: Long = 0,
+    val realizedOpen: Long = 0,
     val realizedClosed: Long = 0, // sum of realized returns of all closed shares
 )
 
@@ -41,7 +43,7 @@ data class LotWithTransactions(
     )
     val transactions: List<Transaction>
 ) {
-    @Ignore val openTransaction = transactions.first { it.transactionId == lot.openTransactionId }
+    @Ignore val openTransaction = transactions.first { it.shares > 0 }
 }
 
 data class RealizedClosed(

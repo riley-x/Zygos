@@ -11,11 +11,12 @@ All transactions should have transaction type, account, and date set.
 - *Interest*: This should always have ticker == "CASH", and the value field with the amount of the interest.
   All other fields can remain empty.
 
-## Lots
 
-WARNING: `sharesOpen` and `realizedClosed` have special use for CASH lots!
+## Special Cases
 
-- *CASH*: Cash lots summarize *Transfers* and *Interest*. Every account should have exactly one CASH lot
-  after initial setup. The `openTransactionId` keeps track of when the account was opened/first funded.
-  `sharesOpen` is the net value sum of all transfers, while `realizedClosed` is the net sum of all
-  other transactions.
+### CASH
+Cash lots summarize *Transfers* and *Interest*. Every account should have exactly one CASH lot
+after initial setup. The `openTransactionId` keeps track of when the account was opened/first funded.
+`sharesOpen` is the net value sum of all transfers, while `realizedClosed` is the net sum of all
+other transactions. In `Position` these fields are mapped to `costBasis` and `realizedClosed`
+respectively.
