@@ -88,48 +88,54 @@ class HoldingsModel(private val parent: ZygosViewModel) {
         else sortOption = opt
     }
 
-    // This happens asynchronously! Make sure that all other state is ok with the positions list being modified
-    suspend fun sort() {
-        if (longPositions.isEmpty()) return
-        if (sortOption == lastSortOption && sortIsAscending == lastSortIsAscending) return
+    private fun doSort(): List<Position> {
+        val list = longPositions.toMutableList()
 
-        longPositionsAreLoading = true
-        shortPositionsAreLoading = true
-        val deferredList = parent.viewModelScope.async(Dispatchers.IO) {
-            val list = longPositions.toMutableList()
-
-            /** Cash position is always last **/
-            var cash: Position? = null
-            if (list.last().ticker == "CASH") {
-                cash = list.removeLast()
-            }
-
-            /** Reverse **/
-            if (lastSortOption == sortOption) {
-                list.reverse()
-            }
-            /** Sort **/
-            else {
-                if (sortIsAscending) {
-                    when (sortOption) {
-                        "Ticker" -> list.sortBy(Position::ticker)
-                        else -> list.sortBy(Position::equity)
-                    }
-                } else {
-                    when (sortOption) {
-                        "Ticker" -> list.sortByDescending(Position::ticker)
-                        else -> list.sortByDescending(Position::equity)
-                    }
-                }
-            }
-
-            /** Add back cash **/
-            if (cash != null) list.add(cash)
-            list
+        /** Cash position is always last **/
+        var cash: Position? = null
+        if (list.last().ticker == "CASH") {
+            cash = list.removeLast()
         }
 
-        /** Update sort parameters **/
-        val list = deferredList.await()
+        /** Reverse **/
+        if (lastSortOption == sortOption) {
+            list.reverse()
+        }
+        /** Sort **/
+        else {
+            if (sortIsAscending) {
+                when (sortOption) {
+                    "Ticker" -> list.sortBy(Position::ticker)
+                    else -> list.sortBy(Position::equity)
+                }
+            } else {
+                when (sortOption) {
+                    "Ticker" -> list.sortByDescending(Position::ticker)
+                    else -> list.sortByDescending(Position::equity)
+                }
+            }
+        }
+
+        /** Add back cash **/
+        if (cash != null) list.add(cash)
+        return list
+    }
+
+    suspend fun sort() {
+        /** Guards **/
+        if (longPositions.isEmpty()) return
+        if (sortOption == lastSortOption && sortIsAscending == lastSortIsAscending) return
+        longPositionsAreLoading = true
+        shortPositionsAreLoading = true
+
+        /** Sort - This blocks this routine, but the main UI routine continues since sort() is
+         * called from a LaunchedEffect. **/
+        val list = parent.viewModelScope.async(Dispatchers.IO) {
+            delay(3000)
+            doSort()
+        }.await()
+
+        /** Update **/
         longPositions.clear()
         longPositions.addAll(list)
         lastSortIsAscending = sortIsAscending

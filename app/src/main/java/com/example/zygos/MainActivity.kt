@@ -316,7 +316,6 @@ fun ZygosApp(
             // For some reason this can't be placed into the bottomSheet callback. Calling the viewModel
             // inside the callback causes the callback to never be executed??? And the bottom sheet will never open
             LaunchedEffect(true) {
-                //delay(3000) // this happens asynchronously! Make sure that all other state is ok with the positions list being modified
                 viewModel.sortList(listOptionsSheetVersion)
                 listOptionsSheetIsClosing = false
             }
