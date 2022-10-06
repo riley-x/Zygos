@@ -4,9 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.LotPosition
 import com.example.zygos.data.PositionType
 import com.example.zygos.data.TickerPosition
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 
 class HoldingsModel(private val parent: ZygosViewModel) {
@@ -86,42 +89,49 @@ class HoldingsModel(private val parent: ZygosViewModel) {
     }
 
     // This happens asynchronously! Make sure that all other state is ok with the positions list being modified
-    fun sort() {
+    suspend fun sort() {
         if (longPositions.isEmpty()) return
+        if (sortOption == lastSortOption && sortIsAscending == lastSortIsAscending) return
+
         longPositionsAreLoading = true
         shortPositionsAreLoading = true
+        val deferredList = parent.viewModelScope.async(Dispatchers.IO) {
+            val list = longPositions.toMutableList()
 
-        /** Cash position is always last **/
-        var cash: Position? = null
-        if (longPositions.last().ticker == "CASH") {
-            cash = longPositions.removeLast()
-        }
-
-        /** Reverse **/
-        if (lastSortOption == sortOption) {
-            if (lastSortIsAscending != sortIsAscending) {
-                longPositions.reverse()
+            /** Cash position is always last **/
+            var cash: Position? = null
+            if (list.last().ticker == "CASH") {
+                cash = list.removeLast()
             }
-        }
-        /** Sort **/
-        else {
-            if (sortIsAscending) {
-                when (sortOption) {
-                    "Ticker" -> longPositions.sortBy(Position::ticker)
-                    else -> longPositions.sortBy(Position::equity)
-                }
-            } else {
-                when (sortOption) {
-                    "Ticker" -> longPositions.sortByDescending(Position::ticker)
-                    else -> longPositions.sortByDescending(Position::equity)
+
+            /** Reverse **/
+            if (lastSortOption == sortOption) {
+                list.reverse()
+            }
+            /** Sort **/
+            else {
+                if (sortIsAscending) {
+                    when (sortOption) {
+                        "Ticker" -> list.sortBy(Position::ticker)
+                        else -> list.sortBy(Position::equity)
+                    }
+                } else {
+                    when (sortOption) {
+                        "Ticker" -> list.sortByDescending(Position::ticker)
+                        else -> list.sortByDescending(Position::equity)
+                    }
                 }
             }
+
+            /** Add back cash **/
+            if (cash != null) list.add(cash)
+            list
         }
 
-        /** Add back cash **/
-        if (cash != null) longPositions.add(cash)
-
-        /** Update cached sort parameters **/
+        /** Update sort parameters **/
+        val list = deferredList.await()
+        longPositions.clear()
+        longPositions.addAll(list)
         lastSortIsAscending = sortIsAscending
         lastSortOption = sortOption
         longPositionsAreLoading = false

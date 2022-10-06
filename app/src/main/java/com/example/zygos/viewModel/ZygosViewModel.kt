@@ -16,6 +16,7 @@ import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.theme.defaultTickerColors
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -264,12 +265,10 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
     }
 
-    fun sortList(whichList: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            when(whichList) {
-                "holdings" -> holdings.sort()
-                "watchlist" -> sortWatchlist()
-            }
+    suspend fun sortList(whichList: String) {
+        when(whichList) {
+            "holdings" -> holdings.sort()
+            "watchlist" -> sortWatchlist()
         }
     }
 }
