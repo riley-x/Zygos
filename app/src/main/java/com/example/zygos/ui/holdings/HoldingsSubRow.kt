@@ -54,10 +54,9 @@ fun HoldingsSubRow(
                 Text("x${position.shares}")
             }
             Column(Modifier.weight(10f)) {
-                Text(position.expiration)
-                Text(position.strike)
+                Text(formatDateInt(position.expiration))
+                Text(formatDollarNoSymbol(position.strike))
             }
-
         } else {
             Column(Modifier.weight(10f)) {
                 Text("${position.shares} shares")

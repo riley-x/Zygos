@@ -53,56 +53,53 @@ class TestViewModel: ViewModel() {
         private set
     var watchlistDisplayOption by mutableStateOf(watchlistDisplayOptions.items[0])
 
+    /** Holdings **/
     val prices = mapOf<String, Long>(
         "MSFT" to 2500000,
-        "MSFT 10/10/23 125" to 600000,
-        "AMD" to 1300000,
+        "MSFT Call 20231010 1250000" to 600000, // $60
+        "AMD" to 1300000, // $130
     )
-
-    /** Holdings **/
-    val longPositions = mutableStateListOf(
-        Position.getLongPosition(TickerPosition(
-            stock = LotPosition(
-                    account = "Robinhood",
-                    ticker = "MSFT",
-                    type = PositionType.STOCK,
-                    shares = 5,
-                    priceOpen = 2000000,
-                    costBasis = 10000000,
-                    realizedOpen = 200000,
-                    realizedClosed = 1000000,
-            ),
-            longOptions = listOf(
-                LotPosition(
-                    account = "Robinhood",
-                    ticker = "MSFT",
-                    type = PositionType.CALL_LONG,
-                    shares = 100,
-                    priceOpen = 500000,
-                    costBasis = 50000000,
-                    expiration = "10/10/23",
-                    strike = "125"
-                )
-            )),
-            prices = prices
+    val lots = mutableListOf<LotPosition>(
+        LotPosition(
+            account = "Robinhood",
+            ticker = "MSFT",
+            type = PositionType.STOCK,
+            shares = 5,
+            priceOpen = 2000000,
+            realizedOpen = 200000,
+            realizedClosed = 1000000,
         ),
-        Position(lot =  LotPosition(
+        LotPosition(
+            account = "Robinhood",
+            ticker = "MSFT",
+            type = PositionType.CALL_LONG,
+            shares = 100,
+            priceOpen = 500000,
+            expiration = 20231010,
+            strike = 1250000,
+        ),
+        LotPosition(
             account = "Robinhood",
             ticker = "AMD",
             type = PositionType.STOCK,
             shares = 10,
-            priceOpen = 1000000,
-            costBasis = 10000000,
-            realizedOpen = 200000,
+            priceOpen = 1000000, // $100
+            realizedOpen = 200000, // $20
             realizedClosed = 0,
-        ), prices = prices),
-        Position(lot =  LotPosition(
+        ),
+        LotPosition(
             account = "Robinhood",
             ticker = "CASH",
             type = PositionType.CASH,
-            costBasis = 20000000,
+            shares = 20000000,
+            priceOpen = -1,
             realizedClosed = 670900,
-        ), prices = prices),
+        ),
+    )
+    val longPositions = mutableStateListOf(
+        Position(lot = lots[0] + lots[1], prices = prices),
+        Position(lot = lots[2], prices = prices),
+        Position(lot = lots[3], prices = prices),
     )
     val shortPositions = mutableStateListOf<Position>()
 

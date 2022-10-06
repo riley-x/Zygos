@@ -51,78 +51,115 @@ data class LotPosition(
     val shares: Long = 0,
     val priceOpen: Long = 0,
     /** Basis and returns **/
-    val costBasis: Long = 0,
     val taxBasis: Long = 0,
+    val feesAndRounding: Long = 0,
     val realizedOpen: Long = 0,
     val realizedClosed: Long = 0,
     /** Options **/
-    val expiration: String = "",
-    val strike: String = "",
+    val expiration: Int = 0,
+    val strike: Long = 0,
     val collateral: Long = 0,
-    val cashEffect: Long = realizedOpen + realizedClosed + collateral +
-            if (type == PositionType.CASH) costBasis else -costBasis // this is valid for everything but covered calls
+    val instrumentName: String = if (type.isOption) "$ticker $type $expiration $strike" else ticker, // this is modified for spreads. always use subPositions for unrealized
+    /** Sub positions **/
+    val subPositions: List<LotPosition> = emptyList(),
 ) {
-    val name = if (type.isOption) "$type $strike $expiration" else ""
+    /** Derived values **/
     val realized = realizedOpen + realizedClosed
-    fun unrealized(priceCurrent: Long?) = ((priceCurrent ?: priceOpen) - priceOpen) * shares * if (type.isShort) -1 else 1
-    fun returns(priceCurrent: Long?) = realized + unrealized(priceCurrent)
-    fun returnsPercent(priceCurrent: Long?) = (realizedOpen + unrealized(priceCurrent)).toDouble() / costBasis
-    fun equity(priceCurrent: Long?) =
+    val cashEffect: Long
+    val costBasis: Long
+    init {
+        if (subPositions.isEmpty()) {
+            val purchaseValue = feesAndRounding + shares * priceOpen * if (type.isShort) -1 else 1
+            cashEffect = realized - purchaseValue
+            costBasis = collateral + purchaseValue
+        } else {
+            cashEffect = subPositions.sumOf(LotPosition::cashEffect)
+            costBasis = subPositions.sumOf(LotPosition::costBasis)
+        }
+    }
+
+    /** Single lot (not composite) functions. These assume subPositions.isEmpty() **/
+    private fun unrealized(priceCurrent: Long?) = ((priceCurrent ?: priceOpen) - priceOpen) * shares * if (type.isShort) -1 else 1
+    private fun returns(priceCurrent: Long?) = realized + unrealized(priceCurrent)
+    private fun equity(priceCurrent: Long?) =
         if (type == PositionType.CASH) cashEffect
         else (priceCurrent ?: priceOpen) * shares * (if (type.isShort) -1 else 1)
 
+    /** Aggregator **/
+    private fun sumSubPositions(
+        prices: Map<String, Long>,
+        fn: LotPosition.(Long?) -> Long
+    ): Long {
+        return if (subPositions.isEmpty()) fn(prices[instrumentName])
+        else subPositions.sumOf { it.sumSubPositions(prices, fn) }
+    }
+
+    /** Public functions **/
+    fun unrealized(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { unrealized(it) }
+    fun returns(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { returns(it) }
+    fun equity(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { equity(it) }
+    fun returnsPercent(prices: Map<String, Long>) = (realizedOpen + unrealized(prices)).toDouble() / costBasis
+
     operator fun plus(b: LotPosition): LotPosition {
-        if (type == PositionType.STOCK && b.type == PositionType.STOCK && ticker == b.ticker) {
-            return LotPosition(
-                /** Identifiers **/
-                account = if (account == b.account) account else "",
-                ticker = ticker,
-                type = type,
-                /** Per share **/
-                shares = shares + b.shares,
-                priceOpen = (priceOpen * shares + b.priceOpen * b.shares) / (shares + b.shares),
-                /** Basis and returns **/
-                costBasis = costBasis + b.costBasis,
-                taxBasis = taxBasis + b.taxBasis,
-                realizedOpen = realizedOpen + b.realizedOpen,
-                realizedClosed = realizedClosed + b.realizedClosed,
-            )
-        }
-        else throw RuntimeException("Position.plus() trying to add non-stock or different ticker positions!")
+        val sameStock = type == PositionType.STOCK && b.type == PositionType.STOCK && ticker == b.ticker
+        fun <T> ifEqual(default: T, field: LotPosition.() -> T) = if (this.field() == b.field()) this.field() else default
+        return LotPosition(
+            /** Identifiers **/
+            account = ifEqual("") { account },
+            ticker = ifEqual("") { ticker },
+            type = ifEqual(PositionType.NONE) { type },
+            /** Per share **/
+            shares = if (sameStock) shares + b.shares else 0,
+            priceOpen = if (sameStock) (priceOpen * shares + b.priceOpen * b.shares) / (shares + b.shares) else 0, // this rounds to the nearest .01 cents
+            /** Basis and returns **/
+            taxBasis = taxBasis + b.taxBasis,
+            feesAndRounding = feesAndRounding + b.feesAndRounding,
+            realizedOpen = realizedOpen + b.realizedOpen,
+            realizedClosed = realizedClosed + b.realizedClosed,
+            /** Sub positions **/
+            subPositions = subPositions.ifEmpty { listOf(this) } + b.subPositions.ifEmpty { listOf(b) }
+        )
     }
 }
 
-
-class TickerPosition(
-    realizedFromClosedLots: Long = 0,
-    val stock: LotPosition,
+data class TickerPosition(
+    val stock: LotPosition?,
     val coveredCalls: List<LotPosition> = emptyList(),
     val longOptions: List<LotPosition> = emptyList(), // includes debit spreads
     val shortOptions: List<LotPosition> = emptyList(), // includes credit spreads
-) {
-    private fun sumWith(longOnly: Boolean = false, fn: LotPosition.() -> Long): Long {
-        var x = stock.fn() + coveredCalls.sumOf(fn) + longOptions.sumOf(fn)
-        if (!longOnly) x += shortOptions.sumOf(fn)
-        return x
-    }
-    private fun sumWith(prices: Map<String, Long>, longOnly: Boolean = false, fn: LotPosition.(Long?) -> Long): Long {
-        var x = stock.fn(prices[stock.ticker]) +
-                coveredCalls.sumOf { it.fn(prices[it.name]) } +
-                longOptions.sumOf { it.fn(prices[it.name]) }
-        if (!longOnly) x += shortOptions.sumOf { it.fn(prices[it.name]) }
-        return x
-    }
+)
 
-    val account = stock.account
-    val ticker = stock.ticker
-    val cashEffect = sumWith { cashEffect }
-    val realizedClosed = realizedFromClosedLots + sumWith { realizedClosed }
-    val realizedOpenLong = sumWith(true) { realizedOpen }
-    val costBasisLong = sumWith(true) { costBasis }
-    val costBasisShort = shortOptions.sumOf(LotPosition::costBasis)
-    val costBasis = costBasisLong + costBasisShort
-    fun unrealized(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { unrealized(it) }
-    fun returns(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { returns(it) }
-    fun returnsPercent(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = returns(prices, longOnly).toDouble() / (if (longOnly) costBasisLong else costBasis)
-    fun equity(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { equity(it) }
-}
+
+//class TickerPosition(
+//    realizedFromClosedLots: Long = 0,
+//    val stock: LotPosition,
+//    val coveredCalls: List<LotPosition> = emptyList(),
+//    val longOptions: List<LotPosition> = emptyList(), // includes debit spreads
+//    val shortOptions: List<LotPosition> = emptyList(), // includes credit spreads
+//) {
+//    private fun sumWith(longOnly: Boolean = false, fn: LotPosition.() -> Long): Long {
+//        var x = stock.fn() + coveredCalls.sumOf(fn) + longOptions.sumOf(fn)
+//        if (!longOnly) x += shortOptions.sumOf(fn)
+//        return x
+//    }
+//    private fun sumWith(prices: Map<String, Long>, longOnly: Boolean = false, fn: LotPosition.(Long?) -> Long): Long {
+//        var x = stock.fn(prices[stock.ticker]) +
+//                coveredCalls.sumOf { it.fn(prices[it.name]) } +
+//                longOptions.sumOf { it.fn(prices[it.name]) }
+//        if (!longOnly) x += shortOptions.sumOf { it.fn(prices[it.name]) }
+//        return x
+//    }
+//
+//    val account = stock.account
+//    val ticker = stock.ticker
+//    val cashEffect = sumWith { cashEffect }
+//    val realizedClosed = realizedFromClosedLots + sumWith { realizedClosed }
+//    val realizedOpenLong = sumWith(true) { realizedOpen }
+//    val costBasisLong = sumWith(true) { costBasis }
+//    val costBasisShort = shortOptions.sumOf(LotPosition::costBasis)
+//    val costBasis = costBasisLong + costBasisShort
+//    fun unrealized(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { unrealized(it) }
+//    fun returns(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { returns(it) }
+//    fun returnsPercent(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = returns(prices, longOnly).toDouble() / (if (longOnly) costBasisLong else costBasis)
+//    fun equity(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { equity(it) }
+//}

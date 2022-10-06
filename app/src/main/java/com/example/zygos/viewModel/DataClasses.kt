@@ -1,5 +1,6 @@
 package com.example.zygos.viewModel
 
+import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.example.zygos.data.LotPosition
@@ -65,8 +66,8 @@ data class Position (
     val realizedOpen: Float = 0f,
     val realizedClosed: Float = 0f,
     /** Options **/
-    val expiration: String = "",
-    val strike: String = "",
+    val expiration: Int = 0,
+    val strike: Float = 0f,
     val collateral: Float = 0f,
     /** Price-dependent **/
     val unrealized: Float = 0f,
@@ -80,11 +81,11 @@ data class Position (
     companion object Factory {
         operator fun invoke(
             lot: LotPosition,
-            prices: Map<String, Long> = emptyMap()
+            prices: Map<String, Long>,
         ): Position {
             val realizedOpen = lot.realizedOpen.toFloatDollar()
-            val unrealized = lot.unrealized(prices[lot.ticker]).toFloatDollar()
-            return Position(
+            val unrealized = lot.unrealized(prices).toFloatDollar()
+            val pos = Position(
                 /** Identifiers **/
                 account = lot.account,
                 ticker = lot.ticker,
@@ -98,47 +99,19 @@ data class Position (
                 realizedClosed = lot.realizedClosed.toFloatDollar(),
                 /** Options **/
                 expiration = lot.expiration,
-                strike = lot.strike,
+                strike = lot.strike.toFloatDollar(),
                 collateral = lot.collateral.toFloatDollar(),
                 /** Price-dependent **/
                 unrealized = unrealized,
                 returnsOpen = realizedOpen + unrealized,
-                returnsPercent = lot.returnsPercent(prices[lot.ticker]).toFloat(),
-                returnsTotal = lot.returns(prices[lot.ticker]).toFloatDollar(),
-                equity = lot.equity(prices[lot.ticker]).toFloatDollar(),
+                returnsPercent = lot.returnsPercent(prices).toFloat(),
+                returnsTotal = lot.returns(prices).toFloatDollar(),
+                equity = lot.equity(prices).toFloatDollar(),
+                subPositions = lot.subPositions.map { Position(it, prices) }
             )
-        }
-
-
-        fun getLongPosition(
-            tickerPosition: TickerPosition,
-            prices: Map<String, Long> = emptyMap()
-        ): Position {
-            val subPositions = mutableListOf<Position>()
-            if (tickerPosition.stock.shares > 0) subPositions.add(Position(tickerPosition.stock, prices))
-            tickerPosition.longOptions.forEach { subPositions.add(Position(it, prices)) }
-            tickerPosition.coveredCalls.forEach { subPositions.add(Position(it, prices)) }
-
-            val realizedOpen = tickerPosition.realizedOpenLong.toFloatDollar()
-            val unrealized = tickerPosition.unrealized(prices, true).toFloatDollar()
-
-            return Position(
-                /** Identifiers **/
-                account = tickerPosition.account,
-                ticker = tickerPosition.ticker,
-                /** Basis and returns **/
-                costBasis = realizedOpen,
-                realizedOpen = tickerPosition.realizedOpenLong.toFloatDollar(),
-                realizedClosed = tickerPosition.realizedClosed.toFloatDollar(),
-                /** Price-dependent **/
-                unrealized = unrealized,
-                returnsOpen = realizedOpen + unrealized,
-                returnsPercent = tickerPosition.returnsPercent(prices, true).toFloat(),
-                returnsTotal = tickerPosition.returns(prices, true).toFloatDollar(),
-                equity = tickerPosition.equity(prices, true).toFloatDollar(),
-                /** Sub-positions **/
-                subPositions = subPositions,
-            )
+//            Log.w("Zygos", "$lot")
+//            Log.w("Zygos", "$pos")
+            return pos
         }
     }
 }
