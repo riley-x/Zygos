@@ -98,7 +98,7 @@ data class LotPosition(
     fun unrealized(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { unrealized(it) }
     fun returns(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { returns(it) }
     fun equity(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { equity(it) }
-    fun returnsPercent(prices: Map<String, Long>) = (realizedOpen + unrealized(prices)).toDouble() / costBasis
+    fun returnsPercent(prices: Map<String, Long>) = if (type == PositionType.CASH) 0f else (realizedOpen + unrealized(prices)).toFloat() / costBasis
 
     operator fun plus(b: LotPosition): LotPosition {
         val sameStock = type == PositionType.STOCK && b.type == PositionType.STOCK && ticker == b.ticker

@@ -104,7 +104,7 @@ data class Position (
                 /** Price-dependent **/
                 unrealized = unrealized,
                 returnsOpen = realizedOpen + unrealized,
-                returnsPercent = lot.returnsPercent(prices).toFloat(),
+                returnsPercent = lot.returnsPercent(prices),
                 returnsTotal = lot.returns(prices).toFloatDollar(),
                 equity = lot.equity(prices).toFloatDollar(),
                 subPositions = lot.subPositions.map { Position(it, prices) }

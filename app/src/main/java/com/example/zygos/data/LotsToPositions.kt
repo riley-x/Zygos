@@ -9,15 +9,16 @@ import kotlin.math.abs
 
 
 fun getCashPosition(lot: Lot): LotPosition {
+    // TODO subtract all other cashEffects
     return LotPosition(
         /** Identifiers **/
         account = lot.account,
         ticker = "CASH",
         type = PositionType.CASH,
         /** Basis and returns **/
-        shares = lot.sharesOpen, // this makes costBasis and cashEffect correct
+        shares = lot.realizedClosed, // this makes costBasis and cashEffect correct
         priceOpen = -1,
-        realizedClosed = lot.realizedClosed,
+        realizedOpen = lot.sharesOpen,
     )
 }
 

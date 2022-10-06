@@ -56,7 +56,7 @@ class HoldingsModel(private val parent: ZygosViewModel) {
             type = PositionType.CASH,
             shares = 20000000,
             priceOpen = -1,
-            realizedClosed = 670900,
+            realizedOpen = 670900,
         ),
     )
     val longPositions = mutableStateListOf(
