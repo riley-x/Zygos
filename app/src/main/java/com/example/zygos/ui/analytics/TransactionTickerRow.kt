@@ -41,7 +41,7 @@ fun TransactionTickerRow(
 
         Column(Modifier.weight(15f)) {
             Text(text = transaction.type.toString())
-            Text(text = if (transaction.shares > 0) transaction.shares.toString() else "")
+            Text(text = if (transaction.shares != 0L) transaction.shares.toString() else "")
         }
 
         Column(Modifier.weight(15f), horizontalAlignment = Alignment.End) {

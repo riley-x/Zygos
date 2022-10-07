@@ -162,14 +162,16 @@ fun HoldingsScreen(
 fun PreviewHoldingsScreen() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
-        HoldingsScreen(
-            longPositionsAreLoading = false,
-            shortPositionsAreLoading = true,
-            longPositions = viewModel.longPositions,
-            shortPositions = viewModel.shortPositions,
-            tickerColors = viewModel.tickerColors,
-            displayOption = "Returns",
-        )
+        Surface {
+            HoldingsScreen(
+                longPositionsAreLoading = false,
+                shortPositionsAreLoading = false,
+                longPositions = viewModel.longPositions,
+                shortPositions = viewModel.shortPositions,
+                tickerColors = viewModel.tickerColors,
+                displayOption = "Returns",
+            )
+        }
     }
 }
 

@@ -1,14 +1,20 @@
 package com.example.zygos.ui.transactions
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.MoreVert
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,22 +38,41 @@ fun TransactionsScreen(
     // TODO: Use a floating button here for adding transactions
     // TODO: Click transaction to edit/delete in a separate screen
 
-    Column {
-        Row {
-            Text("Filters:", modifier = Modifier.weight(10f))
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(10f)) {
-                Text(currentFilterTicker.ifEmpty { "All Tickers" })
-            }
-            Box(contentAlignment = Alignment.CenterEnd, modifier = Modifier.weight(10f)) {
-                if (currentFilterType != TransactionType.NONE)
-                    Text(currentFilterType.displayName)
-            }
-        }
-        ListTitleBar(
-            text = "Transactions",
-            onOptionsButtonClick = transactionsListOptionsCallback,
-            modifier = Modifier.padding(start = 22.dp)
+    Column(modifier) {
+
+        Divider(
+            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+            thickness = 1.dp,
+            modifier = Modifier
+                .padding(top = 2.dp, bottom = 2.dp)
         )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Ticker: " + currentFilterTicker.ifEmpty { "All" },
+                modifier = Modifier.weight(10f)
+            )
+            Text("Type: " + currentFilterType.displayName,
+                modifier = Modifier.weight(10f)
+            )
+            Icon(
+                imageVector = Icons.Sharp.MoreVert,
+                contentDescription = null,
+                modifier = Modifier
+                    .clickable(
+                        onClick = transactionsListOptionsCallback,
+                        role = Role.Button,
+                    )
+                    .padding(horizontal = 6.dp)
+            )
+        }
+
+        Divider(
+            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+            thickness = 1.dp,
+            modifier = Modifier
+                .padding(top = 2.dp, bottom = 2.dp)
+        )
+
 
         LazyColumn {
 
@@ -73,16 +98,17 @@ fun TransactionsScreen(
 @Preview(
     widthDp = 360,
     heightDp = 740,
-    showBackground = true,
 )
 @Composable
 fun PreviewTransactionsScreen() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
-        TransactionsScreen(
-            transactions = viewModel.transactions,
-            currentFilterTicker = "MSFT",
-            currentFilterType = TransactionType.STOCK,
-        )
+        Surface {
+            TransactionsScreen(
+                transactions = viewModel.transactions,
+                currentFilterTicker = "MSFT",
+                currentFilterType = TransactionType.STOCK,
+            )
+        }
     }
 }
