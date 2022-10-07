@@ -5,7 +5,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.example.zygos.data.LotPosition
 import com.example.zygos.data.PositionType
-import com.example.zygos.data.TickerPosition
 import com.example.zygos.data.toFloatDollar
 
 /**

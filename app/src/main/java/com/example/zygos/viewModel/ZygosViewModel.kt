@@ -252,17 +252,34 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
     }
 
-    // Sets the current account to display, loading the data elements into the ui state variables
-    private suspend fun loadAccount(account: String) {
-        val jobs = transactions.loadLaunched(account)
-        lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
-//        positions.createFromLots(lots.tickerOpenAndRealizedClosed)
+    val prices = mapOf<String, Long>(
+        "MSFT" to 2500000,
+        "MSFT Call 20231010 1250000" to 600000, // $60
+        "AMD" to 1300000, // $130
+    )
 
-        Log.i("Zygos/ZygosViewModel/loadAccount", "transactions: ${transactions.all.size}")
+    /** Sets the current account to display, loading the data elements into the ui state variables.
+     * This should be run on the main thread, but in a coroutine. **/
+    private suspend fun loadAccount(account: String) {
+        /** Launch loads **/
+        transactions.loadLaunched(account)
+        lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
+
+        /** Logs **/
+        Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale
         Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lots.tickerLots.size}")
         Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lots.longPositions.size}")
-        lots.longPositions.forEach { Log.d("Zygos/ZygosViewModel/loadAccount", "$it") }
+        lots.longPositions.forEach { Log.i("Zygos/ZygosViewModel/loadAccount", "\t$it") }
 
+        /** Load priced positions from lot positions **/
+        positions.longPositions.clear()
+        positions.shortPositions.clear()
+        lots.longPositions.forEach {
+            positions.longPositions.add(Position(lot = it, prices = prices))
+        }
+        lots.shortPositions.forEach {
+            positions.shortPositions.add(Position(lot = it, prices = prices))
+        }
 
         // TODO
 //        equityHistorySeries.clear()
@@ -271,7 +288,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 //        })
 //        setAccountPerformanceRange(accountPerformanceTimeRange.value)
 
-        jobs.joinAll()
+        // Don't actually need to block, the state list update is scheduled in a coroutine already
+//        jobs.joinAll()
     }
 
     suspend fun sortList(whichList: String) {

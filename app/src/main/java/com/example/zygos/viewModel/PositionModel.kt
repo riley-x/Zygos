@@ -14,56 +14,8 @@ import kotlinx.coroutines.withContext
 
 class PositionModel(private val parent: ZygosViewModel) {
 
-    val prices = mapOf<String, Long>(
-        "MSFT" to 2500000,
-        "MSFT Call 20231010 1250000" to 600000, // $60
-        "AMD" to 1300000, // $130
-    )
-    val lots = mutableListOf<LotPosition>(
-        LotPosition(
-            account = "Robinhood",
-            ticker = "MSFT",
-            type = PositionType.STOCK,
-            shares = 5,
-            priceOpen = 2000000,
-            realizedOpen = 200000,
-            realizedClosed = 1000000,
-        ),
-        LotPosition(
-            account = "Robinhood",
-            ticker = "MSFT",
-            type = PositionType.CALL_LONG,
-            shares = 100,
-            priceOpen = 500000,
-            expiration = 20231010,
-            strike = 1250000,
-        ),
-        LotPosition(
-            account = "Robinhood",
-            ticker = "AMD",
-            type = PositionType.STOCK,
-            shares = 10,
-            priceOpen = 1000000, // $100
-            realizedOpen = 200000, // $20
-            realizedClosed = 0,
-        ),
-        LotPosition(
-            account = "Robinhood",
-            ticker = "CASH",
-            type = PositionType.CASH,
-            shares = 20000000,
-            priceOpen = -1,
-            realizedOpen = 670900,
-        ),
-    )
-    val longPositions = mutableStateListOf(
-        Position(lot = lots[0] + lots[1], prices = prices),
-        Position(lot = lots[2], prices = prices),
-        Position(lot = lots[3], prices = prices),
-    )
+    val longPositions = mutableStateListOf<Position>()
     val shortPositions = mutableStateListOf<Position>()
-
-
 
     var longPositionsAreLoading by mutableStateOf(false)
     var shortPositionsAreLoading by mutableStateOf(false)
