@@ -1,6 +1,8 @@
 package com.example.zygos.data.database
 
+import android.util.Log
 import androidx.room.*
+import com.example.zygos.ui.components.allAccounts
 
 /**
  * @see README.md
@@ -42,7 +44,9 @@ data class LotWithTransactions(
     )
     val transactions: List<Transaction>
 ) {
-    @Ignore val openTransaction = transactions.first { it.shares > 0 }
+    @Ignore val openTransaction =
+        if (lot.ticker == "CASH") transactions[0]
+        else transactions.first { it.shares > 0 }
 }
 
 data class RealizedClosed(
@@ -83,20 +87,46 @@ interface LotDao {
 
     @androidx.room.Transaction
     @Query("SELECT * FROM lot " +
-            "WHERE (account = :account OR account = 'All') AND sharesOpen > 0 "
+            "WHERE (account = :account OR account = 'All') AND (sharesOpen > 0 OR ticker == 'CASH')"
     )
-    fun getOpen(account: String): List<LotWithTransactions>
+    fun getOpenAccount(account: String): List<LotWithTransactions>
 
     @androidx.room.Transaction
     @Query("SELECT * FROM lot " +
-            "WHERE (account = :account OR account = 'All') AND ticker == :ticker AND sharesOpen > 0 "
+            "WHERE ticker = 'CASH'"
+    )
+    fun getCash(): List<LotWithTransactions>
+
+    @androidx.room.Transaction
+    @Query("SELECT * FROM lot " +
+            "WHERE (account = :account OR account = 'All') AND ticker = 'CASH'"
+    )
+    fun getCash(account: String): List<LotWithTransactions>
+
+    @androidx.room.Transaction
+    @Query("SELECT * FROM lot " +
+            "WHERE ticker = :ticker AND sharesOpen > 0 "
+    )
+    fun getOpenTicker(ticker: String): List<LotWithTransactions>
+
+
+    @androidx.room.Transaction
+    @Query("SELECT * FROM lot " +
+            "WHERE (account = :account OR account = 'All') AND ticker = :ticker AND sharesOpen > 0 "
     )
     fun getOpen(account: String, ticker: String): List<LotWithTransactions>
 
+    @Query("SELECT COUNT(*) FROM lot")
+    fun count(): Int
 
     @Query("SELECT COUNT(*) FROM lot " +
             "WHERE account = :account OR account = 'All'")
     fun count(account: String): Int
+
+    @Query("SELECT ticker, SUM(realizedClosed) FROM lot " +
+            "GROUP BY ticker"
+    )
+    fun realizedClosed(): List<RealizedClosed>
 
     @Query("SELECT ticker, SUM(realizedClosed) FROM lot " +
             "WHERE (account = :account OR account = 'All') " +
@@ -110,11 +140,18 @@ interface LotDao {
 
     @androidx.room.Transaction // does all the queries here at once
     fun getOpenAndRealized(account: String): MutableMap<String, Pair<Long, List<LotWithTransactions>>> {
-        val realized = realizedClosed(account)
+        val realized = if (account == allAccounts) realizedClosed() else realizedClosed(account)
+        Log.i("Zygos/getOpenAndRealized", "Found ${realized.size} tickers")
+
         val out = mutableMapOf<String, Pair<Long, List<LotWithTransactions>>>()
         realized.forEach {
-            if (it.ticker != null)
-                out[it.ticker] = Pair(it.realizedClosed ?: 0, getOpen(account, it.ticker))
+            if (it.ticker == "CASH") {
+                val lots = if (account == allAccounts) getCash() else getCash(account)
+                out[it.ticker] = Pair(it.realizedClosed ?: 0, lots)
+            } else if (it.ticker != null) {
+                val lots = if (account == allAccounts) getOpenTicker(it.ticker) else getOpen(account, it.ticker)
+                out[it.ticker] = Pair(it.realizedClosed ?: 0, lots)
+            }
         }
         return out
     }

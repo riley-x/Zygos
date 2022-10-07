@@ -11,13 +11,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
 import com.example.zygos.ui.components.allAccounts
-import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.theme.defaultTickerColors
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 
@@ -180,7 +180,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
     /** Holdings **/
-    val holdings = HoldingsModel(this)
+    val lots = LotModel(this)
+    val positions = PositionModel(this)
 
     /** ChartScreen **/
     val chartTicker = mutableStateOf("")
@@ -205,9 +206,11 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
      * This should be called from a LaunchedEffect(Unit). UI will update as each state variable
      * gets updated.
      */
-    fun startup() {
+    suspend fun startup() {
         val localFileDir = application.filesDir ?: return
         Log.d("Zygos/ZygosViewModel/startup", localFileDir.absolutePath)
+
+        // TODO place into a async
         val accs = readAccounts(localFileDir)
         if (accs.isEmpty()) {
             return // Initial values are set for empty data already
@@ -220,14 +223,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         Log.i("Zygos/ZygosViewModel/startup", application.getDatabasePath("app_database").absolutePath)
         // /data/user/0/com.example.zygos/databases/app_database
 
-        viewModelScope.launch(Dispatchers.IO) {
-            Log.i("Zygos/ZygosViewModel/startup", "transactions: ${transactionDao.count()}")
-            Log.i("Zygos/ZygosViewModel/startup", "equity history: ${equityHistoryDao.count()}")
-            Log.i("Zygos/ZygosViewModel/startup", "equity history: ${lotDao.count("Robinhood")}")
-        }
-
-        // Load all data into persistent memory?
-
         setAccount(allAccounts)
     }
 
@@ -236,38 +231,52 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         if (accounts.last() == allAccounts) {
             accounts.add(accounts.lastIndex, account)
             writeAccounts(localFileDir, accounts.dropLast(1))
-            setAccount(account)
         }
         else if (accounts[0] == noAccountMessage || accounts.isEmpty()) {
             accounts.clear()
             accounts.add(account)
             writeAccounts(localFileDir, accounts)
             accounts.add(allAccounts)
-            setAccount(account)
         } else {
-            Log.w("Zygos/ZygosViewModel/addAccount", "Accounts wack: $accounts")
+            throw RuntimeException("Accounts wack: $accounts")
+        }
+        setAccount(account)
+    }
+
+    fun setAccount(account: String) {
+        if (currentAccount == account) return
+        currentAccount = account
+
+        viewModelScope.launch {
+            loadAccount(account)
         }
     }
 
     // Sets the current account to display, loading the data elements into the ui state variables
-    fun setAccount(account: String) {
-        if (currentAccount == account) return
-        currentAccount = account
-        viewModelScope.launch(Dispatchers.IO) {
-            transactions.loadAccount(currentAccount)
+    private suspend fun loadAccount(account: String) {
+        val jobs = transactions.loadLaunched(account)
+        lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
+//        positions.createFromLots(lots.tickerOpenAndRealizedClosed)
+
+        Log.i("Zygos/ZygosViewModel/loadAccount", "transactions: ${transactions.all.size}")
+        Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lots.tickerLots.size}")
+        Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lots.longPositions.size}")
+        lots.longPositions.forEach { Log.d("Zygos/ZygosViewModel/loadAccount", "$it") }
 
 
-            equityHistorySeries.clear()
-            equityHistorySeries.addAll(equityHistoryDao.getAccount(currentAccount).map() {
-                TimeSeries(it.returns / 10000f, it.date, formatDateInt(it.date))
-            })
-            setAccountPerformanceRange(accountPerformanceTimeRange.value)
-        }
+        // TODO
+//        equityHistorySeries.clear()
+//        equityHistorySeries.addAll(equityHistoryDao.getAccount(currentAccount).map() {
+//            TimeSeries(it.returns / 10000f, it.date, formatDateInt(it.date))
+//        })
+//        setAccountPerformanceRange(accountPerformanceTimeRange.value)
+
+        jobs.joinAll()
     }
 
     suspend fun sortList(whichList: String) {
         when(whichList) {
-            "holdings" -> holdings.sort()
+            "holdings" -> positions.sort()
             "watchlist" -> sortWatchlist()
         }
     }

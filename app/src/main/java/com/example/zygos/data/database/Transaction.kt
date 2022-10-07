@@ -80,6 +80,8 @@ interface TransactionDao {
 
     @RawQuery
     fun getRaw(q: SimpleSQLiteQuery): List<Transaction>
+
+    /** This function processes the supplied filters and submits a raw query **/
     fun get(
         account: String = "",
         ticker: String = "",

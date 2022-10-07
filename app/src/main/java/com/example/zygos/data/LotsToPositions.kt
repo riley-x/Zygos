@@ -16,16 +16,15 @@ fun getCashPosition(lot: Lot): LotPosition {
         ticker = "CASH",
         type = PositionType.CASH,
         /** Basis and returns **/
-        shares = lot.realizedClosed, // this makes costBasis and cashEffect correct
+        shares = lot.sharesOpen, // this makes costBasis and cashEffect correct
         priceOpen = -1,
-        realizedOpen = lot.sharesOpen,
+        realizedOpen = lot.realizedClosed,
     )
 }
 
 
 /**
- * Converts lots from a single ticker to a ticker position. Returns
- *      (collatedStock?, coveredCalls, longOptions, shortOptions)
+ * Converts lots to positions, collating options.
  */
 fun getTickerPositions(openLots: List<LotWithTransactions>): List<LotPosition> {
     var stockPosition: LotPosition? = null

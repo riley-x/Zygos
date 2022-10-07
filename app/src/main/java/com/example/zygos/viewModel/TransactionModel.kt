@@ -1,18 +1,16 @@
 package com.example.zygos.viewModel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.example.zygos.data.addTransaction
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
-import com.example.zygos.data.database.getTransactionFilteredQuery
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 /** TransactionScreen
  * Need two separate lists of transactions: one for the analytics screen, which always shows the
@@ -54,41 +52,62 @@ class TransactionModel(private val parent: ZygosViewModel) {
         parent.viewModelScope.launch(Dispatchers.IO) {
             if (t.transactionId > 0) { // we're currently editing a transaction
                 parent.transactionDao.update(t)
-                // TODO need to update lots
             } else {
-                com.example.zygos.data.addTransaction(t, parent.transactionDao, parent.lotDao)
+                addTransaction(t, parent.transactionDao, parent.lotDao)
             }
-            loadAccount(parent.currentAccount) // refresh transaction state lists
+            // TODO need to refresh everything, including transaction state lists and holdings
         }
     }
 
-    /** Make sure to call from coroutines! **/
-    fun loadAccount(currentAccount: String) {
-        latest.clear()
-        if (currentAccount != allAccounts && currentAccount != noAccountMessage) {
-            latest.addAll(parent.transactionDao.getLast(currentAccount))
+    private fun getLatest(account: String): List<Transaction> {
+        return if (account != allAccounts && account != noAccountMessage) {
+            parent.transactionDao.getLast(account);
         } else {
-            latest.addAll(parent.transactionDao.getLast())
+            parent.transactionDao.getLast();
         }
-        loadAllWithFilter("", TransactionType.NONE)
     }
 
-    /** Make sure to call from coroutines! **/
-    fun loadAllWithFilter(ticker: String, type: TransactionType, account: String = parent.currentAccount) {
-        all.clear()
-        all.addAll(parent.transactionDao.get(
+    /** This function doesn't block, and merely launches the loading of the transaction lists **/
+    fun loadLaunched(account: String): List<Job> {
+        /** The launches have no dispatcher, so they run in the main UI thread (no race conditions
+         * on update of the SnapshotStateLists). However, they are coroutines so the main coroutine
+         * (i.e. the UI loop) can continue without being blocked. The launch allow the addAlls
+         * to happen as they arrive.
+         */
+        val job1 = parent.viewModelScope.launch {
+            val newLatest = withContext(Dispatchers.IO) {
+                getLatest(account)
+            }
+            latest.clear()
+            latest.addAll(newLatest)
+        }
+        val job2 = parent.viewModelScope.launch {
+            val newAll = withContext(Dispatchers.IO) {
+                getAllWithFilter("", TransactionType.NONE, account)
+            }
+            all.clear()
+            all.addAll(newAll)
+        }
+        return listOf(job1, job2)
+    }
+
+    private fun getAllWithFilter(ticker: String, type: TransactionType, account: String): List<Transaction> {
+        return parent.transactionDao.get(
             account = account,
             ticker = ticker,
             type = type,
             sort = sortOption.lowercase(),
             ascending = sortIsAscending,
-        ))
-//        Log.i("Zygos/TransactionModel/loadAllWithFilter", q.sql)
+        )
     }
 
     fun filterLaunch(ticker: String, type: TransactionType) {
-        parent.viewModelScope.launch(Dispatchers.IO) {
-            loadAllWithFilter(ticker, type)
+        parent.viewModelScope.launch {
+            val newAll = withContext(Dispatchers.IO) {
+                getAllWithFilter(ticker, type, parent.currentAccount)
+            }
+            all.clear()
+            all.addAll(newAll)
         }
     }
 }

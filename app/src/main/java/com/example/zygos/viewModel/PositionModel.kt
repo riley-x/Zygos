@@ -7,15 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.LotPosition
 import com.example.zygos.data.PositionType
-import com.example.zygos.data.TickerPosition
+import com.example.zygos.data.database.LotWithTransactions
+import com.example.zygos.data.getTickerPositions
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
-class HoldingsModel(private val parent: ZygosViewModel) {
-
-    var longPositionsAreLoading by mutableStateOf(false)
-    var shortPositionsAreLoading by mutableStateOf(false)
+class PositionModel(private val parent: ZygosViewModel) {
 
     val prices = mapOf<String, Long>(
         "MSFT" to 2500000,
@@ -66,6 +63,12 @@ class HoldingsModel(private val parent: ZygosViewModel) {
     )
     val shortPositions = mutableStateListOf<Position>()
 
+
+
+    var longPositionsAreLoading by mutableStateOf(false)
+    var shortPositionsAreLoading by mutableStateOf(false)
+
+
     // These variables are merely the ui state of the options selection menu.
     // The actual sorting is called in sort() via a callback when the menu is hidden.
     var sortOption by mutableStateOf(holdingsListSortOptions.items[0])
@@ -84,7 +87,7 @@ class HoldingsModel(private val parent: ZygosViewModel) {
         else sortOption = opt
     }
 
-    private fun doSort(): List<Position> {
+    private fun getSortedList(): List<Position> {
         val list = longPositions.toMutableList()
 
         /** Cash position is always last **/
@@ -126,11 +129,11 @@ class HoldingsModel(private val parent: ZygosViewModel) {
 
         /** Sort - This blocks this routine, but the main UI routine continues since sort() is
          * called from a LaunchedEffect. **/
-        val list = parent.viewModelScope.async(Dispatchers.IO) {
-            doSort()
-        }.await()
+        val list = withContext(Dispatchers.IO) {
+            getSortedList()
+        }
 
-        /** Update **/
+        /** Update. This happens in the main thread when called from LaunchedEffect with no dispatcher **/
         longPositions.clear()
         longPositions.addAll(list)
         lastSortIsAscending = sortIsAscending
@@ -138,4 +141,6 @@ class HoldingsModel(private val parent: ZygosViewModel) {
 //        longPositionsAreLoading = false
 //        shortPositionsAreLoading = false
     }
+
+
 }

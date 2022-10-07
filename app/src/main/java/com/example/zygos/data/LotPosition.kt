@@ -9,9 +9,9 @@ enum class PositionType(val displayName: String, val isOption: Boolean = false, 
     CALL_LONG("Call", true),
     PUT_LONG("Put", true),
     CALL_DEBIT_SPREAD("Call Debit Spread", true), // all spreads can include diagonals/calendars
-    CALL_CREDIT_SPREAD("Call Credit Spread", true),
+    CALL_CREDIT_SPREAD("Call Credit Spread", true, true),
     PUT_DEBIT_SPREAD("Put Debit Spread", true),
-    PUT_CREDIT_SPREAD("Put Credit Spread", true),
+    PUT_CREDIT_SPREAD("Put Credit Spread", true, true),
     CASH_SECURED_PUT("CSP", true, true),
     COVERED_CALL("Covered Call", true, true),
     BOND("Bond"),
@@ -42,6 +42,7 @@ enum class PositionType(val displayName: String, val isOption: Boolean = false, 
  * @param name For options positions, a name to summarize the position
  * @param collateral For short positions, amount of cash collateral. This is usually [shares] * [strike].
  */
+@Immutable
 data class LotPosition(
     /** Identifiers **/
     val account: String = "",
@@ -98,8 +99,9 @@ data class LotPosition(
     fun unrealized(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { unrealized(it) }
     fun returns(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { returns(it) }
     fun equity(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { equity(it) }
-    fun returnsPercent(prices: Map<String, Long>) = if (type == PositionType.CASH) 0f else (realizedOpen + unrealized(prices)).toFloat() / costBasis
+    fun returnsPercent(prices: Map<String, Long>) = if (type == PositionType.CASH || costBasis == 0L) 0f else (realizedOpen + unrealized(prices)).toFloat() / costBasis
 
+    /** Forms a compound position with the constituents as subPositions **/
     operator fun plus(b: LotPosition): LotPosition {
         val sameStock = type == PositionType.STOCK && b.type == PositionType.STOCK && ticker == b.ticker
         fun <T> ifEqual(default: T, field: LotPosition.() -> T) = if (this.field() == b.field()) this.field() else default
@@ -121,45 +123,3 @@ data class LotPosition(
         )
     }
 }
-
-data class TickerPosition(
-    val stock: LotPosition?,
-    val coveredCalls: List<LotPosition> = emptyList(),
-    val longOptions: List<LotPosition> = emptyList(), // includes debit spreads
-    val shortOptions: List<LotPosition> = emptyList(), // includes credit spreads
-)
-
-
-//class TickerPosition(
-//    realizedFromClosedLots: Long = 0,
-//    val stock: LotPosition,
-//    val coveredCalls: List<LotPosition> = emptyList(),
-//    val longOptions: List<LotPosition> = emptyList(), // includes debit spreads
-//    val shortOptions: List<LotPosition> = emptyList(), // includes credit spreads
-//) {
-//    private fun sumWith(longOnly: Boolean = false, fn: LotPosition.() -> Long): Long {
-//        var x = stock.fn() + coveredCalls.sumOf(fn) + longOptions.sumOf(fn)
-//        if (!longOnly) x += shortOptions.sumOf(fn)
-//        return x
-//    }
-//    private fun sumWith(prices: Map<String, Long>, longOnly: Boolean = false, fn: LotPosition.(Long?) -> Long): Long {
-//        var x = stock.fn(prices[stock.ticker]) +
-//                coveredCalls.sumOf { it.fn(prices[it.name]) } +
-//                longOptions.sumOf { it.fn(prices[it.name]) }
-//        if (!longOnly) x += shortOptions.sumOf { it.fn(prices[it.name]) }
-//        return x
-//    }
-//
-//    val account = stock.account
-//    val ticker = stock.ticker
-//    val cashEffect = sumWith { cashEffect }
-//    val realizedClosed = realizedFromClosedLots + sumWith { realizedClosed }
-//    val realizedOpenLong = sumWith(true) { realizedOpen }
-//    val costBasisLong = sumWith(true) { costBasis }
-//    val costBasisShort = shortOptions.sumOf(LotPosition::costBasis)
-//    val costBasis = costBasisLong + costBasisShort
-//    fun unrealized(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { unrealized(it) }
-//    fun returns(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { returns(it) }
-//    fun returnsPercent(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = returns(prices, longOnly).toDouble() / (if (longOnly) costBasisLong else costBasis)
-//    fun equity(prices: Map<String, Long> = emptyMap(), longOnly: Boolean = false) = sumWith(prices, longOnly) { equity(it) }
-//}
