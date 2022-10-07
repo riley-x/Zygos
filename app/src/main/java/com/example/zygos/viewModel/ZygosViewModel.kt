@@ -277,7 +277,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         lots.longPositions.forEach {
             positions.longPositions.add(Position(lot = it, prices = prices))
         }
-        positions.longPositions.add(Position(lot = lots.cashPosition, prices = prices))
+        if (lots.cashPosition != null) {
+            positions.longPositions.add(Position(lot = lots.cashPosition!!, prices = prices))
+        }
         lots.shortPositions.forEach {
             positions.shortPositions.add(Position(lot = it, prices = prices))
         }

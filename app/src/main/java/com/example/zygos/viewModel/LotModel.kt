@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 
 class LotModel(private val parent: ZygosViewModel) {
     var tickerLots = mutableMapOf<String, Pair<Long, List<LotWithTransactions>>>()
-    var cashPosition = LotPosition()
+    var cashPosition: LotPosition? = null
     val longPositions = mutableListOf<LotPosition>()
     val shortPositions = mutableListOf<LotPosition>()
     val exitedPositions = mutableListOf<LotPosition>()
@@ -29,12 +29,13 @@ class LotModel(private val parent: ZygosViewModel) {
         account: String,
         tickerLots: Map<String, Pair<Long, List<LotWithTransactions>>>
     ) {
+        cashPosition = null
         longPositions.clear()
         shortPositions.clear()
         exitedPositions.clear()
         tickerLots.forEach { (ticker, pair) ->
             if (ticker == "CASH") {
-                cashPosition = getCashPosition(pair.second.first().lot)
+                cashPosition = getCashPosition(pair.second)
             } else {
                 val realizedClosed = pair.first
                 val lotPositions = getTickerPositions(pair.second)
@@ -64,7 +65,7 @@ class LotModel(private val parent: ZygosViewModel) {
                 }
             }
         }
-        cashPosition = cashPosition.copy(realizedClosed =
+        cashPosition = cashPosition?.copy(realizedClosed =
                 longPositions.sumOf(LotPosition::cashEffect) +
                 shortPositions.sumOf(LotPosition::cashEffect) +
                 exitedPositions.sumOf(LotPosition::cashEffect)

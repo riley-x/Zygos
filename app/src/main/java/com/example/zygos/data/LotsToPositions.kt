@@ -7,18 +7,21 @@ import com.example.zygos.ui.components.formatDollarNoSymbol
 import kotlin.math.abs
 
 
-fun getCashPosition(lot: Lot): LotPosition {
-    return LotPosition(
-        /** Identifiers **/
-        account = lot.account,
-        ticker = "CASH",
-        type = PositionType.CASH,
-        /** Basis and returns **/
-        shares = lot.sharesOpen, // this makes cashEffect correct. Net transactions
-        priceOpen = -1,
-        realizedOpen = lot.realizedClosed, // interest
-        realizedClosed = 0, // MUST subtract all other cashEffects
-    )
+/** There is one cash lot per account, but "All Accounts" uses them all **/
+fun getCashPosition(openLots: List<LotWithTransactions>): LotPosition {
+    return openLots.map {
+        LotPosition(
+            /** Identifiers **/
+            account = it.lot.account,
+            ticker = "CASH",
+            type = PositionType.CASH,
+            /** Basis and returns **/
+            shares = it.lot.sharesOpen, // this makes cashEffect correct. Net transactions
+            priceOpen = -1,
+            realizedOpen = it.lot.realizedClosed, // interest
+            realizedClosed = 0, // MUST subtract all other cashEffects
+        )
+    }.reduce { a, b -> a + b }
 }
 
 
