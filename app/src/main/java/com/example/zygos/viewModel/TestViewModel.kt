@@ -129,6 +129,7 @@ class TestViewModel: ViewModel() {
     /** TransactionScreen **/
     val transactions = mutableStateListOf(
         Transaction(
+            transactionId = 0,
             ticker = "CASH",
             account = "Robinhood",
             date = 20201020,
@@ -137,7 +138,7 @@ class TestViewModel: ViewModel() {
             value = 100000000,
         ),
         Transaction(
-            transactionId = 0,
+            transactionId = 1,
             account = "Robinhood",
             ticker = "MSFT",
             note = "",
@@ -149,7 +150,7 @@ class TestViewModel: ViewModel() {
             value = 10000000,
         ),
         Transaction(
-            transactionId = 1,
+            transactionId = 2,
             account = "Arista",
             ticker = "AAPL",
             note = "",
@@ -161,7 +162,7 @@ class TestViewModel: ViewModel() {
             value = 5413000,
         ),
         Transaction(
-            transactionId = 2,
+            transactionId = 3,
             account = "TD Ameritrade",
             ticker = "AMD",
             note = "",

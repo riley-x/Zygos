@@ -41,7 +41,7 @@ fun TransactionsScreen(
     Column(modifier) {
 
         Divider(
-            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+            color = MaterialTheme.colors.onBackground.copy(alpha = 0.5f),
             thickness = 1.dp,
             modifier = Modifier
                 .padding(top = 2.dp, bottom = 2.dp)
@@ -67,7 +67,7 @@ fun TransactionsScreen(
         }
 
         Divider(
-            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+            color = MaterialTheme.colors.onBackground.copy(alpha = 0.5f),
             thickness = 1.dp,
             modifier = Modifier
                 .padding(top = 2.dp, bottom = 2.dp)
@@ -83,11 +83,13 @@ fun TransactionsScreen(
                         color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
                         thickness = 1.dp,
                         modifier = modifier
-                            .clickable { onTransactionClick(transaction) }
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     )
 
-                    TransactionRow(transaction, modifier = Modifier.padding(horizontal = 4.dp))
+                    TransactionRow(transaction, modifier = Modifier
+                        .clickable { onTransactionClick(transaction) }
+                        .padding(horizontal = 4.dp)
+                    )
                 }
             }
         }
@@ -95,6 +97,9 @@ fun TransactionsScreen(
 }
 
 
+/**
+ * If this preview ever stops working, make sure the lazy column keys / transactionIds are unique
+ */
 @Preview(
     widthDp = 360,
     heightDp = 740,
