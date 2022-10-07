@@ -168,6 +168,15 @@ fun ZygosApp(
 
         /** Set the top and bottom bars **/
         Scaffold(
+            topBar = {
+                AccountSelectionHeader(
+                    accounts = viewModel.accounts,
+                    currentAccount = viewModel.currentAccount,
+                    onAccountSelected = viewModel::setAccount,
+                    onAddAccount = ::onAddAccountClick,
+                    modifier = Modifier.topBar(),
+                )
+            },
             bottomBar = {
                 ZygosNav(
                     tabs = zygosTabs,
@@ -186,14 +195,15 @@ fun ZygosApp(
                     },
                 )
             },
+            modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
         ) { innerPadding ->
             /** Pick the tab to show **/
             NavHost(
                 navController = navController,
                 startDestination = PerformanceTab.graph,
                 modifier = Modifier
+                    .windowInsetsPadding(WindowInsets.ime)
                     .padding(if (WindowInsets.Companion.isImeVisible) PaddingValues() else innerPadding)
-                    .windowInsetsPadding(WindowInsets.ime.add(WindowInsets.statusBars))
             ) {
                 navigation(startDestination = PerformanceTab.route, route = PerformanceTab.graph) {
                     composable(route = PerformanceTab.route) {
@@ -206,15 +216,6 @@ fun ZygosApp(
                             onTickerSelected = ::onTickerSelected,
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
                             onAccountPerformanceRangeSelected = viewModel::updateAccountPerformanceRange,
-                            accountBar = {
-                                AccountSelectionHeader(
-                                    accounts = viewModel.accounts,
-                                    currentAccount = viewModel.currentAccount,
-                                    onAccountSelected = viewModel::setAccount,
-                                    onAddAccount = ::onAddAccountClick,
-                                    modifier = Modifier.topBar(),
-                                )
-                            },
                         )
                     }
                 }
@@ -231,15 +232,6 @@ fun ZygosApp(
                             displayOption = viewModel.positions.displayOption,
                             onPositionClick = ::onHoldingsPositionSelected,
                             holdingsListOptionsCallback = ::onHoldingsListOptionsShow,
-                            accountBar = {
-                                AccountSelectionHeader(
-                                    accounts = viewModel.accounts,
-                                    currentAccount = viewModel.currentAccount,
-                                    onAccountSelected = viewModel::setAccount,
-                                    onAddAccount = ::onAddAccountClick,
-                                    modifier = Modifier.topBar(),
-                                )
-                            },
                         )
                     }
                     composable(
@@ -275,21 +267,14 @@ fun ZygosApp(
                             onTransactionClick = ::toTransactionDetails,
                             onTransactionSeeAll = ::toTransactionAll,
                             onAddTransaction = ::toTransactionDetails,
-                            accountBar = {
-                                AccountSelectionHeader(
-                                    accounts = viewModel.accounts,
-                                    currentAccount = viewModel.currentAccount,
-                                    onAccountSelected = viewModel::setAccount,
-                                    onAddAccount = ::onAddAccountClick,
-                                    modifier = Modifier.topBar(),
-                                )
-                            },
                         )
                     }
                     composable(route = TransactionAllDestination.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/TransactionAllDestination.route")
                         TransactionsScreen(
                             transactions = viewModel.transactions.all,
+                            currentFilterTicker = viewModel.transactions.currentFilterTicker,
+                            currentFilterType = viewModel.transactions.currentFilterType,
                             onTransactionClick = ::toTransactionDetails,
                             transactionsListOptionsCallback = ::onTransactionsListOptionsShow,
                         )

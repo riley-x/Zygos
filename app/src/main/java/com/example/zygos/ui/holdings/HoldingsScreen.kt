@@ -36,129 +36,116 @@ fun HoldingsScreen(
     tickerColors: SnapshotStateMap<String, Color>,
     displayOption: String,
     modifier: Modifier = Modifier,
-    accountBar: @Composable () -> Unit = { },
     onPositionClick: (String) -> Unit = { },
     holdingsListOptionsCallback: () -> Unit = { },
 ) {
     LogCompositions("Zygos/Compositions", "HoldingsScreen")
 
-    Column(
-        modifier = modifier
-            .fillMaxWidth(),
-    ) {
-        accountBar()
+    LazyColumn {
 
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            LazyColumn {
+        item("pie_chart") {
+            Row(
+                modifier = Modifier
+                    .padding(start = 30.dp, end = 30.dp)
+                    .heightIn(0.dp, 300.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .aspectRatio(1f)
+                        .fillMaxWidth(),
+                ) {
+                    if (longPositionsAreLoading || shortPositionsAreLoading) {
+                        CircularProgressIndicator()
+                    }
+                    else if (longPositions.isEmpty()) { // don't need a derivedStateOf since this is rare
+                        Text(
+                            text = "No data!",
+                            style = MaterialTheme.typography.h5,
+                            color = MaterialTheme.colors.error,
+                        )
+                    } else {
+                        PieChart(
+                            tickers = longPositions.map { it.ticker },
+                            values = longPositions.map { it.equity },
+                            colors = longPositions.map {
+                                tickerColors.getOrDefault(
+                                    it.ticker,
+                                    Color.Black
+                                )
+                            },
+                            stroke = 30.dp,
+                        )
+                    }
+                }
+            }
+        }
 
-                item("pie_chart") {
-                    Row(
+        item("long") {
+            ListTitleBar(
+                text = "Long Positions",
+                modifier = Modifier.padding(start = 22.dp),
+                onOptionsButtonClick = holdingsListOptionsCallback,
+            )
+        }
+
+        if (!longPositionsAreLoading) {
+            itemsIndexed(longPositions, key = { _, pos -> pos.ticker } ) { index, pos ->
+                Column {
+                    if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
+
+                    HoldingsRow(
+                        position = pos,
+                        color = tickerColors.getOrDefault(pos.ticker, Color.Black),
+                        displayOption = displayOption,
                         modifier = Modifier
-                            .padding(start = 30.dp, end = 30.dp)
-                            .heightIn(0.dp, 300.dp)
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .fillMaxWidth(),
-                        ) {
-                            if (longPositionsAreLoading || shortPositionsAreLoading) {
-                                CircularProgressIndicator()
-                            }
-                            else if (longPositions.isEmpty()) { // don't need a derivedStateOf since this is rare
-                                Text(
-                                    text = "No data!",
-                                    style = MaterialTheme.typography.h5,
-                                    color = MaterialTheme.colors.error,
-                                )
-                            } else {
-                                PieChart(
-                                    tickers = longPositions.map { it.ticker },
-                                    values = longPositions.map { it.equity },
-                                    colors = longPositions.map {
-                                        tickerColors.getOrDefault(
-                                            it.ticker,
-                                            Color.Black
-                                        )
-                                    },
-                                    stroke = 30.dp,
-                                )
-                            }
-                        }
-                    }
-                }
-
-                item("long") {
-                    ListTitleBar(
-                        text = "Long Positions",
-                        modifier = Modifier.padding(start = 22.dp),
-                        onOptionsButtonClick = holdingsListOptionsCallback,
+                            .clickable { onPositionClick(pos.ticker) }
+                            .padding(horizontal = 6.dp) // this needs to be second so that the clickable
+                                                        // animation covers the full width
                     )
                 }
-
-                if (!longPositionsAreLoading) {
-                    itemsIndexed(longPositions, key = { _, pos -> pos.ticker } ) { index, pos ->
-                        Column {
-                            if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
-
-                            HoldingsRow(
-                                position = pos,
-                                color = tickerColors.getOrDefault(pos.ticker, Color.Black),
-                                displayOption = displayOption,
-                                modifier = Modifier
-                                    .clickable { onPositionClick(pos.ticker) }
-                                    .padding(horizontal = 6.dp) // this needs to be second so that the clickable
-                                                                // animation covers the full width
-                            )
-                        }
-                    }
-                } else {
-                    item("long spinner") {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .height(60.dp)
-                                .fillMaxWidth(),
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    }
+            }
+        } else {
+            item("long spinner") {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .height(60.dp)
+                        .fillMaxWidth(),
+                ) {
+                    CircularProgressIndicator()
                 }
+            }
+        }
 
-                item("short") {
-                    ListTitleBar(
-                        text = "Short Positions",
-                        modifier = Modifier.padding(start = 22.dp, top = 20.dp),
-                        onOptionsButtonClick = holdingsListOptionsCallback,
-                    )
+        item("short") {
+            ListTitleBar(
+                text = "Short Positions",
+                modifier = Modifier.padding(start = 22.dp, top = 20.dp),
+                onOptionsButtonClick = holdingsListOptionsCallback,
+            )
+        }
+
+        if (!shortPositionsAreLoading) {
+            itemsIndexed(shortPositions) { index, pos ->
+                Column {
+                    if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
+
+                    // TODO
                 }
-
-                if (!shortPositionsAreLoading) {
-                    itemsIndexed(shortPositions) { index, pos ->
-                        Column {
-                            if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
-
-                            // TODO
-                        }
-                    }
-                } else {
-                    item("short spinner") {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .height(60.dp)
-                                .fillMaxWidth(),
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    }
+            }
+        } else {
+            item("short spinner") {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .height(60.dp)
+                        .fillMaxWidth(),
+                ) {
+                    CircularProgressIndicator()
                 }
             }
         }

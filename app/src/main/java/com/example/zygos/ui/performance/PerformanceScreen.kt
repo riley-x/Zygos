@@ -29,129 +29,121 @@ fun PerformanceScreen(
     onTickerSelected: (String) -> Unit = { },
     onAccountPerformanceRangeSelected: (String) -> Unit = { },
     onWatchlistOptionsClick: () -> Unit = { },
-    accountBar: @Composable () -> Unit = { },
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth(),
+    LogCompositions("Zygos", "PerformanceScreen")
+
+    Surface(
+        modifier = Modifier
+            .recomposeHighlighter()
+            .fillMaxSize(),
+        color = MaterialTheme.colors.background
     ) {
-        LogCompositions("Zygos", "PerformanceScreen")
+        var hoverX by remember { mutableStateOf("") }
+        var hoverY by remember { mutableStateOf("") }
 
-        accountBar()
+        fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
+            if (isHover && x >= 0 && x < accountPerformanceState.value.values.size) {
+                hoverX = accountPerformanceState.value.values[x].name
+                hoverY = formatDollar(accountPerformanceState.value.values[x].value)
+            } else {
+                hoverX = ""
+                hoverY = ""
+            }
+            //hoverY = if (isHover && y > 0f && y < 25f) formatDollar(y) else ""
+        }
 
-        Surface(
-            modifier = Modifier
-                .recomposeHighlighter()
-                .fillMaxSize(),
-            color = MaterialTheme.colors.background
-        ) {
-            var hoverX by remember { mutableStateOf("") }
-            var hoverY by remember { mutableStateOf("") }
-
-            fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
-                if (isHover && x >= 0 && x < accountPerformanceState.value.values.size) {
-                    hoverX = accountPerformanceState.value.values[x].name
-                    hoverY = formatDollar(accountPerformanceState.value.values[x].value)
-                } else {
-                    hoverX = ""
-                    hoverY = ""
+        LazyColumn {
+            item("graph_hover") {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .height(20.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = hoverX,
+                        style = MaterialTheme.typography.subtitle2,
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+                    Text(
+                        text = hoverY,
+                        style = MaterialTheme.typography.subtitle2,
+                    )
                 }
-                //hoverY = if (isHover && y > 0f && y < 25f) formatDollar(y) else ""
             }
 
-            LazyColumn {
-                item("graph_hover") {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
+            item("graph") {
+                val grapher = lineGraph<TimeSeries>()
+                TimeSeriesGraph(
+                    grapher = grapher,
+                    state = accountPerformanceState,
+                    onHover = ::onGraphHover,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                        .height(300.dp)
+                )
+            }
+
+            item("divider1") {
+                Divider(
+                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp)
+                        .recomposeHighlighter()
+                )
+            }
+
+            item("graph_selector") {
+                TimeSeriesGraphSelector(
+                    options = accountPerformanceRangeOptions,
+                    currentSelection = accountPerformanceTimeRange,
+                    onSelection = onAccountPerformanceRangeSelected,
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .fillMaxWidth()
+                )
+            }
+
+            item("divider2") {
+                Divider(
+                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 20.dp)
+                )
+            }
+
+            item("watchlist_title") {
+                ListTitleBar(
+                    text = "Watchlist",
+                    onOptionsButtonClick = onWatchlistOptionsClick,
+                    modifier = Modifier.padding(start = 22.dp).recomposeHighlighter()
+                )
+            }
+
+            itemsIndexed(watchlist, key = { _, ticker -> ticker.ticker }) { index, ticker ->
+                Column {
+                    if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
+
+                    TickerListValueRow(
+                        ticker = ticker.ticker,
+                        color = ticker.color,
+                        value = ticker.price,
+                        subvalue = when (watchlistDisplayOption) {
+                            "% Change" -> ticker.percentChange
+                            else -> ticker.change
+                        },
+                        isSubvalueDollar = (watchlistDisplayOption != "% Change"),
                         modifier = Modifier
-                            .height(20.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = hoverX,
-                            style = MaterialTheme.typography.subtitle2,
-                            modifier = Modifier
-                                .weight(1f)
-                        )
-                        Text(
-                            text = hoverY,
-                            style = MaterialTheme.typography.subtitle2,
-                        )
-                    }
-                }
-
-                item("graph") {
-                    val grapher = lineGraph<TimeSeries>()
-                    TimeSeriesGraph(
-                        grapher = grapher,
-                        state = accountPerformanceState,
-                        onHover = ::onGraphHover,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 4.dp)
-                            .height(300.dp)
+                            .clickable {
+                                onTickerSelected(ticker.ticker)
+                            }
+                            // this needs to be here so that the clickable animation covers the full width
+                            .padding(horizontal = 6.dp)
                     )
-                }
-
-                item("divider1") {
-                    Divider(
-                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                        thickness = 1.dp,
-                        modifier = Modifier
-                            .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp)
-                            .recomposeHighlighter()
-                    )
-                }
-
-                item("graph_selector") {
-                    TimeSeriesGraphSelector(
-                        options = accountPerformanceRangeOptions,
-                        currentSelection = accountPerformanceTimeRange,
-                        onSelection = onAccountPerformanceRangeSelected,
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp)
-                            .fillMaxWidth()
-                    )
-                }
-
-                item("divider2") {
-                    Divider(
-                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                        thickness = 1.dp,
-                        modifier = Modifier
-                            .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 20.dp)
-                    )
-                }
-
-                item("watchlist_title") {
-                    ListTitleBar(
-                        text = "Watchlist",
-                        onOptionsButtonClick = onWatchlistOptionsClick,
-                        modifier = Modifier.padding(start = 22.dp).recomposeHighlighter()
-                    )
-                }
-
-                itemsIndexed(watchlist, key = { _, ticker -> ticker.ticker }) { index, ticker ->
-                    Column {
-                        if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
-
-                        TickerListValueRow(
-                            ticker = ticker.ticker,
-                            color = ticker.color,
-                            value = ticker.price,
-                            subvalue = when (watchlistDisplayOption) {
-                                "% Change" -> ticker.percentChange
-                                else -> ticker.change
-                            },
-                            isSubvalueDollar = (watchlistDisplayOption != "% Change"),
-                            modifier = Modifier
-                                .clickable {
-                                    onTickerSelected(ticker.ticker)
-                                }
-                                // this needs to be here so that the clickable animation covers the full width
-                                .padding(horizontal = 6.dp)
-                        )
-                    }
                 }
             }
         }

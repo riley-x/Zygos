@@ -40,78 +40,66 @@ fun AnalyticsScreen(
     // TODO: Add a "See All" and only show the most recent transactions
     // TODO: Maybe this screen is a good place for dividend and option summaries
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = modifier
-                .fillMaxWidth(),
-        ) {
-            accountBar()
+    LazyColumn {
 
-            LazyColumn {
+        item(key = "transactions") {
+            Card(
+                elevation = Dp(0.5f),
+                modifier = Modifier.padding(6.dp)
+            ) {
+                Column {
 
-                item(key = "transactions") {
-                    Card(
-                        elevation = Dp(0.5f),
-                        modifier = Modifier.padding(6.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 10.dp)
                     ) {
-                        Column {
+                        Text(
+                            text = "Transactions",
+                            style = MaterialTheme.typography.h3,
+                            modifier = Modifier.weight(1f)
+                        )
 
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(start = 10.dp)
-                            ) {
-                                Text(
-                                    text = "Transactions",
-                                    style = MaterialTheme.typography.h3,
-                                    modifier = Modifier.weight(1f)
-                                )
-
-                                IconButton(onClick = onAddTransaction) {
-                                    Icon(
-                                        imageVector = Icons.Sharp.Add,
-                                        contentDescription = null,
-                                    )
-                                }
-                            }
-
-
-                            Divider(
-                                color = MaterialTheme.colors.primary,
-                                thickness = 1.dp,
-                                modifier = modifier
-                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                        IconButton(onClick = onAddTransaction) {
+                            Icon(
+                                imageVector = Icons.Sharp.Add,
+                                contentDescription = null,
                             )
-
-                            transactions.take(4).forEach { transaction ->
-                                TransactionTickerRow(
-                                    transaction = transaction,
-                                    tickerColors = tickerColors,
-                                    modifier = Modifier
-                                        .clickable { onTransactionClick(transaction) }
-                                        .padding(horizontal = 10.dp, vertical = 2.dp)
-                                )
-
-                                Divider(
-                                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                                    thickness = 1.dp,
-                                    modifier = modifier
-                                        .padding(horizontal = 4.dp)
-                                )
-                            }
-
-                            TextButton(
-                                onClick = onTransactionSeeAll,
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .padding(horizontal = 4.dp)
-                                    .fillMaxWidth()
-                            ) {
-                                Text("SEE ALL")
-                            }
                         }
+                    }
+
+
+                    Divider(
+                        color = MaterialTheme.colors.primary,
+                        thickness = 1.dp,
+                        modifier = modifier
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                    )
+
+                    transactions.take(4).forEach { transaction ->
+                        TransactionTickerRow(
+                            transaction = transaction,
+                            tickerColors = tickerColors,
+                            modifier = Modifier
+                                .clickable { onTransactionClick(transaction) }
+                                .padding(horizontal = 10.dp, vertical = 2.dp)
+                        )
+
+                        Divider(
+                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                            thickness = 1.dp,
+                            modifier = modifier
+                                .padding(horizontal = 4.dp)
+                        )
+                    }
+
+                    TextButton(
+                        onClick = onTransactionSeeAll,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(horizontal = 4.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text("SEE ALL")
                     }
                 }
             }

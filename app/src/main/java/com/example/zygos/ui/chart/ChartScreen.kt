@@ -49,102 +49,95 @@ fun ChartScreen(
         onChartRangeSelected(selection)
     }
 
-    Surface(
-        color = MaterialTheme.colors.background,
-        modifier = Modifier
-            .recomposeHighlighter()
+    /** Nonscrolling column for ticker selection header bar **/
+    Column(
+        modifier = modifier
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = { // onTap
-                    keyboardController?.hide()
-                    focusManager.clearFocus(true)
-                } )
+                        keyboardController?.hide()
+                        focusManager.clearFocus(true)
+                    }
+                )
             }
     ) {
-        /** Nonscrolling column for ticker selection header bar **/
-        Column(
-            modifier = modifier
-                .fillMaxSize(),
-        ) {
-            var hoverTime by remember { mutableStateOf("") }
-            var hoverValues by remember { mutableStateOf("") }
+        var hoverTime by remember { mutableStateOf("") }
+        var hoverValues by remember { mutableStateOf("") }
 
-            fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
-                if (isHover && x >= 0 && x < chartState.value.values.size) {
-                    hoverTime = chartState.value.values[x].name
-                    val open = formatDollarNoSymbol(chartState.value.values[x].open)
-                    val close = formatDollarNoSymbol(chartState.value.values[x].close)
-                    val high = formatDollarNoSymbol(chartState.value.values[x].high)
-                    val low = formatDollarNoSymbol(chartState.value.values[x].low)
-                    val maxLength = maxOf(open.length, close.length, high.length, low.length)
-                    // can set a flag here to disable the hoverTime if length is too long
-                    hoverValues = "O: " + open.padStart(maxLength) +
-                            "  H: " + high.padStart(maxLength) +
-                            "\nC: " + close.padStart(maxLength) +
-                            "  L: " + low.padStart(maxLength)
-                } else {
-                    hoverTime = ""
-                    hoverValues = ""
-                }
+        fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
+            if (isHover && x >= 0 && x < chartState.value.values.size) {
+                hoverTime = chartState.value.values[x].name
+                val open = formatDollarNoSymbol(chartState.value.values[x].open)
+                val close = formatDollarNoSymbol(chartState.value.values[x].close)
+                val high = formatDollarNoSymbol(chartState.value.values[x].high)
+                val low = formatDollarNoSymbol(chartState.value.values[x].low)
+                val maxLength = maxOf(open.length, close.length, high.length, low.length)
+                // can set a flag here to disable the hoverTime if length is too long
+                hoverValues = "O: " + open.padStart(maxLength) +
+                        "  H: " + high.padStart(maxLength) +
+                        "\nC: " + close.padStart(maxLength) +
+                        "  L: " + low.padStart(maxLength)
+            } else {
+                hoverTime = ""
+                hoverValues = ""
+            }
+        }
+
+        /** Ticker selection bar, also chart hover text goes here to save space **/
+        ChartScreenHeader(
+            ticker = ticker.value,
+            hoverTime = hoverTime,
+            hoverValues = hoverValues,
+            onTickerChanged = onTickerChanged,
+            modifier = Modifier.padding(start = 12.dp),
+        )
+
+        /** Main screen with chart and details **/
+        LazyColumn {
+
+            item("graph") {
+                val grapher = candlestickGraph()
+                TimeSeriesGraph(
+                    grapher = grapher,
+                    state = chartState,
+                    onHover = ::onGraphHover,
+                    onPress = ::onGraphPress,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                        .height(400.dp)
+                        .clipToBounds()
+                )
             }
 
+            item("divider1") {
+                Divider(
+                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp)
+                )
+            }
 
-            /** Ticker selection bar, also chart hover text goes here to save space **/
-            ChartScreenHeader(
-                ticker = ticker.value,
-                hoverTime = hoverTime,
-                hoverValues = hoverValues,
-                onTickerChanged = onTickerChanged,
-                modifier = Modifier.padding(start = 12.dp),
-            )
+            item("graph_selector") {
+                TimeSeriesGraphSelector(
+                    options = chartRangeOptions,
+                    currentSelection = chartRange,
+                    onSelection = ::onChartRangeTap,
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .fillMaxWidth()
+                )
+            }
 
-            /** Main screen with chart and details **/
-            LazyColumn {
-
-                item("graph") {
-                    val grapher = candlestickGraph()
-                    TimeSeriesGraph(
-                        grapher = grapher,
-                        state = chartState,
-                        onHover = ::onGraphHover,
-                        onPress = ::onGraphPress,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 4.dp)
-                            .height(400.dp)
-                            .clipToBounds()
-                    )
-                }
-
-                item("divider1") {
-                    Divider(
-                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                        thickness = 1.dp,
-                        modifier = Modifier
-                            .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp)
-                    )
-                }
-
-                item("graph_selector") {
-                    TimeSeriesGraphSelector(
-                        options = chartRangeOptions,
-                        currentSelection = chartRange,
-                        onSelection = ::onChartRangeTap,
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp)
-                            .fillMaxWidth()
-                    )
-                }
-
-                item("divider2") {
-                    Divider(
-                        color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                        thickness = 1.dp,
-                        modifier = Modifier
-                            .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 20.dp)
-                    )
-                }
+            item("divider2") {
+                Divider(
+                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                    thickness = 1.dp,
+                    modifier = Modifier
+                        .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 20.dp)
+                )
             }
         }
     }

@@ -38,6 +38,10 @@ class TransactionModel(private val parent: ZygosViewModel) {
         private set
     var sortIsAscending by mutableStateOf(false)
         private set
+    var currentFilterTicker by mutableStateOf("")
+        private set
+    var currentFilterType by mutableStateOf(TransactionType.NONE)
+        private set
 
 
     // Called from composable onClick callbacks. This only adjusts the UI state, not the actual sort
@@ -116,6 +120,8 @@ class TransactionModel(private val parent: ZygosViewModel) {
             }
             all.clear()
             all.addAll(newAll)
+            currentFilterTicker = ticker
+            currentFilterType = type
         }
     }
 }
