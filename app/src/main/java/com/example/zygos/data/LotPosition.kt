@@ -128,3 +128,8 @@ data class LotPosition(
         )
     }
 }
+
+// Allows for nested subPositions
+fun List<LotPosition>.join(): LotPosition {
+    return reduce { a, b -> a + b }.copy(subPositions = this)
+}

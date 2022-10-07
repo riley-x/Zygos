@@ -1,11 +1,7 @@
 package com.example.zygos.viewModel
 
-import android.util.Log
-import com.example.zygos.data.LotPosition
-import com.example.zygos.data.PositionType
+import com.example.zygos.data.*
 import com.example.zygos.data.database.LotWithTransactions
-import com.example.zygos.data.getCashPosition
-import com.example.zygos.data.getTickerPositions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -41,18 +37,18 @@ class LotModel(private val parent: ZygosViewModel) {
                 val lotPositions = getTickerPositions(pair.second)
 
                 // long positions are collected into a single ticker position that is displayed in watchlist/pie chart
-                var longPosition: LotPosition? = null
+                val tickerLongPositions = mutableListOf<LotPosition>()
                 lotPositions.forEach {
                     if (it.type == PositionType.COVERED_CALL || !it.type.isShort) {
-                        longPosition = if (longPosition == null) it else longPosition!! + it
+                        tickerLongPositions.add(it)
                     } else {
                         shortPositions.add(it)
                     }
                 }
 
-                if (longPosition != null) {
-                    longPosition = longPosition!!.copy(realizedClosed = realizedClosed)
-                    longPositions.add(longPosition!!)
+                if (tickerLongPositions.isNotEmpty()) {
+                    val longPosition = tickerLongPositions.join()
+                    longPositions.add(longPosition.copy(realizedClosed = longPosition.realizedClosed + realizedClosed))
                 } else {
                     exitedPositions.add(
                         LotPosition(

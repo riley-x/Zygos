@@ -11,6 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.zygos.data.PositionType
+import com.example.zygos.data.toFloatDollar
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.Position
@@ -56,6 +58,12 @@ fun HoldingsSubRow(
             Column(Modifier.weight(10f)) {
                 Text(formatDateInt(position.expiration))
                 Text(formatDollarNoSymbol(position.strike))
+            }
+        } else if (position.type == PositionType.CASH) {
+            // CASH can have subpositions only when account is all accounts
+            Column(Modifier.weight(10f)) {
+                Text(position.account)
+                Text(formatDollar(position.shares.toFloatDollar()))
             }
         } else {
             Column(Modifier.weight(10f)) {
