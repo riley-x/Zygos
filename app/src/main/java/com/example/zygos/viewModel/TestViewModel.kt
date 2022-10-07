@@ -147,7 +147,6 @@ class TestViewModel: ViewModel() {
             expiration = 0,
             price = 2000000,
             value = 10000000,
-            fees = 0
         ),
         Transaction(
             transactionId = 1,
@@ -160,7 +159,6 @@ class TestViewModel: ViewModel() {
             expiration = 0,
             price = 345100,
             value = 5413000,
-            fees = 0
         ),
         Transaction(
             transactionId = 2,
@@ -174,7 +172,6 @@ class TestViewModel: ViewModel() {
             strike = 300000,
             price = 360000,
             value = -36000000,
-            fees = 0
         ),
     )
     val focusedTransaction = mutableStateOf(transactions[0]) // Current transaction that we're editing

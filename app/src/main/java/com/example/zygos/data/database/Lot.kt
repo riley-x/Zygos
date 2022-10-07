@@ -9,16 +9,9 @@ import com.example.zygos.ui.components.allAccounts
  *
  * Values are 1/100th of a cent, and dates are in YYYYMMDD format.
  */
-@Entity(tableName = "lot",
-//    foreignKeys = [ForeignKey(
-//        entity = Transaction::class,
-//        parentColumns = arrayOf("transactionId"),
-//        childColumns = arrayOf("openTransactionId")
-//    )]
-)
+@Entity(tableName = "lot")
 data class Lot(
     @PrimaryKey(autoGenerate = true) val lotId: Long = 0, // 0 to auto generate a key
-//    val openTransactionId: Long,
     val account: String, // these are duplicated from the transaction since we query on them a lot
     val ticker: String,
     val sharesOpen: Long, // for options, also a multiple of 100
@@ -85,11 +78,6 @@ interface LotDao {
             "WHERE (account = :account OR account = 'All') AND ticker == :ticker")
     fun getTicker(account: String, ticker: String): List<LotWithTransactions>
 
-    @androidx.room.Transaction
-    @Query("SELECT * FROM lot " +
-            "WHERE (account = :account OR account = 'All') AND (sharesOpen > 0 OR ticker == 'CASH')"
-    )
-    fun getOpenAccount(account: String): List<LotWithTransactions>
 
     @androidx.room.Transaction
     @Query("SELECT * FROM lot " +
@@ -109,6 +97,11 @@ interface LotDao {
     )
     fun getOpenTicker(ticker: String): List<LotWithTransactions>
 
+    @androidx.room.Transaction
+    @Query("SELECT * FROM lot " +
+            "WHERE (account = :account OR account = 'All') AND (sharesOpen > 0 OR ticker == 'CASH')"
+    )
+    fun getOpenAccount(account: String): List<LotWithTransactions>
 
     @androidx.room.Transaction
     @Query("SELECT * FROM lot " +

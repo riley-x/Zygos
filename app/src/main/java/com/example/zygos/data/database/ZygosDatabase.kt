@@ -9,7 +9,7 @@ import java.io.File
 
 @Database(
     entities = [Transaction::class, EquityHistory::class, Lot::class, LotTransactionCrossRef::class, Ohlc::class],
-    version = 3
+    version = 4
 )
 abstract class ZygosDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao

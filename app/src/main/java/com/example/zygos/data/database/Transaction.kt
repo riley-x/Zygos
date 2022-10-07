@@ -30,6 +30,16 @@ enum class TransactionType(val displayName: String, val isOption: Boolean = fals
 
 /**
  * All integer dollar values are 1/100th of a cent, and dates are in YYYYMMDD format
+ *
+ * @param closeLot this transaction closes a specific lot. This should be the ordinal number of the
+ * lot among all open lots of the account + ticker, increasing date sorted. Note this can't be the
+ * database id of the lot because the lot table might be completely regenerated if a transaction is
+ * deleted or updated. Set to -1 to indicate FIFO, in which case this transaction might close
+ * multiple lots. This should not be set by the user, but auto-populated by clicking a "Close Lot"
+ * button.
+ *
+ * @param priceUnderlying for options, price of the stock when the position was opened. Can be 0 for
+ * old parthenos transactions, in which case price is only the extrinsic. TODO
  */
 @Entity(tableName = "transaction_table",  // transaction is a keyword!!!!!!!
 )
@@ -45,13 +55,15 @@ data class Transaction(
     val date: Int = 0,
     val price: Long = 0, // price to track gain/loss, not the actual value of trade
     val value: Long = 0, // actual dollar change due to the trade
-    val fees: Long = 0, // known fees associated with opening this position
+    val closeLot: Int = -1,
 
     /** Option fields **/
     val expiration: Int = 0,
     val strike: Long = 0,
-    val priceUnderlying: Long = 0, // when position was opened. Can be 0 for old parthenos transactions, in which case price is only the extrinsic
-)
+    val priceUnderlying: Long = 0,
+) {
+    @Ignore val feesAndRounding = if (ticker == "CASH") 0 else (if (type.isShort) 1 else -1) * shares * price - value
+}
 
 
 @Dao
