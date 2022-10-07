@@ -24,7 +24,7 @@ abstract class ZygosDatabase : RoomDatabase() {
         fun getDatabase(context: Context): ZygosDatabase {
             return INSTANCE ?: synchronized(this) {
                 val prepopFile = File(context.filesDir, "parthenos.db") // TODO hardcoded. Just drag drop this into the Android Studio file explorer
-                Log.d("Zygos/TransactionDatabase/getDatabase", prepopFile.absolutePath)
+                Log.d("Zygos/ZygosDatabase/getDatabase", prepopFile.absolutePath)
                 var builder = Room.databaseBuilder(
                     context,
                     ZygosDatabase::class.java,

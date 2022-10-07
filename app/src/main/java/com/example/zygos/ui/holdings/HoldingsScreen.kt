@@ -56,7 +56,6 @@ fun HoldingsScreen(
 
                 item("pie_chart") {
                     Row(
-                        // For some reason couldn't just use Modifier.alignment in PieChart
                         modifier = Modifier
                             .padding(start = 30.dp, end = 30.dp)
                             .heightIn(0.dp, 300.dp)
@@ -64,30 +63,33 @@ fun HoldingsScreen(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        if (!longPositionsAreLoading && !shortPositionsAreLoading) {
-                            PieChart(
-                                tickers = longPositions.map { it.ticker },
-                                values = longPositions.map { it.equity },
-                                colors = longPositions.map {
-                                    tickerColors.getOrDefault(
-                                        it.ticker,
-                                        Color.Black
-                                    )
-                                },
-                                modifier = Modifier
-                                    .aspectRatio(1f)
-                                    .fillMaxWidth(),
-                                stroke = 30.dp,
-                            )
-                        }
-                        else {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .aspectRatio(1f)
-                                    .fillMaxWidth(),
-                            ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .fillMaxWidth(),
+                        ) {
+                            if (longPositionsAreLoading || shortPositionsAreLoading) {
                                 CircularProgressIndicator()
+                            }
+                            else if (longPositions.isEmpty()) { // don't need a derivedStateOf since this is rare
+                                Text(
+                                    text = "No data!",
+                                    style = MaterialTheme.typography.h5,
+                                    color = MaterialTheme.colors.error,
+                                )
+                            } else {
+                                PieChart(
+                                    tickers = longPositions.map { it.ticker },
+                                    values = longPositions.map { it.equity },
+                                    colors = longPositions.map {
+                                        tickerColors.getOrDefault(
+                                            it.ticker,
+                                            Color.Black
+                                        )
+                                    },
+                                    stroke = 30.dp,
+                                )
                             }
                         }
                     }

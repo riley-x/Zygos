@@ -47,8 +47,6 @@ fun PieChart(
     modifier: Modifier = Modifier,
     stroke: Dp = 30.dp,
 ) {
-    if (tickers.isEmpty()) return
-
     val total = values.sum()
     val angles = FloatArray(values.size + 1) // first entry is 0, last entry is 360
     for (index in values.indices) {
