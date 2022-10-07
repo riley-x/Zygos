@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -45,6 +46,7 @@ class ZygosApplication : Application() {
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
         val viewModel: ZygosViewModel by viewModels {
@@ -59,7 +61,7 @@ class MainActivity : ComponentActivity() {
 
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun ZygosApp(
     viewModel: ZygosViewModel = viewModel(),
@@ -82,6 +84,7 @@ fun ZygosApp(
         val currentTab = zygosTabs.drop(1).find { tab ->
             currentDestination?.hierarchy?.any { it.route == tab.graph || it.route == tab.route } == true
         } ?: zygosTabs[0]
+
 
         /** Dialog state **/
         var openAddAccountDialog by remember { mutableStateOf(false) }
@@ -188,7 +191,9 @@ fun ZygosApp(
             NavHost(
                 navController = navController,
                 startDestination = PerformanceTab.graph,
-                modifier = Modifier.padding(innerPadding),
+                modifier = Modifier
+                    .padding(if (WindowInsets.Companion.isImeVisible) PaddingValues() else innerPadding)
+                    .windowInsetsPadding(WindowInsets.ime.add(WindowInsets.statusBars))
             ) {
                 navigation(startDestination = PerformanceTab.route, route = PerformanceTab.graph) {
                     composable(route = PerformanceTab.route) {
