@@ -12,7 +12,7 @@ fun addTransaction(
     } else if (transaction.type == TransactionType.DIVIDEND) {
         addDividend(transaction, transactionDao, lotDao)
     } else if (transaction.shares > 0) {
-        openLot(transaction, transactionDao, lotDao)
+        createLot(transaction, transactionDao, lotDao)
     } else if (transaction.shares < 0) {
         closeLot(transaction, transactionDao, lotDao)
     } else {
@@ -20,12 +20,14 @@ fun addTransaction(
     }
 }
 
-fun createLot(t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
+private fun createLot(t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
     val transactionId = transactionDao.insert(t)
     val lot = Lot(
         account = t.account,
         ticker = t.ticker,
         sharesOpen = if (t.ticker == "CASH") t.value else t.shares,
+        feesAndRounding = if (t.ticker == "CASH") 0 else (if (t.type.isShort) 1 else -1) * t.shares * t.price - t.value,
+        dividendsPerShare = 0,
         realizedClosed = 0,
     )
     val lotId = lotDao.insert(lot)
@@ -35,10 +37,8 @@ fun createLot(t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
     ))
 }
 
-/**
- * Handles all CASH transactions
- */
-fun addCashTransaction(
+/** Handles all CASH transactions **/
+private fun addCashTransaction(
     t: Transaction,
     transactionDao: TransactionDao,
     lotDao: LotDao
@@ -66,16 +66,11 @@ fun addCashTransaction(
     }
 }
 
-fun addDividend(transaction: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
+private fun addDividend(transaction: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
 
 }
 
 
-
-fun openLot(transaction: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
-
-}
-
-fun closeLot(transaction: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
+private fun closeLot(transaction: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
 
 }

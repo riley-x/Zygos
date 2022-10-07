@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.zygos.data.PositionType
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.Position
@@ -37,22 +38,20 @@ fun HoldingsRow(
             isSubvalueDollar = (displayOption == "Returns"),
             modifier = Modifier
         ) {
-            if (position.subPositions.isEmpty()) {
-                if (position.ticker != "CASH") {
-                    Column(Modifier) {
-                        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                            Text(
-                                text = "${position.shares}",
-                                style = MaterialTheme.typography.subtitle1
-                            )
-                            Text(text = "shares", style = MaterialTheme.typography.subtitle1)
-                        }
-                    }
-                }
-            } else {
+            if (position.subPositions.isNotEmpty() && position.type == PositionType.NONE) { // NONE is used for compound positions
                 IconButton(onClick = { expanded = !expanded }) {
                     if (expanded) Icon(imageVector = Icons.Sharp.ExpandLess, contentDescription = null)
                     else Icon(imageVector = Icons.Sharp.ExpandMore, contentDescription = null)
+                }
+            } else if (position.ticker != "CASH") {
+                Column(Modifier) {
+                    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+                        Text(
+                            text = "${position.shares}",
+                            style = MaterialTheme.typography.subtitle1
+                        )
+                        Text(text = "shares", style = MaterialTheme.typography.subtitle1)
+                    }
                 }
             }
         }

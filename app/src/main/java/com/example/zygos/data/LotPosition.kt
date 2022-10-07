@@ -108,16 +108,16 @@ data class LotPosition(
 
     /** Forms a compound position with the constituents as subPositions **/
     operator fun plus(b: LotPosition): LotPosition {
-        val sameStock = type == PositionType.STOCK && b.type == PositionType.STOCK && ticker == b.ticker
+        val samePosition = instrumentName == b.instrumentName
         fun <T> ifEqual(default: T, field: LotPosition.() -> T) = if (this.field() == b.field()) this.field() else default
         return LotPosition(
             /** Identifiers **/
             account = ifEqual("") { account },
             ticker = ifEqual("") { ticker },
-            type = ifEqual(PositionType.NONE) { type },
+            type = if (samePosition) type else PositionType.NONE,
             /** Per share **/
-            shares = if (sameStock) shares + b.shares else 0,
-            priceOpen = if (sameStock) (priceOpen * shares + b.priceOpen * b.shares) / (shares + b.shares) else 0, // this rounds to the nearest .01 cents
+            shares = if (samePosition) shares + b.shares else 0,
+            priceOpen = if (samePosition) (priceOpen * shares + b.priceOpen * b.shares) / (shares + b.shares) else 0, // TODO this rounds to the nearest .01 cents
             /** Basis and returns **/
             taxBasis = taxBasis + b.taxBasis,
             feesAndRounding = feesAndRounding + b.feesAndRounding,
@@ -131,5 +131,6 @@ data class LotPosition(
 
 // Allows for nested subPositions
 fun List<LotPosition>.join(): LotPosition {
+    if (size == 1) return first()
     return reduce { a, b -> a + b }.copy(subPositions = this)
 }
