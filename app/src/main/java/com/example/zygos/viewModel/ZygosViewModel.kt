@@ -260,7 +260,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     /** Sets the current account to display, loading the data elements into the ui state variables.
      * This should be run on the main thread, but in a coroutine. **/
-    private suspend fun loadAccount(account: String) {
+    internal suspend fun loadAccount(account: String) {
         /** Launch loads **/
         transactions.loadLaunched(account)
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
@@ -277,6 +277,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         lots.longPositions.forEach {
             positions.longPositions.add(Position(lot = it, prices = prices))
         }
+        positions.longPositions.add(Position(lot = lots.cashPosition, prices = prices))
         lots.shortPositions.forEach {
             positions.shortPositions.add(Position(lot = it, prices = prices))
         }

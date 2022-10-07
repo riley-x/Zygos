@@ -52,15 +52,15 @@ fun addCashTransaction(
         /** Update current lot **/
         val lotOld = lots[0].lot
         val lot = when (t.type) {
-            TransactionType.TRANSFER -> lotOld.copy(realizedClosed = lotOld.realizedClosed + t.value)
-            else -> lotOld.copy(sharesOpen = lotOld.sharesOpen + t.value)
+            TransactionType.TRANSFER -> lotOld.copy(sharesOpen = lotOld.sharesOpen + t.value)
+            else -> lotOld.copy(realizedClosed = lotOld.realizedClosed + t.value)
         }
 
         /** Update tables **/
         val transactionId = transactionDao.insert(t)
         lotDao.insert(LotTransactionCrossRef(
             lotId = lots[0].lot.lotId,
-            transactionId = transactionId.toLong()
+            transactionId = transactionId
         ))
         lotDao.update(lot)
     }

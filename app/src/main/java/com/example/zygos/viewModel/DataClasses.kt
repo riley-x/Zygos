@@ -1,6 +1,5 @@
 package com.example.zygos.viewModel
 
-import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.example.zygos.data.LotPosition
@@ -84,7 +83,7 @@ data class Position (
         ): Position {
             val realizedOpen = lot.realizedOpen.toFloatDollar()
             val unrealized = lot.unrealized(prices).toFloatDollar()
-            val pos = Position(
+            return Position(
                 /** Identifiers **/
                 account = lot.account,
                 ticker = lot.ticker,
@@ -108,9 +107,6 @@ data class Position (
                 equity = lot.equity(prices).toFloatDollar(),
                 subPositions = lot.subPositions.map { Position(it, prices) }
             )
-//            Log.w("Zygos", "$lot")
-//            Log.w("Zygos", "$pos")
-            return pos
         }
     }
 }

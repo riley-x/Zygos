@@ -38,10 +38,15 @@ fun HoldingsRow(
             modifier = Modifier
         ) {
             if (position.subPositions.isEmpty()) {
-                Column(Modifier) {
-                    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                        Text(text = "${position.shares}", style = MaterialTheme.typography.subtitle1)
-                        Text(text = "shares", style = MaterialTheme.typography.subtitle1)
+                if (position.ticker != "CASH") {
+                    Column(Modifier) {
+                        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+                            Text(
+                                text = "${position.shares}",
+                                style = MaterialTheme.typography.subtitle1
+                            )
+                            Text(text = "shares", style = MaterialTheme.typography.subtitle1)
+                        }
                     }
                 }
             } else {
@@ -52,16 +57,9 @@ fun HoldingsRow(
             }
         }
 
-        val density = LocalDensity.current
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically(
-                // Expand from the top.
-                expandFrom = Alignment.Top
-            ) + fadeIn(
-                // Fade in with the initial alpha of 0.3f.
-                initialAlpha = 0.3f
-            ),
+            enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(initialAlpha = 0.3f),
             exit = shrinkVertically() + fadeOut()
         ) {
             Column {

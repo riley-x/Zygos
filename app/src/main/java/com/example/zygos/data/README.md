@@ -12,10 +12,21 @@ All transactions should have transaction type, account, and date set.
   All other fields can remain empty.
 
 
-## Special Cases
+## Cash
+Cash lots summarize *Transfers* and *Interest*. Every account should have exactly one ticker = "CASH"
+lot and position after initial setup.
 
-### CASH
-Cash lots summarize *Transfers* and *Interest*. Every account should have exactly one CASH lot
-after initial setup. The `openTransactionId` keeps track of when the account was opened/first funded.
-`sharesOpen` is the net value sum of all transfers, while `realizedClosed` is the net sum of all
-other transactions. 
+Lots:
+- `openTransactionId` keeps track of when the account was opened/first funded.
+- `sharesOpen` is the net value sum of all transfers
+- `realizedClosed` is all interest
+
+LotPosition:
+- `shares` is net transfers
+- `price` is -1, to make cash effect come out correct
+- `realizedOpen` is all interest
+- `realizedClosed` is net cash effect from all stocks
+- `returns == realizedOpen`
+- `unrealized == 0` since price is fixed
+- `returnPercent == 0`
+- `cashEffect == equity` is the total cash on hand after all other transactions

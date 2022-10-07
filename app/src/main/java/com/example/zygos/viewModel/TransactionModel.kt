@@ -48,14 +48,22 @@ class TransactionModel(private val parent: ZygosViewModel) {
 
 
     /** Database Functions **/
+    private fun addToDatabase(t: Transaction) {
+        if (t.transactionId > 0) { // we're currently editing a transaction
+            parent.transactionDao.update(t)
+            // TODO recalculate all lots
+        } else {
+            addTransaction(t, parent.transactionDao, parent.lotDao)
+        }
+    }
+
     fun add(t: Transaction) {
-        parent.viewModelScope.launch(Dispatchers.IO) {
-            if (t.transactionId > 0) { // we're currently editing a transaction
-                parent.transactionDao.update(t)
-            } else {
-                addTransaction(t, parent.transactionDao, parent.lotDao)
+        parent.viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                addToDatabase(t)
             }
-            // TODO need to refresh everything, including transaction state lists and holdings
+            // Need to refresh everything, including transaction state lists and holdings
+            parent.loadAccount(parent.currentAccount)
         }
     }
 

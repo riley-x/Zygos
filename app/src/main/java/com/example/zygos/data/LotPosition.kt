@@ -22,10 +22,9 @@ enum class PositionType(val displayName: String, val isOption: Boolean = false, 
     }
 }
 
-
-
 /**
- * Summarizes the current holdings and returns of a lot (or multiple lots combined together)
+ * Summarizes the current holdings and returns of a lot (or multiple lots combined together).
+ * Fields that depend on the current market price, like unrealized, are implemented as functions.
  *
  * @param shares is always positive
  *
@@ -33,14 +32,20 @@ enum class PositionType(val displayName: String, val isOption: Boolean = false, 
  * For long positions this is essentially [shares] * [priceOpen], but can be different due to
  * rounding and fees. For short position this includes the cash collateral needed.
  * @param taxBasis Actual basis used for taxes. Usually the same but could be adjusted for wash sales.
+ * @param feesAndRounding All other quantities are divisible by [shares]. This field keeps track of
+ * all rounding errors and fees. Note the fees are not split by share amount if this position is
+ * half-closed, and are kept until the entire position is fully closed.
  * @param realizedOpen Realized returns from open positions, i.e. dividends. Note STO proceeds and
  * not included here, see [cashEffect] instead. These returns are included in % return calculations.
  * @param realizedClosed Realized returns from closed positions. These returns are not included in
  * % return calculations.
  *
- * @param subPositions Constituent positions, if any. For example a stock position can consist of many lot positions.
- * @param name For options positions, a name to summarize the position
- * @param collateral For short positions, amount of cash collateral. This is usually [shares] * [strike].
+ * @param collateral For short positions, amount of cash collateral.
+ * @param instrumentName A name to lookup the current price with from a map of prices. This is set
+ *
+ * @param subPositions Constituent positions, if any. For example a stock position can consist of
+ * many lot positions.
+ * to some display name for compound positions, use instead the individual sub-positions.
  */
 @Immutable
 data class LotPosition(
