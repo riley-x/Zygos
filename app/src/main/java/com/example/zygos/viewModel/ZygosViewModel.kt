@@ -301,4 +301,13 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             "watchlist" -> sortWatchlist()
         }
     }
+
+    fun recalculateAllLots() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                recalculateAll(transactionDao, lotDao)
+            }
+            loadAccount(currentAccount)
+        }
+    }
 }

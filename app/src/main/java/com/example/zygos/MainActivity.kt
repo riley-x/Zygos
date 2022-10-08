@@ -277,6 +277,7 @@ fun ZygosApp(
                             currentFilterType = viewModel.transactions.currentFilterType,
                             onTransactionClick = ::toTransactionDetails,
                             transactionsListOptionsCallback = ::onTransactionsListOptionsShow,
+                            onRecalculateAll = viewModel::recalculateAllLots,
                         )
                     }
                     composable(route = TransactionDetailsDestination.route) {

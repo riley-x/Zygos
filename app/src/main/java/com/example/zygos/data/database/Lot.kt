@@ -60,6 +60,29 @@ interface LotDao {
     @Update
     fun update(lot: Lot)
 
+    @Query("DELETE FROM lot")
+    fun clearLots()
+
+    @Query("DELETE FROM lotTransactionCrossRef")
+    fun clearRefs()
+
+    @androidx.room.Transaction
+    fun clear() {
+        clearRefs()
+        clearLots()
+    }
+
+    @Query("SELECT COUNT(*) FROM lot")
+    fun count(): Int
+
+    @Query("SELECT COUNT(*) FROM lot " +
+            "WHERE account = :account OR account = 'All'")
+    fun count(account: String): Int
+
+    @Query("SELECT DISTINCT ticker FROM lot " +
+            "WHERE (account = :account OR account = 'All')")
+    fun tickers(account: String): List<String>
+
 
     // fully qualified name to not conflict with the transaction class. whole operation is performed atomically
     @androidx.room.Transaction
@@ -109,12 +132,6 @@ interface LotDao {
     )
     fun getOpen(account: String, ticker: String): List<LotWithTransactions>
 
-    @Query("SELECT COUNT(*) FROM lot")
-    fun count(): Int
-
-    @Query("SELECT COUNT(*) FROM lot " +
-            "WHERE account = :account OR account = 'All'")
-    fun count(account: String): Int
 
     @Query("SELECT ticker, SUM(realizedClosed) FROM lot " +
             "GROUP BY ticker"
@@ -126,10 +143,6 @@ interface LotDao {
             "GROUP BY ticker"
     )
     fun realizedClosed(account: String): List<RealizedClosed>
-
-    @Query("SELECT DISTINCT ticker FROM lot " +
-            "WHERE (account = :account OR account = 'All')")
-    fun tickers(account: String): List<String>
 
     @androidx.room.Transaction // does all the queries here at once
     fun getOpenAndRealized(account: String): MutableMap<String, Pair<Long, List<LotWithTransactions>>> {
@@ -149,9 +162,5 @@ interface LotDao {
         return out
     }
 
-//    @androidx.room.Transaction
-//    @Query("SELECT SUM(realizedClosed) FROM lot " +
-//            "INNER JOIN transaction_table ON transaction_table.transactionId = lot.openTransactionId " +
-//            "WHERE transaction_table.account = :account OR account = 'All'")
 
 }

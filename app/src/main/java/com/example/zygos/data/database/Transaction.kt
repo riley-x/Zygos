@@ -75,10 +75,10 @@ interface TransactionDao {
     @Update
     fun update(transaction: Transaction)
 
-    @Query("SELECT * FROM transaction_table ORDER BY date DESC")
+    @Query("SELECT * FROM transaction_table")
     fun getAll(): List<Transaction>
 
-    @Query("SELECT * FROM transaction_table WHERE account = :account OR account = 'All' ORDER BY date DESC")
+    @Query("SELECT * FROM transaction_table WHERE account = :account OR account = 'All'") // ORDER BY date DESC
     fun getAccount(account: String): List<Transaction>
 
     @Query("SELECT * FROM transaction_table WHERE account = :account OR account = 'All' ORDER BY transactionId DESC LIMIT :n")

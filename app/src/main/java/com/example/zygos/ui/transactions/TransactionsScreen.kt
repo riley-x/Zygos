@@ -1,5 +1,6 @@
 package com.example.zygos.ui.transactions
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -33,6 +34,7 @@ fun TransactionsScreen(
     modifier: Modifier = Modifier,
     onTransactionClick: (Transaction) -> Unit = { },
     transactionsListOptionsCallback: () -> Unit = { },
+    onRecalculateAll: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "TransactionsScreen")
     // TODO: Use a floating button here for adding transactions
@@ -73,8 +75,8 @@ fun TransactionsScreen(
                 .padding(top = 2.dp, bottom = 2.dp)
         )
 
-
-        LazyColumn {
+        // The weight makes the stuff below appear still
+        LazyColumn(Modifier.weight(10f)) {
 
             itemsIndexed(transactions, key = { _, t -> t.transactionId }) {
                 index, transaction ->
@@ -92,6 +94,17 @@ fun TransactionsScreen(
                     )
                 }
             }
+        }
+
+        TextButton(
+            onClick = onRecalculateAll,
+            border = BorderStroke(2.dp, MaterialTheme.colors.error),
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.colors.error
+            ),
+            modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 4.dp)
+        ) {
+            Text("Recalculate All")
         }
     }
 }

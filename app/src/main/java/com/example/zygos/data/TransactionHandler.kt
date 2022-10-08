@@ -2,6 +2,24 @@ package com.example.zygos.data
 
 import com.example.zygos.data.database.*
 
+
+fun recalculateAll(
+    transactionDao: TransactionDao,
+    lotDao: LotDao,
+) {
+    lotDao.clear()
+    val transactions = transactionDao.getAll()
+    transactions.forEach {
+        addTransaction(it, transactionDao, lotDao)
+    }
+}
+
+/** A transaction might have its id set already if being called from [recalculateAll] **/
+fun getIdOrInsert(t: Transaction, transactionDao: TransactionDao): Long {
+    if (t.transactionId == 0L) return transactionDao.insert(t)
+    return t.transactionId
+}
+
 fun addTransaction(
     transaction: Transaction,
     transactionDao: TransactionDao,
@@ -21,7 +39,7 @@ fun addTransaction(
 }
 
 private fun updateLot(lot: Lot, t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
-    val transactionId = transactionDao.insert(t)
+    val transactionId = getIdOrInsert(t, transactionDao)
     lotDao.update(lot)
     lotDao.insert(LotTransactionCrossRef(
         lotId = lot.lotId,
@@ -38,7 +56,7 @@ private fun createLot(t: Transaction, transactionDao: TransactionDao, lotDao: Lo
         dividendsPerShare = 0,
         realizedClosed = 0,
     )
-    val transactionId = transactionDao.insert(t)
+    val transactionId = getIdOrInsert(t, transactionDao)
     val lotId = lotDao.insert(lot)
     lotDao.insert(LotTransactionCrossRef(
         lotId = lotId,
@@ -103,7 +121,7 @@ private fun closeLots(t: Transaction, transactionDao: TransactionDao, lotDao: Lo
         if (unmatchedShares != 0L) throw RuntimeException("TransactionHandler::closeLots() unable to close $t")
 
         /** Update the database **/
-        val transactionId = transactionDao.insert(t)
+        val transactionId = getIdOrInsert(t, transactionDao)
         updatedLots.forEach {
             lotDao.update(it)
             lotDao.insert(LotTransactionCrossRef(
