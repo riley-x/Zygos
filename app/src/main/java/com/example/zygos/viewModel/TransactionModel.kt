@@ -55,7 +55,7 @@ class TransactionModel(private val parent: ZygosViewModel) {
     private fun addToDatabase(t: Transaction) {
         if (t.transactionId > 0) { // we're currently editing a transaction
             parent.transactionDao.update(t)
-            // TODO recalculate all lots
+            // We don't recalculate the lots here in case there are multiple transactions that need editing
         } else {
             addTransaction(t, parent.transactionDao, parent.lotDao)
         }

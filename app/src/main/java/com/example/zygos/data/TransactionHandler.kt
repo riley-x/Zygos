@@ -1,6 +1,8 @@
 package com.example.zygos.data
 
+import android.util.Log
 import com.example.zygos.data.database.*
+import kotlin.math.roundToLong
 
 
 fun recalculateAll(
@@ -14,12 +16,6 @@ fun recalculateAll(
     }
 }
 
-/** A transaction might have its id set already if being called from [recalculateAll] **/
-fun getIdOrInsert(t: Transaction, transactionDao: TransactionDao): Long {
-    if (t.transactionId == 0L) return transactionDao.insert(t)
-    return t.transactionId
-}
-
 fun addTransaction(
     transaction: Transaction,
     transactionDao: TransactionDao,
@@ -27,6 +23,12 @@ fun addTransaction(
 ) {
     if (transaction.ticker == "CASH") {
         addCashTransaction(transaction, transactionDao, lotDao)
+    } else if (transaction.type == TransactionType.RENAME) {
+        // TODO
+    } else if (transaction.type == TransactionType.SPINOFF) {
+        // TODO
+    } else if (transaction.type == TransactionType.SPLIT) {
+        // TODO
     } else if (transaction.type == TransactionType.DIVIDEND) {
         addDividend(transaction, transactionDao, lotDao)
     } else if (transaction.shares > 0) {
@@ -38,13 +40,30 @@ fun addTransaction(
     }
 }
 
-private fun updateLot(lot: Lot, t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
+/** A transaction might have its id set already if being called from [recalculateAll] **/
+private fun getIdOrInsert(t: Transaction, transactionDao: TransactionDao): Long {
+    if (t.transactionId == 0L) return transactionDao.insert(t)
+    return t.transactionId
+}
+
+private fun updateLotWithTransaction(lot: Lot, t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
     val transactionId = getIdOrInsert(t, transactionDao)
     lotDao.update(lot)
     lotDao.insert(LotTransactionCrossRef(
         lotId = lot.lotId,
         transactionId = transactionId
     ))
+}
+
+private fun updateLotsWithTransaction(lots: List<Lot>, t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
+    val transactionId = getIdOrInsert(t, transactionDao)
+    lots.forEach {
+        lotDao.update(it)
+        lotDao.insert(LotTransactionCrossRef(
+            lotId = it.lotId,
+            transactionId = transactionId
+        ))
+    }
 }
 
 private fun createLot(t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
@@ -83,12 +102,46 @@ private fun addCashTransaction(
             TransactionType.TRANSFER -> lotOld.copy(sharesOpen = lotOld.sharesOpen + t.value)
             else -> lotOld.copy(realizedClosed = lotOld.realizedClosed + t.value)
         }
-        updateLot(lot, t, transactionDao, lotDao)
+        updateLotWithTransaction(lot, t, transactionDao, lotDao)
     }
 }
 
-private fun addDividend(transaction: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
+private fun addDividend(t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
+    val lots = lotDao.getTicker(t.account, t.ticker)
+    // Must get all lots, since a lot could be closed between the ex date and the payout date.
+    // These should be ordered by rowId already.
 
+    var unmatchedShares = (t.value.toDouble() / t.price).roundToLong()
+    val roundingError = t.value - unmatchedShares * t.price
+    val updatedLots = mutableListOf<Lot>()
+
+    /** Match LIFO **/
+    for (lot in lots.reversed()) {
+        if (lot.openTransaction.date >= t.expiration) continue
+
+        /** Check if there were any shares closed after the ex date **/
+        val sharesOpen = lot.lot.sharesOpen
+        var sharesClosed = 0L
+        lot.transactions.forEach {
+            if (it.type == TransactionType.STOCK && it.shares < 0 && it.date >= t.expiration) {
+                sharesClosed -= it.shares
+            }
+        }
+        Log.d("Zygos/Data/TransactionHandler", "sharesOpen=${sharesOpen} sharesClosed=${sharesClosed}, lot=${lot.lot}")
+        if (sharesOpen + sharesClosed == 0L) continue
+
+        /** Get updated lot. Include rounding errors if exhausted **/
+        unmatchedShares -= sharesOpen + sharesClosed
+        updatedLots.add(lot.lot.copy(
+            dividendsPerShare = lot.lot.dividendsPerShare + t.price,
+            realizedClosed = lot.lot.realizedClosed + t.price * sharesClosed,
+            feesAndRounding = lot.lot.feesAndRounding + if (unmatchedShares == 0L) roundingError else 0
+        ))
+    }
+    if (unmatchedShares != 0L) throw RuntimeException("Zygos/TransactionHandler::addDividend() unmatchedShares=$unmatchedShares, from $t")
+
+    /** Update the database **/
+    updateLotsWithTransaction(updatedLots, t, transactionDao, lotDao)
 }
 
 
@@ -121,19 +174,12 @@ private fun closeLots(t: Transaction, transactionDao: TransactionDao, lotDao: Lo
         if (unmatchedShares != 0L) throw RuntimeException("TransactionHandler::closeLots() unable to close $t")
 
         /** Update the database **/
-        val transactionId = getIdOrInsert(t, transactionDao)
-        updatedLots.forEach {
-            lotDao.update(it)
-            lotDao.insert(LotTransactionCrossRef(
-                lotId = it.lotId,
-                transactionId = transactionId
-            ))
-        }
+        updateLotsWithTransaction(updatedLots, t, transactionDao, lotDao)
     } else {
         /** Close a specific lot **/
         if (t.closeLot > lots.lastIndex)
             throw RuntimeException("TransactionHandler::closeLots() trying to close lot ${t.closeLot} out of ${lots.lastIndex} lots")
         val updatedLot = closeShares(-t.shares, lots[t.closeLot], t, true) // t.shares is negative on close
-        updateLot(updatedLot, t, transactionDao, lotDao)
+        updateLotWithTransaction(updatedLot, t, transactionDao, lotDao)
     }
 }
