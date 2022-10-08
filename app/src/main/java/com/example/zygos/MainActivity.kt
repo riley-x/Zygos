@@ -89,6 +89,7 @@ fun ZygosApp(
         /** Dialog state **/
         var openAddAccountDialog by remember { mutableStateOf(false) }
         var openTransactionsListOptionsDialog by remember { mutableStateOf(false) }
+        var openRecalculateAllLotsDialog by remember { mutableStateOf(false) }
 
         /** ModalBottomSheetLayout state **/
         var listOptionsSheetVersion by remember { mutableStateOf("") }
@@ -113,6 +114,10 @@ fun ZygosApp(
          * These need to be defined here (at viewModel/appScope scope) to enable smart
          * recomposition of any function that is passed these
          */
+        fun popBackstack() {
+            navController.popBackStack()
+        }
+
         fun onHoldingsListOptionsShow() = appScope.launch {
             listOptionsSheetVersion = "holdings"
             listOptionsSheetState.show()
@@ -130,6 +135,8 @@ fun ZygosApp(
                 viewModel.addAccount(account)
             }
         }
+
+        /** Transaction Callbacks **/
         fun onTransactionsListOptionsShow() {
             openTransactionsListOptionsDialog = true
         }
@@ -139,7 +146,6 @@ fun ZygosApp(
                 viewModel.transactions.filterLaunch(ticker, type)
             }
         }
-        fun onHoldingsPositionSelected(ticker: String) = navController.navigateToPosition(ticker)
         fun toTransactionAll() = navController.navigate(TransactionAllDestination.route) {
             launchSingleTop = true
             restoreState = true
@@ -158,13 +164,27 @@ fun ZygosApp(
                 restoreState = true
             }
         }
+        fun onRecalculateAllLotsClick() {
+            openRecalculateAllLotsDialog = true
+        }
+        fun onRecalculateAllLotsClose(confirmed: Boolean) {
+            openRecalculateAllLotsDialog = false
+            if (confirmed) {
+                viewModel.recalculateAllLots()
+                popBackstack()
+            }
+        }
+
+
+
+
+        fun onHoldingsPositionSelected(ticker: String) = navController.navigateToPosition(ticker)
+
         fun onTickerSelected(ticker: String) {
             viewModel.setTicker(ticker)
             navController.navigateSingleTopTo(ChartTab.route)
         }
-        fun popBackstack() {
-            navController.popBackStack()
-        }
+
 
         /** Set the top and bottom bars **/
         Scaffold(
@@ -277,7 +297,7 @@ fun ZygosApp(
                             currentFilterType = viewModel.transactions.currentFilterType,
                             onTransactionClick = ::toTransactionDetails,
                             transactionsListOptionsCallback = ::onTransactionsListOptionsShow,
-                            onRecalculateAll = viewModel::recalculateAllLots,
+                            onRecalculateAll = ::onRecalculateAllLotsClick,
                         )
                     }
                     composable(route = TransactionDetailsDestination.route) {
@@ -323,6 +343,12 @@ fun ZygosApp(
                 sortOptions = transactionSortOptions,
                 onSortOptionSelected = viewModel.transactions::setSortMethod,
                 onDismiss = ::onTransactionsListOptionsDialogClose,
+            )
+        }
+        if (openRecalculateAllLotsDialog) {
+            ConfirmationDialog(
+                text = "Recalculate all holdings from transactions?",
+                onDismiss = ::onRecalculateAllLotsClose,
             )
         }
     }
