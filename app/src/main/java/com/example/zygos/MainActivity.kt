@@ -400,7 +400,7 @@ fun bottomSheetContent(
             displayOptions = watchlistDisplayOptions,
             sortOptions = watchlistSortOptions,
             onDisplayOptionSelected = { viewModel.watchlistDisplayOption = it },
-            onSortOptionSelected = { viewModel.setWatchlistSortMethod(it) },
+            onSortOptionSelected = viewModel::setWatchlistSortMethod,
         )
     }
 }

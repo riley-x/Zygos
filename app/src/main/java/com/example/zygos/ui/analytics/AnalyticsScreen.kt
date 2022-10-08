@@ -35,9 +35,6 @@ fun AnalyticsScreen(
     onTransactionSeeAll: () -> Unit = { },
 ) {
     LogCompositions("Zygos", "AnalyticsScreen")
-    // TODO: Use a floating button here for adding transactions
-    // TODO: Click transaction to edit/delete in a separate screen
-    // TODO: Add a "See All" and only show the most recent transactions
     // TODO: Maybe this screen is a good place for dividend and option summaries
 
     LazyColumn {

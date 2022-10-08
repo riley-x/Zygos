@@ -38,7 +38,6 @@ fun TransactionsScreen(
 ) {
     LogCompositions("Zygos", "TransactionsScreen")
     // TODO: Use a floating button here for adding transactions
-    // TODO: Click transaction to edit/delete in a separate screen
 
     Column(modifier) {
 
