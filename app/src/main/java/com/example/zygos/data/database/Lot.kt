@@ -79,6 +79,9 @@ interface LotDao {
             "WHERE account = :account OR account = 'All'")
     fun count(account: String): Int
 
+    @Query("SELECT DISTINCT ticker FROM lot")
+    fun tickers(): List<String>
+
     @Query("SELECT DISTINCT ticker FROM lot " +
             "WHERE (account = :account OR account = 'All')")
     fun tickers(account: String): List<String>
@@ -133,30 +136,35 @@ interface LotDao {
     fun getOpen(account: String, ticker: String): List<LotWithTransactions>
 
 
-    @Query("SELECT ticker, SUM(realizedClosed) FROM lot " +
+    @MapInfo(keyColumn = "ticker", valueColumn = "sum")
+    @Query("SELECT ticker, SUM(realizedClosed - feesAndRounding) AS sum FROM lot " +
+            "WHERE lot.sharesOpen = 0 " +
             "GROUP BY ticker"
     )
-    fun realizedClosed(): List<RealizedClosed>
+    fun realizedClosed(): Map<String, Long>
 
-    @Query("SELECT ticker, SUM(realizedClosed) FROM lot " +
-            "WHERE (account = :account OR account = 'All') " +
+    @MapInfo(keyColumn = "ticker", valueColumn = "sum")
+    @Query("SELECT ticker, SUM(realizedClosed - feesAndRounding) as sum FROM lot " +
+            "WHERE lot.sharesOpen = 0 and (account = :account OR account = 'All') " +
             "GROUP BY ticker"
     )
-    fun realizedClosed(account: String): List<RealizedClosed>
+    fun realizedClosed(account: String): Map<String, Long>
 
     @androidx.room.Transaction // does all the queries here at once
     fun getOpenAndRealized(account: String): MutableMap<String, Pair<Long, List<LotWithTransactions>>> {
-        val realized = if (account == allAccounts) realizedClosed() else realizedClosed(account)
-        Log.i("Zygos/getOpenAndRealized", "Found ${realized.size} tickers")
+        val tickers = if (account == allAccounts) tickers() else tickers(account)
+        val realizedClosed = if (account == allAccounts) realizedClosed() else realizedClosed(account)
+        Log.d("Zygos/getOpenAndRealized", "Found ${tickers.size} tickers")
 
         val out = mutableMapOf<String, Pair<Long, List<LotWithTransactions>>>()
-        realized.forEach {
-            if (it.ticker == "CASH") {
+        tickers.forEach {
+            Log.d("Zygos/getOpenAndRealized", "$it ${realizedClosed[it]}")
+            if (it == "CASH") {
                 val lots = if (account == allAccounts) getCash() else getCash(account)
-                out[it.ticker] = Pair(it.realizedClosed ?: 0, lots)
-            } else if (it.ticker != null) {
-                val lots = if (account == allAccounts) getOpenTicker(it.ticker) else getOpen(account, it.ticker)
-                out[it.ticker] = Pair(it.realizedClosed ?: 0, lots)
+                out[it] = Pair(realizedClosed[it] ?: 0, lots)
+            } else {
+                val lots = if (account == allAccounts) getOpenTicker(it) else getOpen(account, it)
+                out[it] = Pair(realizedClosed[it] ?: 0, lots)
             }
         }
         return out

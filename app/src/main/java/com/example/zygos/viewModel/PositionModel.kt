@@ -39,7 +39,7 @@ class PositionModel(private val parent: ZygosViewModel) {
         else sortOption = opt
     }
 
-    private fun getSortedList(): List<Position> {
+    private fun getSortedList(force: Boolean): List<Position> {
         val list = longPositions.toMutableList()
 
         /** Cash position is always last **/
@@ -49,7 +49,7 @@ class PositionModel(private val parent: ZygosViewModel) {
         }
 
         /** Reverse **/
-        if (lastSortOption == sortOption) {
+        if (!force && lastSortOption == sortOption) {
             list.reverse()
         }
         /** Sort **/
@@ -72,22 +72,22 @@ class PositionModel(private val parent: ZygosViewModel) {
         return list
     }
 
-    suspend fun sort() {
-        /** Guards **/
+    suspend fun sort(force: Boolean = false) {
         if (longPositions.isEmpty()) return
-        if (sortOption == lastSortOption && sortIsAscending == lastSortIsAscending) return
+        if (!force && sortOption == lastSortOption && sortIsAscending == lastSortIsAscending) return
 //        longPositionsAreLoading = true
 //        shortPositionsAreLoading = true
 
-        /** Sort - This blocks this routine, but the main UI routine continues since sort() is
-         * called from a LaunchedEffect. **/
+        /** This blocks this routine, but the main UI routine continues since sort() is called
+         * from a LaunchedEffect. **/
         val list = withContext(Dispatchers.IO) {
-            getSortedList()
+            getSortedList(force)
         }
 
         /** Update. This happens in the main thread when called from LaunchedEffect with no dispatcher **/
         longPositions.clear()
         longPositions.addAll(list)
+
         lastSortIsAscending = sortIsAscending
         lastSortOption = sortOption
 //        longPositionsAreLoading = false

@@ -283,6 +283,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         lots.shortPositions.forEach {
             positions.shortPositions.add(Position(lot = it, prices = prices))
         }
+        positions.sort(true) // TODO this blocks, maybe should launch it
 
         // TODO
 //        equityHistorySeries.clear()

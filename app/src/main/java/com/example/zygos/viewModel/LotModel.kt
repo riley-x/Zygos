@@ -1,5 +1,6 @@
 package com.example.zygos.viewModel
 
+import android.util.Log
 import com.example.zygos.data.*
 import com.example.zygos.data.database.LotWithTransactions
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +14,8 @@ class LotModel(private val parent: ZygosViewModel) {
     val exitedPositions = mutableListOf<LotPosition>()
 
     /** This function will block until the above lists are loaded. The actual loading is dispatched
-     * though so the main thread (which runs the UI coroutine) isn't blocked too. **/
+     * though so the main thread (which runs the UI coroutine) isn't blocked too. Note everything
+     * can run in a dispatched thread since these aren't state lists **/
     suspend fun loadBlocking(account: String) {
         withContext(Dispatchers.IO) {
             tickerLots = parent.lotDao.getOpenAndRealized(account)
@@ -50,6 +52,7 @@ class LotModel(private val parent: ZygosViewModel) {
                     val longPosition = tickerLongPositions.join()
                     longPositions.add(longPosition.copy(realizedClosed = longPosition.realizedClosed + realizedClosed))
                 } else {
+                    Log.w("Zygos", "$realizedClosed")
                     exitedPositions.add(
                         LotPosition(
                             account = account,
