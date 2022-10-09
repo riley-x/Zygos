@@ -75,6 +75,14 @@ interface Position {
     val instrumentName: String
     /** Sub-positions **/
     val subPositions: List<Position>
+
+    operator fun plus(b: Position): AggregatePosition {
+        return AggregatePosition(
+            realizedClosedExtra = 0L,
+            type = if (type == b.type) type else PositionType.NONE,
+            subPositions = subPositions.ifEmpty { listOf(this) } + b.subPositions.ifEmpty { listOf(b) }
+        )
+    }
 }
 
 
@@ -108,8 +116,6 @@ data class LotPosition(
         cashEffect = realized - purchaseValue
         costBasis = collateral + purchaseValue
     }
-//            cashEffect = subPositions.sumOf(LotPosition::cashEffect) // TODO this ignore fields of the parent that might be set differently, i.e. realizedClosed
-//            costBasis = subPositions.sumOf(LotPosition::costBasis)
 
     override fun unrealized(prices: Map<String, Long>) =
         ((prices[instrumentName] ?: priceOpen) - priceOpen) * shares * if (type.isShort) -1 else 1
@@ -122,45 +128,31 @@ data class LotPosition(
     override fun returnsPercent(prices: Map<String, Long>) =
         if (type == PositionType.CASH || costBasis == 0L) 0f
         else (realizedOpen + unrealized(prices)).toFloat() / costBasis
-
-
 }
 
 
-class AggregatePosition (
+private fun samePosition(subPositions: List<Position>) =
+    if (subPositions.isEmpty()) false
+    else subPositions.all { it.instrumentName == subPositions[0].instrumentName }
+
+private fun<T> List<Position>.ifAllEqual(fn: Position.() -> T, default: T): T =
+    if (isEmpty()) default
+    else if (all { it.fn() == first().fn() }) first().fn()
+    else default
+
+
+data class AggregatePosition (
     val realizedClosedExtra: Long,
     override val subPositions: List<Position>,
+    /** Default values for +. Spreads can alter these **/
+    override val type: PositionType = subPositions.ifAllEqual(Position::type, PositionType.NONE),
+    override val shares: Long = if (samePosition(subPositions)) subPositions.sumOf(Position::shares) else 0L,
+    override val priceOpen: Long = if (samePosition(subPositions)) subPositions.sumOf { it.priceOpen * it.shares } / shares else 0L, // TODO this rounds to the nearest .01 cents
+    override val instrumentName: String = subPositions.ifAllEqual(Position::instrumentName, ""),
 ) : Position {
-    /** Aggregator **/
-    val samePosition =
-        if (subPositions.isEmpty()) false
-        else subPositions.all { it.instrumentName == subPositions[0].instrumentName }
-
-    private fun<T> ifAllEqual(fn: Position.() -> T, default: T): T {
-        return if (subPositions.isEmpty()) default
-        else if (subPositions.all { it.fn() == subPositions[0].fn() }) subPositions[0].fn()
-        else default
-    }
-    private fun sumSubPositions(
-        prices: Map<String, Long>,
-        fn: Position.(Map<String, Long>?) -> Long
-    ): Long {
-        return subPositions.sumOf { it.fn(prices) }
-    }
-
-//    /** Public functions **/
-//    fun unrealized(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { unrealized(it) }
-//    fun returns(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { returns(it) }
-//    fun equity(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { equity(it) }
-//    fun returnsPercent(prices: Map<String, Long>) = if (type == PositionType.CASH || costBasis == 0L) 0f else (realizedOpen + unrealized(prices)).toFloat() / costBasis
-
     /** Identifiers **/
-    override val account = ifAllEqual(Position::account, "")
-    override val ticker = ifAllEqual(Position::ticker, "")
-    override val type = ifAllEqual(Position::type, PositionType.NONE)
-    /** Per share **/
-    override val shares = if (samePosition) subPositions.sumOf(Position::shares) else 0L
-    override val priceOpen = if (samePosition) subPositions.sumOf { it.priceOpen * it.shares } / shares else 0L // TODO this rounds to the nearest .01 cents
+    override val account = subPositions.ifAllEqual(Position::account, "")
+    override val ticker = subPositions.ifAllEqual(Position::ticker, "")
     /** Basis **/
     override val cashEffect = subPositions.sumOf(Position::cashEffect) + realizedClosedExtra
     override val costBasis = subPositions.sumOf(Position::costBasis)
@@ -177,22 +169,7 @@ class AggregatePosition (
         if (type == PositionType.CASH || costBasis == 0L) 0f
         else (realizedOpen + unrealized(prices)).toFloat() / costBasis
     /** Options **/
-    override val expiration = ifAllEqual(Position::expiration, 0)
-    override val strike = ifAllEqual(Position::strike, 0)
-    override val collateral
-    override val instrumentName = ifAllEqual(Position::instrumentName, "")
-}
-
-// Allows for nested subPositions
-fun List<LotPosition>.join(): LotPosition {
-    if (size == 1) return first()
-    return reduce { a, b -> a + b }.copy(subPositions = this)
-}
-
-
-operator fun plus(b: LotPosition): AggregatePosition {
-    fun <T> ifEqual(default: T, field: LotPosition.() -> T) = if (this.field() == b.field()) this.field() else default
-    return AggregatePosition(
-        subPositions = subPositions.ifEmpty { listOf(this) } + b.subPositions.ifEmpty { listOf(b) }
-    )
+    override val expiration = subPositions.ifAllEqual(Position::expiration, 0)
+    override val strike = subPositions.ifAllEqual(Position::strike, 0)
+    override val collateral = subPositions.sumOf(Position::collateral)
 }

@@ -8,7 +8,7 @@ import kotlin.math.abs
 
 
 /** There is one cash lot per account, but "All Accounts" uses them all **/
-fun getCashPosition(openLots: List<LotWithTransactions>): LotPosition {
+fun getCashPosition(openLots: List<LotWithTransactions>): Position {
     return openLots.map {
         LotPosition(
             /** Identifiers **/
@@ -21,15 +21,15 @@ fun getCashPosition(openLots: List<LotWithTransactions>): LotPosition {
             realizedOpen = it.lot.realizedClosed, // interest
             realizedClosed = 0, // MUST subtract all other cashEffects
         )
-    }.reduce { a, b -> a + b }
+    }.reduce(Position::plus)
 }
 
 
 /**
  * Converts lots to positions, collating options.
  */
-fun getTickerPositions(openLots: List<LotWithTransactions>): List<LotPosition> {
-    var stockPosition: LotPosition? = null
+fun getTickerPositions(openLots: List<LotWithTransactions>): List<Position> {
+    var stockPosition: Position? = null
     val optionLots = mutableListOf<LotWithTransactions>()
 
     for (lot in openLots) {
@@ -48,12 +48,12 @@ fun getTickerPositions(openLots: List<LotWithTransactions>): List<LotPosition> {
 }
 
 
-fun collateOptions(optionLots: List<LotWithTransactions>): List<LotPosition> {
+fun collateOptions(optionLots: List<LotWithTransactions>): List<Position> {
     /** Add options from the end (should be time-ordered). When on a short option,
     invalidate corresponding long options by decrementing their shares. Fees, rounding, and
     realizedClosed should be added to whatever exhausts the shares. **/
     val unmatchedShares = optionLots.map { it.lot.sharesOpen }.toMutableList()
-    val out = mutableListOf<LotPosition>()
+    val out = mutableListOf<Position>()
 
     for (i in optionLots.lastIndex downTo 0) {
         if (unmatchedShares[i] <= 0L) continue
@@ -153,7 +153,7 @@ fun makeSpreadPosition(
     long: LotWithTransactions,
     shortExhausted: Boolean,
     longExhausted: Boolean,
-): LotPosition {
+): Position {
     val isLong = long.openTransaction.price > short.openTransaction.price
     val type = when (short.openTransaction.type) {
         TransactionType.CALL_SHORT -> if (isLong) PositionType.CALL_DEBIT_SPREAD else PositionType.CALL_CREDIT_SPREAD
@@ -173,11 +173,13 @@ fun makeSpreadPosition(
     if (!shortExhausted) shortPosition = shortPosition.copy(feesAndRounding = 0, realizedClosed = 0)
 
     /** Spread is just the sum **/
-    return (longPosition + shortPosition).copy(
+    return AggregatePosition(
+        realizedClosedExtra = 0L,
         type = type,
         shares = shares,
         priceOpen = abs(long.openTransaction.price - short.openTransaction.price),
-        instrumentName = "${shortPosition.ticker} $type ${shortPosition.expiration} $primaryStrike-$ancillaryStrike"
+        instrumentName = "${shortPosition.ticker} $type ${shortPosition.expiration} $primaryStrike-$ancillaryStrike",
+        subPositions = listOf(longPosition, shortPosition)
     )
 }
 

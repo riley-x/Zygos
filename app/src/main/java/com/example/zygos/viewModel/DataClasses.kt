@@ -3,6 +3,7 @@ package com.example.zygos.viewModel
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.example.zygos.data.LotPosition
+import com.example.zygos.data.Position
 import com.example.zygos.data.PositionType
 import com.example.zygos.data.toFloatDollar
 
@@ -78,7 +79,7 @@ data class PricedPosition (
 ) {
     companion object Factory {
         operator fun invoke(
-            lot: LotPosition,
+            lot: Position,
             prices: Map<String, Long>,
         ): PricedPosition {
             val realizedOpen = lot.realizedOpen.toFloatDollar()

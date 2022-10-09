@@ -8,10 +8,10 @@ import kotlinx.coroutines.withContext
 
 class LotModel(private val parent: ZygosViewModel) {
     var tickerLots = mutableMapOf<String, Pair<Long, List<LotWithTransactions>>>()
-    var cashPosition: LotPosition? = null
-    val longPositions = mutableListOf<LotPosition>()
-    val shortPositions = mutableListOf<LotPosition>()
-    val exitedPositions = mutableListOf<LotPosition>()
+    var cashPosition: Position? = null
+    val longPositions = mutableListOf<Position>()
+    val shortPositions = mutableListOf<Position>()
+    val exitedPositions = mutableListOf<Position>()
 
     /** This function will block until the above lists are loaded. The actual loading is dispatched
      * though so the main thread (which runs the UI coroutine) isn't blocked too. Note everything
@@ -39,7 +39,7 @@ class LotModel(private val parent: ZygosViewModel) {
                 val lotPositions = getTickerPositions(pair.second)
 
                 // long positions are collected into a single ticker position that is displayed in watchlist/pie chart
-                val tickerLongPositions = mutableListOf<LotPosition>()
+                val tickerLongPositions = mutableListOf<Position>()
                 lotPositions.forEach {
                     if (it.type == PositionType.COVERED_CALL || !it.type.isShort) {
                         tickerLongPositions.add(it)
@@ -49,10 +49,11 @@ class LotModel(private val parent: ZygosViewModel) {
                 }
 
                 if (tickerLongPositions.isNotEmpty()) {
-                    longPositions.add(tickerLongPositions.join())
-                }
-
-                if (realizedClosed != 0L) {
+                    longPositions.add(AggregatePosition(
+                        realizedClosedExtra = realizedClosed,
+                        subPositions = tickerLongPositions,
+                    ))
+                } else if (realizedClosed != 0L) {
                     exitedPositions.add(
                         LotPosition(
                             account = account,
@@ -64,11 +65,12 @@ class LotModel(private val parent: ZygosViewModel) {
                 }
             }
         }
-        cashPosition = cashPosition?.copy(realizedClosed =
-                longPositions.sumOf(LotPosition::cashEffect) +
-                shortPositions.sumOf(LotPosition::cashEffect) +
-                exitedPositions.sumOf(LotPosition::cashEffect)
-        )
+        val cashEffect = longPositions.sumOf(Position::cashEffect) + shortPositions.sumOf(Position::cashEffect) + exitedPositions.sumOf(Position::cashEffect)
+        if (cashPosition is LotPosition) {
+            cashPosition = (cashPosition as LotPosition).copy(realizedClosed = cashEffect)
+        } else if (cashPosition is AggregatePosition) {
+            cashPosition = (cashPosition as AggregatePosition).copy(realizedClosedExtra = cashEffect)
+        } // null can happen when data is empty
     }
 
     internal fun logPositions() {
