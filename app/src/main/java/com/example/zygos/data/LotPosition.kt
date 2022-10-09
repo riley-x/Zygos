@@ -163,8 +163,8 @@ data class AggregatePosition (
     override val realizedClosed = subPositions.sumOf(Position::realizedClosed) + realizedClosedExtra
     override val realized = realizedOpen + realizedClosed
     override fun unrealized(prices: Map<String, Long>) = subPositions.sumOf { it.unrealized(prices) }
-    override fun returns(prices: Map<String, Long>) = subPositions.sumOf { it.returns(prices) }
-    override fun equity(prices: Map<String, Long>) = subPositions.sumOf { it.equity(prices) }
+    override fun returns(prices: Map<String, Long>) = subPositions.sumOf { it.returns(prices) } + realizedClosedExtra
+    override fun equity(prices: Map<String, Long>) = subPositions.sumOf { it.equity(prices) } + realizedClosedExtra
     override fun returnsPercent(prices: Map<String, Long>) =
         if (type == PositionType.CASH || costBasis == 0L) 0f
         else (realizedOpen + unrealized(prices)).toFloat() / costBasis
