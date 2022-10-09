@@ -112,7 +112,7 @@ private fun addDividend(t: Transaction, transactionDao: TransactionDao, lotDao: 
     // These should be ordered by rowId already.
 
     var unmatchedShares = (t.value.toDouble() / t.price).roundToLong()
-    val roundingError = t.value - unmatchedShares * t.price
+    val roundingError = unmatchedShares * t.price - t.value
     val updatedLots = mutableListOf<Lot>()
 
     /** Match LIFO **/
