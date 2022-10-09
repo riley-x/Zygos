@@ -70,4 +70,10 @@ class LotModel(private val parent: ZygosViewModel) {
                 exitedPositions.sumOf(LotPosition::cashEffect)
         )
     }
+
+    internal fun logPositions() {
+        val n = System.getProperty("line.separator")
+        Log.i("Zygos/LotModel/createLotPositions", "$n $cashPosition")
+        longPositions.forEach { Log.i("Zygos/LotModel/createLotPositions", "$n $it") }
+    }
 }

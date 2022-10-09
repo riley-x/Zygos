@@ -4,18 +4,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewModelScope
-import com.example.zygos.data.LotPosition
-import com.example.zygos.data.PositionType
-import com.example.zygos.data.database.LotWithTransactions
-import com.example.zygos.data.getTickerPositions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class PositionModel(private val parent: ZygosViewModel) {
 
-    val longPositions = mutableStateListOf<Position>()
-    val shortPositions = mutableStateListOf<Position>()
+    val longPositions = mutableStateListOf<PricedPosition>()
+    val shortPositions = mutableStateListOf<PricedPosition>()
 
     var longPositionsAreLoading by mutableStateOf(false)
     var shortPositionsAreLoading by mutableStateOf(false)
@@ -39,11 +34,11 @@ class PositionModel(private val parent: ZygosViewModel) {
         else sortOption = opt
     }
 
-    private fun getSortedList(force: Boolean): List<Position> {
+    private fun getSortedList(force: Boolean): List<PricedPosition> {
         val list = longPositions.toMutableList()
 
         /** Cash position is always last **/
-        var cash: Position? = null
+        var cash: PricedPosition? = null
         if (list.last().ticker == "CASH") {
             cash = list.removeLast()
         }
@@ -56,13 +51,13 @@ class PositionModel(private val parent: ZygosViewModel) {
         else {
             if (sortIsAscending) {
                 when (sortOption) {
-                    "Ticker" -> list.sortBy(Position::ticker)
-                    else -> list.sortBy(Position::equity)
+                    "Ticker" -> list.sortBy(PricedPosition::ticker)
+                    else -> list.sortBy(PricedPosition::equity)
                 }
             } else {
                 when (sortOption) {
-                    "Ticker" -> list.sortByDescending(Position::ticker)
-                    else -> list.sortByDescending(Position::equity)
+                    "Ticker" -> list.sortByDescending(PricedPosition::ticker)
+                    else -> list.sortByDescending(PricedPosition::equity)
                 }
             }
         }

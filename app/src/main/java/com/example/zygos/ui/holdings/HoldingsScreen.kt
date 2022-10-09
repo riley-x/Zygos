@@ -1,6 +1,5 @@
 package com.example.zygos.ui.holdings
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,7 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.graphing.PieChart
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.Position
+import com.example.zygos.viewModel.PricedPosition
 import com.example.zygos.viewModel.TestViewModel
 
 /**
@@ -31,8 +30,8 @@ import com.example.zygos.viewModel.TestViewModel
 fun HoldingsScreen(
     longPositionsAreLoading: Boolean,
     shortPositionsAreLoading: Boolean,
-    longPositions: SnapshotStateList<Position>,
-    shortPositions: SnapshotStateList<Position>,
+    longPositions: SnapshotStateList<PricedPosition>,
+    shortPositions: SnapshotStateList<PricedPosition>,
     tickerColors: SnapshotStateMap<String, Color>,
     displayOption: String,
     modifier: Modifier = Modifier,

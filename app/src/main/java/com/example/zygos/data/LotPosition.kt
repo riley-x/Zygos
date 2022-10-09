@@ -47,90 +47,152 @@ enum class PositionType(val displayName: String, val isOption: Boolean = false, 
  * many lot positions.
  * to some display name for compound positions, use instead the individual sub-positions.
  */
-@Immutable
-data class LotPosition(
+interface Position {
     /** Identifiers **/
-    val account: String = "",
-    val ticker: String = "",
-    val type: PositionType = PositionType.NONE,
+    val account: String
+    val ticker: String
+    val type: PositionType
     /** Per share **/
-    val shares: Long = 0,
-    val priceOpen: Long = 0,
-    /** Basis and returns **/
-    val taxBasis: Long = 0,
-    val feesAndRounding: Long = 0,
-    val realizedOpen: Long = 0,
-    val realizedClosed: Long = 0,
-    /** Options **/
-    val expiration: Int = 0,
-    val strike: Long = 0,
-    val collateral: Long = 0,
-    val instrumentName: String = if (type.isOption) "$ticker $type $expiration $strike" else ticker, // this is modified for spreads. always use subPositions for unrealized
-    /** Sub positions **/
-    val subPositions: List<LotPosition> = emptyList(),
-) {
-    /** Derived values **/
-    val realized = realizedOpen + realizedClosed
+    val shares: Long
+    val priceOpen: Long
+    /** Basis **/
     val cashEffect: Long
     val costBasis: Long
+    val taxBasis: Long
+    val feesAndRounding: Long
+    /** Returns **/
+    val realizedOpen: Long
+    val realizedClosed: Long
+    val realized: Long
+    fun unrealized(prices: Map<String, Long>): Long
+    fun returns(prices: Map<String, Long>): Long
+    fun equity(prices: Map<String, Long>): Long
+    fun returnsPercent(prices: Map<String, Long>): Float
+    /** Options **/
+    val expiration: Int
+    val strike: Long
+    val collateral: Long
+    val instrumentName: String
+    /** Sub-positions **/
+    val subPositions: List<Position>
+}
+
+
+data class LotPosition(
+    /** Identifiers **/
+    override val account: String = "",
+    override val ticker: String = "",
+    override val type: PositionType = PositionType.NONE,
+    /** Per share **/
+    override val shares: Long = 0,
+    override val priceOpen: Long = 0,
+    /** Basis **/
+    override val taxBasis: Long = 0,
+    override val feesAndRounding: Long = 0,
+    /** Returns **/
+    override val realizedOpen: Long = 0,
+    override val realizedClosed: Long = 0,
+    /** Options **/
+    override val expiration: Int = 0,
+    override val strike: Long = 0,
+    override val collateral: Long = 0,
+    override val instrumentName: String = if (type.isOption) "$ticker $type $expiration $strike" else ticker, // this is modified for spreads. always use subPositions for unrealized
+) : Position {
+    /** Derived values **/
+    override val subPositions = emptyList<Position>()
+    override val realized = realizedOpen + realizedClosed
+    override val cashEffect: Long
+    override val costBasis: Long
     init {
-        if (subPositions.isEmpty()) {
-            val purchaseValue = feesAndRounding + shares * priceOpen * if (type.isShort) -1 else 1
-            cashEffect = realized - purchaseValue
-            costBasis = collateral + purchaseValue
-        } else {
-            cashEffect = subPositions.sumOf(LotPosition::cashEffect)
-            costBasis = subPositions.sumOf(LotPosition::costBasis)
-        }
+        val purchaseValue = feesAndRounding + shares * priceOpen * if (type.isShort) -1 else 1
+        cashEffect = realized - purchaseValue
+        costBasis = collateral + purchaseValue
     }
+//            cashEffect = subPositions.sumOf(LotPosition::cashEffect) // TODO this ignore fields of the parent that might be set differently, i.e. realizedClosed
+//            costBasis = subPositions.sumOf(LotPosition::costBasis)
 
-    /** Single lot (not composite) functions. These assume subPositions.isEmpty() **/
-    private fun unrealized(priceCurrent: Long?) = ((priceCurrent ?: priceOpen) - priceOpen) * shares * if (type.isShort) -1 else 1
-    private fun returns(priceCurrent: Long?) = realized + unrealized(priceCurrent)
-    private fun equity(priceCurrent: Long?) =
+    override fun unrealized(prices: Map<String, Long>) =
+        ((prices[instrumentName] ?: priceOpen) - priceOpen) * shares * if (type.isShort) -1 else 1
+
+    override fun returns(prices: Map<String, Long>) = realized + unrealized(prices)
+    override fun equity(prices: Map<String, Long>) =
         if (type == PositionType.CASH) cashEffect
-        else (priceCurrent ?: priceOpen) * shares * (if (type.isShort) -1 else 1)
+        else (prices[instrumentName] ?: priceOpen) * shares * (if (type.isShort) -1 else 1)
 
+    override fun returnsPercent(prices: Map<String, Long>) =
+        if (type == PositionType.CASH || costBasis == 0L) 0f
+        else (realizedOpen + unrealized(prices)).toFloat() / costBasis
+
+
+}
+
+
+class AggregatePosition (
+    val realizedClosedExtra: Long,
+    override val subPositions: List<Position>,
+) : Position {
     /** Aggregator **/
+    val samePosition =
+        if (subPositions.isEmpty()) false
+        else subPositions.all { it.instrumentName == subPositions[0].instrumentName }
+
+    private fun<T> ifAllEqual(fn: Position.() -> T, default: T): T {
+        return if (subPositions.isEmpty()) default
+        else if (subPositions.all { it.fn() == subPositions[0].fn() }) subPositions[0].fn()
+        else default
+    }
     private fun sumSubPositions(
         prices: Map<String, Long>,
-        fn: LotPosition.(Long?) -> Long
+        fn: Position.(Map<String, Long>?) -> Long
     ): Long {
-        return if (subPositions.isEmpty()) fn(prices[instrumentName])
-        else subPositions.sumOf { it.sumSubPositions(prices, fn) }
+        return subPositions.sumOf { it.fn(prices) }
     }
 
-    /** Public functions **/
-    fun unrealized(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { unrealized(it) }
-    fun returns(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { returns(it) }
-    fun equity(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { equity(it) }
-    fun returnsPercent(prices: Map<String, Long>) = if (type == PositionType.CASH || costBasis == 0L) 0f else (realizedOpen + unrealized(prices)).toFloat() / costBasis
+//    /** Public functions **/
+//    fun unrealized(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { unrealized(it) }
+//    fun returns(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { returns(it) }
+//    fun equity(prices: Map<String, Long> = emptyMap()) = sumSubPositions(prices) { equity(it) }
+//    fun returnsPercent(prices: Map<String, Long>) = if (type == PositionType.CASH || costBasis == 0L) 0f else (realizedOpen + unrealized(prices)).toFloat() / costBasis
 
-    /** Forms a compound position with the constituents as subPositions **/
-    operator fun plus(b: LotPosition): LotPosition {
-        val samePosition = instrumentName == b.instrumentName
-        fun <T> ifEqual(default: T, field: LotPosition.() -> T) = if (this.field() == b.field()) this.field() else default
-        return LotPosition(
-            /** Identifiers **/
-            account = ifEqual("") { account },
-            ticker = ifEqual("") { ticker },
-            type = if (samePosition) type else PositionType.NONE,
-            /** Per share **/
-            shares = if (samePosition) shares + b.shares else 0,
-            priceOpen = if (samePosition) (priceOpen * shares + b.priceOpen * b.shares) / (shares + b.shares) else 0, // TODO this rounds to the nearest .01 cents
-            /** Basis and returns **/
-            taxBasis = taxBasis + b.taxBasis,
-            feesAndRounding = feesAndRounding + b.feesAndRounding,
-            realizedOpen = realizedOpen + b.realizedOpen,
-            realizedClosed = realizedClosed + b.realizedClosed,
-            /** Sub positions **/
-            subPositions = subPositions.ifEmpty { listOf(this) } + b.subPositions.ifEmpty { listOf(b) }
-        )
-    }
+    /** Identifiers **/
+    override val account = ifAllEqual(Position::account, "")
+    override val ticker = ifAllEqual(Position::ticker, "")
+    override val type = ifAllEqual(Position::type, PositionType.NONE)
+    /** Per share **/
+    override val shares = if (samePosition) subPositions.sumOf(Position::shares) else 0L
+    override val priceOpen = if (samePosition) subPositions.sumOf { it.priceOpen * it.shares } / shares else 0L // TODO this rounds to the nearest .01 cents
+    /** Basis **/
+    override val cashEffect = subPositions.sumOf(Position::cashEffect) + realizedClosedExtra
+    override val costBasis = subPositions.sumOf(Position::costBasis)
+    override val taxBasis = subPositions.sumOf(Position::taxBasis)
+    override val feesAndRounding = subPositions.sumOf(Position::feesAndRounding)
+    /** Returns **/
+    override val realizedOpen = subPositions.sumOf(Position::realizedOpen)
+    override val realizedClosed = subPositions.sumOf(Position::realizedClosed) + realizedClosedExtra
+    override val realized = realizedOpen + realizedClosed
+    override fun unrealized(prices: Map<String, Long>) = subPositions.sumOf { it.unrealized(prices) }
+    override fun returns(prices: Map<String, Long>) = subPositions.sumOf { it.returns(prices) }
+    override fun equity(prices: Map<String, Long>) = subPositions.sumOf { it.equity(prices) }
+    override fun returnsPercent(prices: Map<String, Long>) =
+        if (type == PositionType.CASH || costBasis == 0L) 0f
+        else (realizedOpen + unrealized(prices)).toFloat() / costBasis
+    /** Options **/
+    override val expiration = ifAllEqual(Position::expiration, 0)
+    override val strike = ifAllEqual(Position::strike, 0)
+    override val collateral
+    override val instrumentName = ifAllEqual(Position::instrumentName, "")
 }
 
 // Allows for nested subPositions
 fun List<LotPosition>.join(): LotPosition {
     if (size == 1) return first()
     return reduce { a, b -> a + b }.copy(subPositions = this)
+}
+
+
+operator fun plus(b: LotPosition): AggregatePosition {
+    fun <T> ifEqual(default: T, field: LotPosition.() -> T) = if (this.field() == b.field()) this.field() else default
+    return AggregatePosition(
+        subPositions = subPositions.ifEmpty { listOf(this) } + b.subPositions.ifEmpty { listOf(b) }
+    )
 }

@@ -15,12 +15,12 @@ import com.example.zygos.data.PositionType
 import com.example.zygos.data.toFloatDollar
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.Position
+import com.example.zygos.viewModel.PricedPosition
 import com.example.zygos.viewModel.TestViewModel
 
 @Composable
 fun HoldingsSubRow(
-    position: Position,
+    position: PricedPosition,
     color: Color,
     displayOption: String,
     last: Boolean,

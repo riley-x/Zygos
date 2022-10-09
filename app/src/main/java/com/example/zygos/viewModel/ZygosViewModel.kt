@@ -15,7 +15,6 @@ import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.theme.defaultTickerColors
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
@@ -269,19 +268,19 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale
         Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lots.tickerLots.size}")
         Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lots.longPositions.size}")
-        lots.longPositions.forEach { Log.i("Zygos/ZygosViewModel/loadAccount", "\t$it") }
+        lots.logPositions()
 
         /** Load priced positions from lot positions **/
         positions.longPositions.clear()
         positions.shortPositions.clear()
         lots.longPositions.forEach {
-            positions.longPositions.add(Position(lot = it, prices = prices))
+            positions.longPositions.add(PricedPosition(lot = it, prices = prices))
         }
         if (lots.cashPosition != null) {
-            positions.longPositions.add(Position(lot = lots.cashPosition!!, prices = prices))
+            positions.longPositions.add(PricedPosition(lot = lots.cashPosition!!, prices = prices))
         }
         lots.shortPositions.forEach {
-            positions.shortPositions.add(Position(lot = it, prices = prices))
+            positions.shortPositions.add(PricedPosition(lot = it, prices = prices))
         }
         positions.sort(true) // TODO this blocks, maybe should launch it
 

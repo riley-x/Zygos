@@ -96,11 +96,11 @@ class TestViewModel: ViewModel() {
         ),
     )
     val longPositions = mutableStateListOf(
-        Position(lot = lots[0] + lots[1], prices = prices),
-        Position(lot = lots[2], prices = prices),
-        Position(lot = lots[3], prices = prices),
+        PricedPosition(lot = lots[0] + lots[1], prices = prices),
+        PricedPosition(lot = lots[2], prices = prices),
+        PricedPosition(lot = lots[3], prices = prices),
     )
-    val shortPositions = mutableStateListOf<Position>()
+    val shortPositions = mutableStateListOf<PricedPosition>()
 
     // These variables are merely the ui state of the options selection menu
     // The actual sorting is called in sortHoldingsList() via a callback when

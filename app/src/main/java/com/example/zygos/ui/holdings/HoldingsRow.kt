@@ -10,19 +10,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.PositionType
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.Position
+import com.example.zygos.viewModel.PricedPosition
 import com.example.zygos.viewModel.TestViewModel
 
 @Composable
 fun HoldingsRow(
-    position: Position,
+    position: PricedPosition,
     color: Color,
     displayOption: String,
     modifier: Modifier = Modifier,

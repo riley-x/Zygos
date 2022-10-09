@@ -51,7 +51,7 @@ data class Quote (
 )
 
 @Immutable
-data class Position (
+data class PricedPosition (
     /** Identifiers **/
     val account: String = "",
     val ticker: String = "",
@@ -74,16 +74,16 @@ data class Position (
     val returnsTotal: Float = 0f,
     val equity: Float = 0f,
     /** Sub-positions **/
-    val subPositions: List<Position> = emptyList(),
+    val subPositions: List<PricedPosition> = emptyList(),
 ) {
     companion object Factory {
         operator fun invoke(
             lot: LotPosition,
             prices: Map<String, Long>,
-        ): Position {
+        ): PricedPosition {
             val realizedOpen = lot.realizedOpen.toFloatDollar()
             val unrealized = lot.unrealized(prices).toFloatDollar()
-            return Position(
+            return PricedPosition(
                 /** Identifiers **/
                 account = lot.account,
                 ticker = lot.ticker,
@@ -105,7 +105,7 @@ data class Position (
                 returnsPercent = lot.returnsPercent(prices),
                 returnsTotal = lot.returns(prices).toFloatDollar(),
                 equity = lot.equity(prices).toFloatDollar(),
-                subPositions = lot.subPositions.map { Position(it, prices) }
+                subPositions = lot.subPositions.map { PricedPosition(it, prices) }
             )
         }
     }
