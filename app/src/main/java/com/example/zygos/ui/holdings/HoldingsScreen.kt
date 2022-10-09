@@ -36,7 +36,7 @@ fun HoldingsScreen(
     displayOption: String,
     modifier: Modifier = Modifier,
     onPositionClick: (String) -> Unit = { },
-    holdingsListOptionsCallback: () -> Unit = { },
+    holdingsListOptionsCallback: (String) -> Unit = { },
 ) {
     LogCompositions("Zygos/Compositions", "HoldingsScreen")
 
@@ -87,7 +87,7 @@ fun HoldingsScreen(
             ListTitleBar(
                 text = "Long Positions",
                 modifier = Modifier.padding(start = 22.dp),
-                onOptionsButtonClick = holdingsListOptionsCallback,
+                onOptionsButtonClick = { holdingsListOptionsCallback("long positions") },
             )
         }
 
@@ -124,7 +124,7 @@ fun HoldingsScreen(
             ListTitleBar(
                 text = "Short Positions",
                 modifier = Modifier.padding(start = 22.dp, top = 20.dp),
-                onOptionsButtonClick = holdingsListOptionsCallback,
+                onOptionsButtonClick = { holdingsListOptionsCallback("short positions") },
             )
         }
 

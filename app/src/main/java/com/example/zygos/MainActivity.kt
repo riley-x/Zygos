@@ -109,6 +109,7 @@ fun ZygosApp(
                 true
             }
         )
+        val bottomSheetContent = bottomSheetContent(listOptionsSheetVersion, viewModel)
 
         /** Callbacks
          * These need to be defined here (at viewModel/appScope scope) to enable smart
@@ -118,8 +119,8 @@ fun ZygosApp(
             navController.popBackStack()
         }
 
-        fun onHoldingsListOptionsShow() = appScope.launch {
-            listOptionsSheetVersion = "holdings"
+        fun onHoldingsListOptionsShow(version: String) = appScope.launch {
+            listOptionsSheetVersion = version
             listOptionsSheetState.show()
         }
         fun onWatchlistOptionsShow() = appScope.launch {
@@ -174,8 +175,6 @@ fun ZygosApp(
                 popBackstack()
             }
         }
-
-
 
 
         fun onHoldingsPositionSelected(ticker: String) = navController.navigateToPosition(ticker)
@@ -244,12 +243,12 @@ fun ZygosApp(
                     composable(route = HoldingsTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Holdings.route")
                         HoldingsScreen(
-                            longPositionsAreLoading = viewModel.positions.longPositionsAreLoading,
-                            shortPositionsAreLoading = viewModel.positions.shortPositionsAreLoading,
+                            longPositionsAreLoading = viewModel.longPositions.isLoading,
+                            shortPositionsAreLoading = viewModel.shortPositions.isLoading,
                             tickerColors = viewModel.tickerColors,
-                            longPositions = viewModel.positions.longPositions,
-                            shortPositions = viewModel.positions.shortPositions,
-                            displayOption = viewModel.positions.displayOption,
+                            longPositions = viewModel.longPositions.list,
+                            shortPositions = viewModel.shortPositions.list,
+                            displayOption = viewModel.longPositions.displayOption, // TODO short display
                             onPositionClick = ::onHoldingsPositionSelected,
                             holdingsListOptionsCallback = ::onHoldingsListOptionsShow,
                         )
@@ -320,7 +319,7 @@ fun ZygosApp(
             scrimColor = Color.Black.copy(alpha = 0.6f),
             sheetElevation = 0.dp,
             sheetState = listOptionsSheetState,
-            sheetContent = bottomSheetContent(listOptionsSheetVersion, viewModel),
+            sheetContent = bottomSheetContent,
             modifier = Modifier.recomposeHighlighter(),
         ) { }
         if (listOptionsSheetIsClosing) {
@@ -384,14 +383,23 @@ fun bottomSheetContent(
     viewModel: ZygosViewModel,
 ): (@Composable ColumnScope.() -> Unit) {
     return when (version) {
-        "holdings" -> listOptionsSheet(
-            currentSortOption = viewModel.positions.sortOption,
-            currentDisplayOption = viewModel.positions.displayOption,
-            isSortedAscending = viewModel.positions.sortIsAscending,
+        "long positions" -> listOptionsSheet(
+            currentSortOption = viewModel.longPositions.sortOption,
+            currentDisplayOption = viewModel.longPositions.displayOption,
+            isSortedAscending = viewModel.longPositions.sortIsAscending,
             displayOptions = holdingsListDisplayOptions,
             sortOptions = holdingsListSortOptions,
-            onDisplayOptionSelected = { viewModel.positions.displayOption = it },
-            onSortOptionSelected = viewModel.positions::setSortMethod,
+            onDisplayOptionSelected = viewModel.longPositions::displayOption::set,
+            onSortOptionSelected = viewModel.longPositions::setSortMethod,
+        )
+        "short positions" -> listOptionsSheet(
+            currentSortOption = viewModel.shortPositions.sortOption,
+            currentDisplayOption = viewModel.shortPositions.displayOption,
+            isSortedAscending = viewModel.shortPositions.sortIsAscending,
+            displayOptions = holdingsListDisplayOptions,
+            sortOptions = holdingsListSortOptions,
+            onDisplayOptionSelected = viewModel.shortPositions::displayOption::set,
+            onSortOptionSelected = viewModel.shortPositions::setSortMethod,
         )
         else -> listOptionsSheet(
             currentSortOption = viewModel.watchlistSortOption,
@@ -399,7 +407,7 @@ fun bottomSheetContent(
             isSortedAscending = viewModel.watchlistSortIsAscending,
             displayOptions = watchlistDisplayOptions,
             sortOptions = watchlistSortOptions,
-            onDisplayOptionSelected = { viewModel.watchlistDisplayOption = it },
+            onDisplayOptionSelected = viewModel::watchlistDisplayOption::set,
             onSortOptionSelected = viewModel::setWatchlistSortMethod,
         )
     }

@@ -180,7 +180,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     /** Holdings **/
     val lots = LotModel(this)
-    val positions = PositionModel(this)
+    val longPositions = PositionModel(this)
+    val shortPositions = PositionModel(this)
 
     /** ChartScreen **/
     val chartTicker = mutableStateOf("")
@@ -260,29 +261,16 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     /** Sets the current account to display, loading the data elements into the ui state variables.
      * This should be run on the main thread, but in a coroutine. **/
     internal suspend fun loadAccount(account: String) {
-        /** Launch loads **/
         transactions.loadLaunched(account)
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
+        longPositions.loadLaunched(if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions, prices)
+        shortPositions.loadLaunched(lots.shortPositions, prices)
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale
         Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lots.tickerLots.size}")
         Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lots.longPositions.size}")
         lots.logPositions()
-
-        /** Load priced positions from lot positions **/
-        positions.longPositions.clear()
-        positions.shortPositions.clear()
-        lots.longPositions.forEach {
-            positions.longPositions.add(PricedPosition(lot = it, prices = prices))
-        }
-        if (lots.cashPosition != null) {
-            positions.longPositions.add(PricedPosition(lot = lots.cashPosition!!, prices = prices))
-        }
-        lots.shortPositions.forEach {
-            positions.shortPositions.add(PricedPosition(lot = it, prices = prices))
-        }
-        positions.sort(true) // TODO this blocks, maybe should launch it
 
         // TODO
 //        equityHistorySeries.clear()
@@ -297,7 +285,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     suspend fun sortList(whichList: String) {
         when(whichList) {
-            "holdings" -> positions.sort()
+            "long positions" -> longPositions.sort()
+            "short positions" -> shortPositions.sort()
             "watchlist" -> sortWatchlist()
         }
     }

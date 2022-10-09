@@ -4,25 +4,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewModelScope
+import com.example.zygos.data.Position
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 class PositionModel(private val parent: ZygosViewModel) {
 
-    val longPositions = mutableStateListOf<PricedPosition>()
-    val shortPositions = mutableStateListOf<PricedPosition>()
+    val list = mutableStateListOf<PricedPosition>()
 
-    var longPositionsAreLoading by mutableStateOf(false)
-    var shortPositionsAreLoading by mutableStateOf(false)
-
+    var isLoading by mutableStateOf(false)
+    var displayOption by mutableStateOf(holdingsListDisplayOptions.items[0])
 
     // These variables are merely the ui state of the options selection menu.
     // The actual sorting is called in sort() via a callback when the menu is hidden.
-    var sortOption by mutableStateOf(holdingsListSortOptions.items[0])
+    var sortOption by mutableStateOf("Equity")
         private set
-    var sortIsAscending by mutableStateOf(true)
+    var sortIsAscending by mutableStateOf(false)
         private set
-    var displayOption by mutableStateOf(holdingsListDisplayOptions.items[0])
 
     // Cached sort options to not re-sort if nothing was changed
     private var lastSortOption = ""
@@ -34,59 +35,92 @@ class PositionModel(private val parent: ZygosViewModel) {
         else sortOption = opt
     }
 
-    private fun getSortedList(force: Boolean): List<PricedPosition> {
-        val list = longPositions.toMutableList()
+    private fun getSortedList(oldList: List<PricedPosition>, option: String, ascending: Boolean): MutableList<PricedPosition> {
+        if (oldList.isEmpty()) return mutableListOf()
+        val newList = oldList.toMutableList()
 
         /** Cash position is always last **/
         var cash: PricedPosition? = null
-        if (list.last().ticker == "CASH") {
-            cash = list.removeLast()
+        if (newList.last().ticker == "CASH") {
+            cash = newList.removeLast()
         }
 
-        /** Reverse **/
-        if (!force && lastSortOption == sortOption) {
-            list.reverse()
+        fun <T: Comparable<T>> sortBy(fn: PricedPosition.() -> T) {
+            if (ascending) newList.sortBy(fn)
+            else newList.sortByDescending(fn)
         }
-        /** Sort **/
-        else {
-            if (sortIsAscending) {
-                when (sortOption) {
-                    "Ticker" -> list.sortBy(PricedPosition::ticker)
-                    else -> list.sortBy(PricedPosition::equity)
-                }
-            } else {
-                when (sortOption) {
-                    "Ticker" -> list.sortByDescending(PricedPosition::ticker)
-                    else -> list.sortByDescending(PricedPosition::equity)
-                }
-            }
+        when (option) {
+            "Ticker" -> sortBy(PricedPosition::ticker)
+            "Equity" -> sortBy(PricedPosition::equity)
+            "Returns" -> sortBy(PricedPosition::returnsOpen)
+            "% Change" -> sortBy(PricedPosition::returnsPercent)
         }
 
         /** Add back cash **/
-        if (cash != null) list.add(cash)
-        return list
+        if (cash != null) newList.add(cash)
+        return newList
     }
 
-    suspend fun sort(force: Boolean = false) {
-        if (longPositions.isEmpty()) return
-        if (!force && sortOption == lastSortOption && sortIsAscending == lastSortIsAscending) return
-//        longPositionsAreLoading = true
-//        shortPositionsAreLoading = true
+    private fun getReversedList(oldList: List<PricedPosition>): MutableList<PricedPosition> {
+        if (oldList.isEmpty()) return mutableListOf()
+        val newList = oldList.toMutableList()
 
-        /** This blocks this routine, but the main UI routine continues since sort() is called
+        /** Cash position is always last **/
+        var cash: PricedPosition? = null
+        if (newList.last().ticker == "CASH") {
+            cash = newList.removeLast()
+        }
+
+        newList.reverse()
+
+        /** Add back cash **/
+        if (cash != null) newList.add(cash)
+        return newList
+    }
+
+
+    suspend fun sort(force: Boolean = false) {
+        if (list.isEmpty()) return
+        if (!force && sortOption == lastSortOption && sortIsAscending == lastSortIsAscending) return
+//        isLoading = true
+
+        /** Sort - this blocks this routine, but the main UI routine continues since sort() is called
          * from a LaunchedEffect. **/
-        val list = withContext(Dispatchers.IO) {
-            getSortedList(force)
+        val newList = withContext(Dispatchers.IO) {
+            if (!force && lastSortOption == sortOption) {
+                getReversedList(list)
+            } else {
+                getSortedList(list, sortOption, sortIsAscending)
+            }
         }
 
         /** Update. This happens in the main thread when called from LaunchedEffect with no dispatcher **/
-        longPositions.clear()
-        longPositions.addAll(list)
-
+        list.clear()
+        list.addAll(newList)
         lastSortIsAscending = sortIsAscending
         lastSortOption = sortOption
-//        longPositionsAreLoading = false
-//        shortPositionsAreLoading = false
+//        isLoading = false
+    }
+
+    fun loadLaunched(positions: List<Position>, prices: Map<String, Long>) {
+        if (positions.isEmpty()) {
+            list.clear()
+            return
+        }
+
+        parent.viewModelScope.launch {
+            val newList = withContext(Dispatchers.IO) {
+                val newList = mutableListOf<PricedPosition>()
+                positions.forEach {
+                    newList.add(PricedPosition(lot = it, prices = prices))
+                }
+                getSortedList(newList, sortOption, sortIsAscending)
+            }
+
+            /** These happen in the main thread **/
+            list.clear()
+            list.addAll(newList)
+        }
     }
 
 
