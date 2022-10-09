@@ -118,6 +118,7 @@ private fun addDividend(t: Transaction, transactionDao: TransactionDao, lotDao: 
     /** Match LIFO **/
     for (lot in lots.reversed()) {
         if (lot.openTransaction.date >= t.expiration) continue
+        if (lot.openTransaction.type != TransactionType.STOCK) continue
 
         /** Check if there were any shares closed after the ex date **/
         val sharesOpen = lot.lot.sharesOpen
@@ -158,6 +159,12 @@ private fun closeShares(shares: Long, lot: LotWithTransactions, t: Transaction, 
     )
 }
 
+private fun matches(lot: LotWithTransactions, t: Transaction): Boolean {
+    return if (lot.openTransaction.type != t.type) false
+    else if (t.type.isOption) lot.openTransaction.expiration == t.expiration && lot.openTransaction.strike == t.strike
+    else true
+}
+
 
 private fun closeLots(t: Transaction, transactionDao: TransactionDao, lotDao: LotDao) {
     val lots = lotDao.getOpen(t.account, t.ticker) // these should be ordered by rowId already
@@ -166,6 +173,7 @@ private fun closeLots(t: Transaction, transactionDao: TransactionDao, lotDao: Lo
         var unmatchedShares = -t.shares // t.shares is negative on close
         val updatedLots = mutableListOf<Lot>()
         for (lot in lots) {
+            if (!matches(lot, t)) continue
             val shares = minOf(unmatchedShares, lot.lot.sharesOpen)
             updatedLots.add(closeShares(shares, lot, t, shares == unmatchedShares))
             unmatchedShares -= shares
