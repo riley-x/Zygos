@@ -1,5 +1,6 @@
 package com.example.zygos.ui.theme
 
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
 
 val Purple200 = Color(0xFFBB86FC)
@@ -18,3 +19,7 @@ val defaultTickerColors = mapOf(
     "AMD" to Color(0xffed1c24),
     "MSFT" to Color(0xff00a1f1),
 )
+
+fun SnapshotStateMap<String, Color>.getOrRandom(ticker: String) =
+    getOrPut(ticker) { Color((Math.random() * 16777215).toInt() or (0xFF shl 24)) }
+

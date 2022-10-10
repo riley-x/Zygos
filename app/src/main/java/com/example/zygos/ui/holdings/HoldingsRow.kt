@@ -19,6 +19,7 @@ import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.PricedPosition
 import com.example.zygos.viewModel.TestViewModel
 
+
 @Composable
 fun HoldingsRow(
     position: PricedPosition,
@@ -42,16 +43,8 @@ fun HoldingsRow(
                     if (expanded) Icon(imageVector = Icons.Sharp.ExpandLess, contentDescription = null)
                     else Icon(imageVector = Icons.Sharp.ExpandMore, contentDescription = null)
                 }
-            } else if (position.ticker != "CASH") {
-                Column(Modifier) {
-                    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-                        Text(
-                            text = "${position.shares}",
-                            style = MaterialTheme.typography.subtitle1
-                        )
-                        Text(text = "shares", style = MaterialTheme.typography.subtitle1)
-                    }
-                }
+            } else {
+                PositionInfo(position = position, Modifier.weight(20f))
             }
         }
 

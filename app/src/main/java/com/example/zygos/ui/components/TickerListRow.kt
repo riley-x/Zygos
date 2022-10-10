@@ -89,7 +89,7 @@ fun TickerListValueRow(
 
         afterTickerContent(this)
 
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.weight(10f))
 
         ValueAndSubvalue(value = value, subvalue = subvalue, isSubvalueDollar = isSubvalueDollar)
     }

@@ -50,27 +50,9 @@ fun HoldingsSubRow(
                 .padding(start = 26.dp, end = 4.dp)
                 .size(width = 20.dp, height = 52.dp)
         )
-        if (position.type.isOption) {
-            Column(Modifier.weight(10f)) {
-                Text(position.type.toString())
-                Text("x${position.shares}")
-            }
-            Column(Modifier.weight(10f)) {
-                Text(formatDateInt(position.expiration))
-                Text(formatDollarNoSymbol(position.strike))
-            }
-        } else if (position.type == PositionType.CASH) {
-            // CASH can have subpositions only when account is all accounts
-            Column(Modifier.weight(10f)) {
-                Text(position.account)
-                Text(formatDollar(position.shares.toFloatDollar()))
-            }
-        } else {
-            Column(Modifier.weight(10f)) {
-                Text("${position.shares} shares")
-                Text(formatDollar(position.priceOpen))
-            }
-        }
+        
+        PositionInfo(position = position, Modifier.weight(20f))
+        
         ValueAndSubvalue(
             value = position.equity,
             subvalue = if (displayOption == "Returns") position.returnsOpen else position.returnsPercent,

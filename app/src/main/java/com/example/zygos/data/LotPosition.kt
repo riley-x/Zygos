@@ -47,6 +47,7 @@ enum class PositionType(val displayName: String, val isOption: Boolean = false, 
  * many lot positions.
  * to some display name for compound positions, use instead the individual sub-positions.
  */
+@Immutable
 interface Position {
     /** Identifiers **/
     val account: String
@@ -85,7 +86,7 @@ interface Position {
     }
 }
 
-
+@Immutable
 data class LotPosition(
     /** Identifiers **/
     override val account: String = "",
@@ -120,7 +121,7 @@ data class LotPosition(
     override fun unrealized(prices: Map<String, Long>) =
         ((prices[instrumentName] ?: priceOpen) - priceOpen) * shares * if (type.isShort) -1 else 1
 
-    override fun returns(prices: Map<String, Long>) = realized + unrealized(prices)
+    override fun returns(prices: Map<String, Long>) = realizedOpen + unrealized(prices)
     override fun equity(prices: Map<String, Long>) =
         if (type == PositionType.CASH) cashEffect
         else (prices[instrumentName] ?: priceOpen) * shares * (if (type.isShort) -1 else 1)
@@ -141,6 +142,7 @@ private fun<T> List<Position>.ifAllEqual(fn: Position.() -> T, default: T): T =
     else default
 
 
+@Immutable
 data class AggregatePosition (
     val realizedClosedExtra: Long,
     override val subPositions: List<Position>,
@@ -163,8 +165,8 @@ data class AggregatePosition (
     override val realizedClosed = subPositions.sumOf(Position::realizedClosed) + realizedClosedExtra
     override val realized = realizedOpen + realizedClosed
     override fun unrealized(prices: Map<String, Long>) = subPositions.sumOf { it.unrealized(prices) }
-    override fun returns(prices: Map<String, Long>) = subPositions.sumOf { it.returns(prices) } + realizedClosedExtra
-    override fun equity(prices: Map<String, Long>) = subPositions.sumOf { it.equity(prices) } + realizedClosedExtra
+    override fun returns(prices: Map<String, Long>) = subPositions.sumOf { it.returns(prices) } + if (type == PositionType.CASH) realizedClosedExtra else 0
+    override fun equity(prices: Map<String, Long>) = subPositions.sumOf { it.equity(prices) } + if (type == PositionType.CASH) realizedClosedExtra else 0
     override fun returnsPercent(prices: Map<String, Long>) =
         if (type == PositionType.CASH || costBasis == 0L) 0f
         else (realizedOpen + unrealized(prices)).toFloat() / costBasis

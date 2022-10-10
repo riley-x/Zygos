@@ -14,6 +14,7 @@ import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.theme.defaultTickerColors
+import com.example.zygos.ui.theme.getOrRandom
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -265,6 +266,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
         longPositions.loadLaunched(if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions, prices)
         shortPositions.loadLaunched(lots.shortPositions, prices)
+
+        /** Update colors **/
+        lots.tickerLots.keys.forEach { tickerColors.getOrRandom(it) }
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale

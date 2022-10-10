@@ -45,6 +45,7 @@ class PositionModel(private val parent: ZygosViewModel) {
             cash = newList.removeLast()
         }
 
+        /** Do sort **/
         fun <T: Comparable<T>> sortBy(fn: PricedPosition.() -> T) {
             if (ascending) newList.sortBy(fn)
             else newList.sortByDescending(fn)
