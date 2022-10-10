@@ -1,6 +1,5 @@
 package com.example.zygos.ui.colorSelector
 
-import android.util.Log
 import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
@@ -14,8 +13,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInteropFilter
@@ -29,6 +26,8 @@ import androidx.core.math.MathUtils.clamp
 import com.example.zygos.ui.components.ImmutableList
 import com.example.zygos.ui.theme.ZygosTheme
 import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 
@@ -60,6 +59,8 @@ fun ColorCircle(
 
 
 
+
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ColorSelector(
@@ -68,17 +69,30 @@ fun ColorSelector(
 ) {
     var boxSize by remember { mutableStateOf(IntSize(10, 10)) } // 960 x 1644
 
+    fun toPolar(point: Offset, clamp: Boolean = false): Pair<Float, Float> {
+        val x = point.x - boxSize.width / 2
+        val y = point.y - boxSize.height / 2
+        var r = 2 * sqrt(x * x + y * y) / minOf(boxSize.width, boxSize.height)
+        if (clamp) r = clamp(r, 0f, 1f)
+
+        var phi = Math.toDegrees(atan2(y, x).toDouble()).toFloat()
+        if (phi < 0) phi += 360
+        return Pair(r, phi)
+    }
+    fun fromPolar(r: Float, phi: Float): Offset {
+        val minSize = minOf(boxSize.width, boxSize.height) / 2f
+        val phiRad = Math.toRadians(phi.toDouble()).toFloat()
+        val x = r * cos(phiRad) * minSize + boxSize.width / 2f
+        val y = r * sin(phiRad) * minSize + boxSize.height / 2f
+        return Offset(x, y)
+    }
+
 //    fun colorToPixel(color: Color): Offset {
 //
 //    }
 
     fun pixelToColor(point: Offset): Color {
-        val x = point.x - boxSize.width / 2
-        val y = point.y - boxSize.height / 2
-
-        val r = clamp(2 * sqrt(x * x + y * y) / minOf(boxSize.width, boxSize.height), 0f, 1f)
-        var phi = Math.toDegrees(atan2(y, x).toDouble()).toFloat()
-        if (phi < 0) phi += 360
+        val (r, phi) = toPolar(point, clamp = true)
         val stopIndex = phi.toInt() / 60
 
         val hue = ColorUtils.blendARGB(
@@ -92,7 +106,6 @@ fun ColorSelector(
     var currentColor by remember { mutableStateOf(initialColor) }
 //    var currentHover by remember { mutableStateOf(colorToPixel(initialColor)) }
     var currentHover by remember(boxSize) { mutableStateOf(Offset(boxSize.width / 2f, boxSize.height / 2f)) }
-    var dragStart by remember { mutableStateOf(currentHover) }
     var brightness by remember { mutableStateOf(1.0f) }
 
     val indicatorRadius = with(LocalDensity.current) { 10.dp.toPx() }
@@ -100,6 +113,11 @@ fun ColorSelector(
     val indicatorColor = remember { derivedStateOf {
         if (brightness > 0.5) Color.Black else Color.White
     } }
+
+    /** The circle indicator should be moved by dragging instead of tapping. Cache the last position
+     * from ACTION_MOVE or ACTION_DOWN **/
+    var dragStart by remember { mutableStateOf(currentHover) }
+
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -115,17 +133,20 @@ fun ColorSelector(
                     boxSize = it.size
                 }
                 .pointerInteropFilter(
-//                requestDisallowInterceptTouchEvent = disallowIntercept
                 ) { motionEvent ->
-                    if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                        dragStart = Offset(motionEvent.x, motionEvent.y)
-                    } else if (motionEvent.action == MotionEvent.ACTION_MOVE) {
-//                    disallowIntercept(true)
-                        currentHover += Offset(motionEvent.x, motionEvent.y) - dragStart
-                        dragStart = Offset(motionEvent.x, motionEvent.y)
-                        currentColor = pixelToColor(currentHover)
-                    } else {
-//                    disallowIntercept(false)
+                    when (motionEvent.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            dragStart = Offset(motionEvent.x, motionEvent.y)
+                        }
+                        MotionEvent.ACTION_MOVE -> {
+                            var newPos = currentHover + Offset(motionEvent.x, motionEvent.y) - dragStart
+                            val (r, phi) = toPolar(newPos)
+                            if (r > 1f) newPos = fromPolar(1f, phi)
+
+                            currentHover = newPos
+                            currentColor = pixelToColor(currentHover)
+                            dragStart = Offset(motionEvent.x, motionEvent.y)
+                        }
                     }
                     true
                 }
