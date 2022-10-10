@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.ExpandLess
 import androidx.compose.material.icons.sharp.ExpandMore
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,7 +28,10 @@ fun HoldingsRow(
     displayOption: String,
     modifier: Modifier = Modifier,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    val hasSubpositions by remember { derivedStateOf {
+        position.subPositions.isNotEmpty() && position.type != PositionType.STOCK
+    } }
 
     Column(modifier = modifier) {
         TickerListValueRow(
@@ -38,7 +42,7 @@ fun HoldingsRow(
             isSubvalueDollar = (displayOption == "Returns"),
             modifier = Modifier
         ) {
-            if (position.subPositions.isNotEmpty() && position.type != PositionType.STOCK) {
+            if (hasSubpositions) {
                 IconButton(onClick = { expanded = !expanded }) {
                     if (expanded) Icon(imageVector = Icons.Sharp.ExpandLess, contentDescription = null)
                     else Icon(imageVector = Icons.Sharp.ExpandMore, contentDescription = null)
@@ -48,19 +52,21 @@ fun HoldingsRow(
             }
         }
 
-        AnimatedVisibility(
-            visible = expanded,
-            enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(initialAlpha = 0.3f),
-            exit = shrinkVertically() + fadeOut()
-        ) {
-            Column {
-                (position.subPositions).forEachIndexed { index, pos ->
-                    HoldingsSubRow(
-                        position = pos,
-                        color = color,
-                        displayOption = displayOption,
-                        last = index == position.subPositions.lastIndex,
-                    )
+        if (hasSubpositions) {
+            AnimatedVisibility(
+                visible = expanded,
+                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(initialAlpha = 0.3f),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column {
+                    (position.subPositions).forEachIndexed { index, pos ->
+                        HoldingsSubRow(
+                            position = pos,
+                            color = color,
+                            displayOption = displayOption,
+                            last = index == position.subPositions.lastIndex,
+                        )
+                    }
                 }
             }
         }

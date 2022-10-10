@@ -9,12 +9,12 @@ enum class PositionType(val displayName: String, val isOption: Boolean = false, 
     STOCK("Stock"),
     CALL_LONG("Call", true),
     PUT_LONG("Put", true),
-    CALL_DEBIT_SPREAD("Call Debit Spread", true), // all spreads can include diagonals/calendars
-    CALL_CREDIT_SPREAD("Call Credit Spread", true, true),
-    PUT_DEBIT_SPREAD("Put Debit Spread", true),
-    PUT_CREDIT_SPREAD("Put Credit Spread", true, true),
+    CALL_DEBIT_SPREAD("CDS", true), // all spreads can include diagonals/calendars
+    CALL_CREDIT_SPREAD("CCS", true, true),
+    PUT_DEBIT_SPREAD("PDS", true),
+    PUT_CREDIT_SPREAD("PCS", true, true),
     CASH_SECURED_PUT("CSP", true, true),
-    COVERED_CALL("Covered Call", true, true),
+    COVERED_CALL("CC", true, true),
     BOND("Bond"),
     NONE("None");
 
