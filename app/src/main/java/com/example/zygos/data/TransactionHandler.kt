@@ -126,6 +126,7 @@ private fun addDividend(t: Transaction, transactionDao: TransactionDao, lotDao: 
         lot.transactions.forEach {
             if (it.type == TransactionType.STOCK && it.shares < 0 && it.date >= t.expiration) {
                 sharesClosed -= it.shares
+                // This double counts if it closed more than one lot
             }
         }
         Log.d("Zygos/Data/TransactionHandler", "sharesOpen=${sharesOpen} sharesClosed=${sharesClosed}, lot=${lot.lot}")
@@ -138,6 +139,7 @@ private fun addDividend(t: Transaction, transactionDao: TransactionDao, lotDao: 
             realizedClosed = lot.lot.realizedClosed + t.price * sharesClosed,
             feesAndRounding = lot.lot.feesAndRounding + if (unmatchedShares == 0L) roundingError else 0
         ))
+
     }
     if (unmatchedShares != 0L) throw RuntimeException("Zygos/TransactionHandler::addDividend() unmatchedShares=$unmatchedShares, from $t")
 
