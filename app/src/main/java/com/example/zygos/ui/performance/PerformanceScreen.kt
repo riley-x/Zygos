@@ -122,7 +122,9 @@ fun PerformanceScreen(
                 ListTitleBar(
                     text = "Watchlist",
                     onOptionsButtonClick = onWatchlistOptionsClick,
-                    modifier = Modifier.padding(start = 22.dp).recomposeHighlighter()
+                    modifier = Modifier
+                        .padding(start = 22.dp)
+                        .recomposeHighlighter()
                 )
             }
 
@@ -162,11 +164,13 @@ fun PerformanceScreen(
 fun PreviewPerformanceScreen() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
-        PerformanceScreen(
-            accountPerformanceState = viewModel.accountPerformanceState,
-            accountPerformanceTimeRange = viewModel.accountPerformanceTimeRange,
-            watchlist = viewModel.watchlist,
-            watchlistDisplayOption = viewModel.watchlistDisplayOption,
-        )
+        Surface {
+            PerformanceScreen(
+                accountPerformanceState = viewModel.accountPerformanceState,
+                accountPerformanceTimeRange = viewModel.accountPerformanceTimeRange,
+                watchlist = viewModel.watchlist,
+                watchlistDisplayOption = viewModel.watchlistDisplayOption,
+            )
+        }
     }
 }

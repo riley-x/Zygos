@@ -95,7 +95,7 @@ class TransactionModel(private val parent: ZygosViewModel) {
         }
         val job2 = parent.viewModelScope.launch {
             val newAll = withContext(Dispatchers.IO) {
-                getAllWithFilter("", TransactionType.NONE, account)
+                getAllWithFilter(currentFilterTicker, currentFilterType, account)
             }
             all.clear()
             all.addAll(newAll)

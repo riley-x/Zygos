@@ -118,9 +118,11 @@ fun AnalyticsScreen(
 fun PreviewAnalyticsScreen() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
-        AnalyticsScreen(
-            transactions = viewModel.transactions,
-            tickerColors = viewModel.tickerColors,
-        )
+        Surface {
+            AnalyticsScreen(
+                transactions = viewModel.transactions,
+                tickerColors = viewModel.tickerColors,
+            )
+        }
     }
 }

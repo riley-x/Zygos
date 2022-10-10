@@ -189,7 +189,7 @@ fun TransactionDetailsScreen(
                 }
 
                 Button(onClick = ::save) {
-                    Text("Save")
+                    Text(if (initialTransaction.value.type == TransactionType.NONE) "Save" else "Update")
                 }
             }
         }
