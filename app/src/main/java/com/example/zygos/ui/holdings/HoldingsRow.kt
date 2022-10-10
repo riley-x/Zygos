@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.PositionType
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.PricedPosition
@@ -30,7 +29,7 @@ fun HoldingsRow(
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val hasSubpositions by remember { derivedStateOf {
-        position.subPositions.isNotEmpty() && position.type != PositionType.STOCK
+        position.subPositions.isNotEmpty() && !position.isSameInstrument
     } }
 
     Column(modifier = modifier) {

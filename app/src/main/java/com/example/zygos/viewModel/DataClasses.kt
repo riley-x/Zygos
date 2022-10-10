@@ -2,10 +2,7 @@ package com.example.zygos.viewModel
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
-import com.example.zygos.data.LotPosition
-import com.example.zygos.data.Position
-import com.example.zygos.data.PositionType
-import com.example.zygos.data.toFloatDollar
+import com.example.zygos.data.*
 
 /**
  * This file contains data classes that are passed into composables
@@ -76,6 +73,7 @@ data class PricedPosition (
     val equity: Float = 0f,
     /** Sub-positions **/
     val subPositions: List<PricedPosition> = emptyList(),
+    val isSameInstrument: Boolean = false, // if the subpositions are just different lots of the same instrument
 ) {
     companion object Factory {
         operator fun invoke(
@@ -106,7 +104,9 @@ data class PricedPosition (
                 returnsPercent = lot.returnsPercent(prices),
                 returnsTotal = lot.returns(prices).toFloatDollar(),
                 equity = lot.equity(prices).toFloatDollar(),
-                subPositions = lot.subPositions.map { PricedPosition(it, prices) }
+                /** Sub-positions **/
+                subPositions = lot.subPositions.map { PricedPosition(it, prices) },
+                isSameInstrument = samePosition(lot.subPositions)
             )
         }
     }

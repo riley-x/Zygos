@@ -133,8 +133,8 @@ data class LotPosition(
 }
 
 
-private fun samePosition(subPositions: List<Position>) =
-    if (subPositions.isEmpty()) false
+fun samePosition(subPositions: List<Position>) =
+    if (subPositions.isEmpty()) true
     else subPositions.all { it.instrumentName == subPositions[0].instrumentName }
 
 private fun<T> List<Position>.ifAllEqual(fn: Position.() -> T, default: T): T =
