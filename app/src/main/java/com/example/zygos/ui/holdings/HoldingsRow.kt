@@ -29,7 +29,7 @@ fun HoldingsRow(
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val hasSubpositions by remember { derivedStateOf {
-        position.subPositions.isNotEmpty() && !position.isSameInstrument
+        position.subPositions.isNotEmpty() && position.instrumentName.isEmpty()
     } }
 
     Column(modifier = modifier) {

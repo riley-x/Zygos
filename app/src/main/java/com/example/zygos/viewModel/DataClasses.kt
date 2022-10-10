@@ -54,6 +54,7 @@ data class PricedPosition (
     val account: String = "",
     val ticker: String = "",
     val type: PositionType = PositionType.NONE,
+    val instrumentName: String = "",
     /** Per share **/
     val shares: Long = 0,
     val priceOpen: Float = 0f,
@@ -73,7 +74,6 @@ data class PricedPosition (
     val equity: Float = 0f,
     /** Sub-positions **/
     val subPositions: List<PricedPosition> = emptyList(),
-    val isSameInstrument: Boolean = false, // if the subpositions are just different lots of the same instrument
 ) {
     companion object Factory {
         operator fun invoke(
@@ -87,6 +87,7 @@ data class PricedPosition (
                 account = lot.account,
                 ticker = lot.ticker,
                 type = lot.type,
+                instrumentName = lot.instrumentName,
                 /** Per share **/
                 shares = lot.shares,
                 priceOpen = lot.priceOpen.toFloatDollar(),
@@ -106,7 +107,6 @@ data class PricedPosition (
                 equity = lot.equity(prices).toFloatDollar(),
                 /** Sub-positions **/
                 subPositions = lot.subPositions.map { PricedPosition(it, prices) },
-                isSameInstrument = samePosition(lot.subPositions)
             )
         }
     }

@@ -62,7 +62,7 @@ fun collateOptions(optionLots: List<LotWithTransactions>): List<Position> {
         if (optionLots[i].openTransaction.type.isShort) {
             for (iLong in i - 1 downTo 0) {
                 if (unmatchedShares[i] <= 0L) break
-                if (unmatchedShares[iLong] < 0) continue
+                if (unmatchedShares[iLong] <= 0L) continue
                 if (!matches(optionLots[i], optionLots[iLong])) continue
 
                 val shares = minOf(unmatchedShares[i], unmatchedShares[iLong])

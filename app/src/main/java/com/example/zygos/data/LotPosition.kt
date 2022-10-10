@@ -4,17 +4,17 @@ import androidx.compose.runtime.Immutable
 import com.example.zygos.data.database.Lot
 
 
-enum class PositionType(val displayName: String, val isOption: Boolean = false, val isShort: Boolean = false) {
+enum class PositionType(val displayName: String, val isOption: Boolean = false, val isShort: Boolean = false, val isSpread: Boolean = false) {
     CASH("Cash"),
     STOCK("Stock"),
     CALL_LONG("Call", true),
     PUT_LONG("Put", true),
-    CALL_DEBIT_SPREAD("CDS", true), // all spreads can include diagonals/calendars
-    CALL_CREDIT_SPREAD("CCS", true, true),
-    PUT_DEBIT_SPREAD("PDS", true),
-    PUT_CREDIT_SPREAD("PCS", true, true),
-    CASH_SECURED_PUT("CSP", true, true),
-    COVERED_CALL("CC", true, true),
+    CALL_DEBIT_SPREAD("CDS", true, false, true), // all spreads can include diagonals/calendars
+    CALL_CREDIT_SPREAD("CCS", true, true, true),
+    PUT_DEBIT_SPREAD("PDS", true, false, true),
+    PUT_CREDIT_SPREAD("PCS", true, true, true),
+    CASH_SECURED_PUT("Short Put", true, true),
+    COVERED_CALL("Short Call", true, true),
     BOND("Bond"),
     NONE("None");
 

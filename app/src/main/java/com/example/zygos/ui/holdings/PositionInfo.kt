@@ -33,6 +33,17 @@ fun PositionInfo(
                 Text("${position.shares} shares")
                 Text(formatDollar(position.priceOpen))
             }
+        } else if (position.type.isSpread) {
+            Row(modifier) {
+                Column(Modifier.weight(10f)) {
+                    Text(position.type.toString())
+                    Text("x${position.shares}")
+                }
+                Column(Modifier.weight(10f)) {
+                    Text(formatDateInt(position.expiration))
+                    Text(position.instrumentName.split(' ').last()) // TODO hardcoded double strike
+                }
+            }
         } else if (position.type.isOption) {
             Row(modifier) {
                 Column(Modifier.weight(10f)) {

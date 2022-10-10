@@ -83,12 +83,14 @@ fun HoldingsScreen(
             }
         }
 
-        item("long") {
-            ListTitleBar(
-                text = "Long Positions",
-                modifier = Modifier.padding(start = 22.dp),
-                onOptionsButtonClick = { holdingsListOptionsCallback("long positions") },
-            )
+        if (longPositions.isNotEmpty()) { // TODO derivedStateOf?
+            item("long") {
+                ListTitleBar(
+                    text = "Long Positions",
+                    modifier = Modifier.padding(start = 22.dp),
+                    onOptionsButtonClick = { holdingsListOptionsCallback("long positions") },
+                )
+            }
         }
 
         if (!longPositionsAreLoading) {
@@ -122,12 +124,14 @@ fun HoldingsScreen(
             }
         }
 
-        item("short") {
-            ListTitleBar(
-                text = "Short Positions",
-                modifier = Modifier.padding(start = 22.dp, top = 20.dp),
-                onOptionsButtonClick = { holdingsListOptionsCallback("short positions") },
-            )
+        if (shortPositions.isNotEmpty()) { // TODO derivedStateOf?
+            item("short") {
+                ListTitleBar(
+                    text = "Short Positions",
+                    modifier = Modifier.padding(start = 22.dp, top = 20.dp),
+                    onOptionsButtonClick = { holdingsListOptionsCallback("short positions") },
+                )
+            }
         }
 
         if (!shortPositionsAreLoading) {
@@ -135,7 +139,15 @@ fun HoldingsScreen(
                 Column {
                     if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
 
-                    // TODO
+                    HoldingsRow(
+                        position = pos,
+                        color = tickerColors.getOrDefault(pos.ticker, Color.Black),
+                        displayOption = displayOption,
+                        modifier = Modifier
+                            .clickable { onPositionClick(pos.ticker) }
+                            .padding(horizontal = 6.dp) // this needs to be second so that the clickable
+                                                        // animation covers the full width
+                    )
                 }
             }
         } else {
