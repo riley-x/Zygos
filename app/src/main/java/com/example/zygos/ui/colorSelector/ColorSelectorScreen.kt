@@ -3,8 +3,8 @@ package com.example.zygos.ui.colorSelector
 import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -12,11 +12,15 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -28,10 +32,7 @@ import com.example.zygos.ui.components.LogCompositions
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionDetailsScreen
 import com.example.zygos.viewModel.TestViewModel
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -63,6 +64,9 @@ fun ColorSelectorScreen(
         return Offset(x, y)
     }
 
+
+
+
 //    fun colorToPixel(color: Color): Offset {
 //
 //    }
@@ -84,6 +88,26 @@ fun ColorSelectorScreen(
     var currentHover by remember(boxSize) { mutableStateOf(Offset(boxSize.width / 2f, boxSize.height / 2f)) }
     var brightness by remember { mutableStateOf(1.0f) }
 
+    var red by remember { mutableStateOf((currentColor.red * 255).roundToInt().toString())}
+    var green by remember { mutableStateOf((currentColor.green * 255).roundToInt().toString())}
+    var blue by remember { mutableStateOf((currentColor.blue * 255).roundToInt().toString())}
+
+
+    fun updateHover(red: String, green: String, blue: String) {
+        val r = red.toIntOrNull()
+        val g = green.toIntOrNull()
+        val b = blue.toIntOrNull()
+        if (r == null || g == null || b == null) return
+        if (r !in 0..255 || g !in 0..255 || b !in 0..255) return
+        currentColor = Color(red.toInt(), green.toInt(), blue.toInt())
+//        currentHover = ...
+    }
+    fun updateStrings(color: Color) {
+        red = (color.red * 255).roundToInt().toString()
+        green = (color.green * 255).roundToInt().toString()
+        blue = (color.blue * 255).roundToInt().toString()
+    }
+
     val indicatorRadius = with(LocalDensity.current) { 10.dp.toPx() }
     val indicatorWidth = with(LocalDensity.current) { 5.dp.toPx() }
     val indicatorColor = remember { derivedStateOf {
@@ -98,13 +122,13 @@ fun ColorSelectorScreen(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .padding(start = 30.dp, end = 30.dp)
             .fillMaxWidth()
     ) {
 
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
+                .padding(start = 30.dp, end = 30.dp)
                 .aspectRatio(1f)
                 .fillMaxWidth()
                 .onGloballyPositioned {
@@ -117,12 +141,14 @@ fun ColorSelectorScreen(
                             dragStart = Offset(motionEvent.x, motionEvent.y)
                         }
                         MotionEvent.ACTION_MOVE -> {
-                            var newPos = currentHover + Offset(motionEvent.x, motionEvent.y) - dragStart
+                            var newPos =
+                                currentHover + Offset(motionEvent.x, motionEvent.y) - dragStart
                             val (r, phi) = toPolar(newPos)
                             if (r > 1f) newPos = fromPolar(1f, phi)
 
                             currentHover = newPos
                             currentColor = pixelToColor(currentHover)
+                            updateStrings(currentColor)
                             dragStart = Offset(motionEvent.x, motionEvent.y)
                         }
                     }
@@ -145,10 +171,69 @@ fun ColorSelectorScreen(
             }
         }
 
-        Text("${pixelToColor(currentHover)}", Modifier.padding(start = 20.dp, top = 50.dp))
-    }
 
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(30.dp),
+            modifier = Modifier.padding(horizontal = 20.dp)
+        ) {
+            val keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                autoCorrect = false,
+                imeAction = ImeAction.Next,
+            )
+
+            OutlinedTextField(
+                value = red,
+                label = { Text("Red") },
+                onValueChange = {
+                    if (it.length <= 3) {
+                        red = it
+                        updateHover(red, green, blue)
+                    }
+                },
+                colors = textFieldColors(MaterialTheme.colors.error),
+                keyboardOptions = keyboardOptions,
+                modifier = Modifier.weight(10f)
+            )
+            OutlinedTextField(
+                value = green,
+                label = { Text("Green") },
+                onValueChange = {
+                    if (it.length <= 3) {
+                        green = it
+                        updateHover(red, green, blue)
+                    }
+                },
+                colors = textFieldColors(MaterialTheme.colors.primary),
+                keyboardOptions = keyboardOptions,
+                modifier = Modifier.weight(10f)
+            )
+            OutlinedTextField(
+                value = blue,
+                label = { Text("Blue") },
+                onValueChange = {
+                    if (it.length <= 3) {
+                        blue = it
+                        updateHover(red, green, blue)
+                    }
+                },
+                colors = textFieldColors(Color(83, 117, 218, 255)),
+                keyboardOptions = keyboardOptions,
+                modifier = Modifier.weight(10f)
+            )
+        }
+    }
 }
+
+@Composable
+fun textFieldColors(c: Color) = TextFieldDefaults.outlinedTextFieldColors(
+    focusedBorderColor = c.copy(alpha = ContentAlpha.high),
+    unfocusedBorderColor = c.copy(alpha = ContentAlpha.disabled),
+    focusedLabelColor = c.copy(alpha = ContentAlpha.high),
+    unfocusedLabelColor = c.copy(alpha = ContentAlpha.medium),
+)
+
 
 @Preview(
     widthDp = 360,
