@@ -48,6 +48,10 @@ object PositionDetails {
     )
 }
 
+object ColorSelectorDestination {
+    const val route = "color_selector"
+}
+
 object TransactionAllDestination {
     const val route = "transaction_all"
 }

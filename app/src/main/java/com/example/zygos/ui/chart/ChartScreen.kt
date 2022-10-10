@@ -1,10 +1,12 @@
 package com.example.zygos.ui.chart
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -31,6 +33,7 @@ fun ChartScreen(
     modifier: Modifier = Modifier,
     onChartRangeSelected: (String) -> Unit = { },
     onTickerChanged: (String) -> Unit = { },
+    onChangeColor: () -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos", "ChartScreen")
@@ -141,6 +144,21 @@ fun ChartScreen(
                         .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 20.dp)
                 )
             }
+
+            item("select color button") {
+                TextButton(
+                    onClick = onChangeColor,
+                    border = BorderStroke(2.dp, MaterialTheme.colors.error),
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colors.error
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(vertical = 4.dp)
+                ) {
+                    Text("Change Color")
+                }
+            }
         }
     }
 }
@@ -155,10 +173,12 @@ fun ChartScreen(
 fun PreviewChartScreen() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
-        ChartScreen(
-            ticker = viewModel.chartTicker,
-            chartState = viewModel.chartState,
-            chartRange = viewModel.accountPerformanceTimeRange,
-        )
+        Surface {
+            ChartScreen(
+                ticker = viewModel.chartTicker,
+                chartState = viewModel.chartState,
+                chartRange = viewModel.accountPerformanceTimeRange,
+            )
+        }
     }
 }

@@ -25,6 +25,7 @@ import com.example.zygos.data.database.ZygosDatabase
 import com.example.zygos.ui.*
 import com.example.zygos.ui.analytics.AnalyticsScreen
 import com.example.zygos.ui.chart.ChartScreen
+import com.example.zygos.ui.colorSelector.ColorSelectorScreen
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.viewModel.holdingsListDisplayOptions
@@ -274,7 +275,14 @@ fun ZygosApp(
                             chartRange = viewModel.chartRange,
                             onChartRangeSelected = viewModel::setChartRange,
                             onTickerChanged = viewModel::setTicker,
+                            onChangeColor = navController::navigateToColorSelector,
                             accountSelectionBar = accountSelectionBar,
+                        )
+                    }
+                    composable(route = ColorSelectorDestination.route) {
+                        LogCompositions("Zygos", "ZygosApp/Scaffold/ColorSelectorDestination.route")
+                        ColorSelectorScreen(
+                            onCancel = ::popBackstack,
                         )
                     }
                 }
@@ -376,6 +384,13 @@ fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolea
 
 fun NavHostController.navigateToPosition(ticker: String) {
     this.navigate("${PositionDetails.route}/$ticker") {
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+
+fun NavHostController.navigateToColorSelector() {
+    this.navigate(ColorSelectorDestination.route) {
         launchSingleTop = true
         restoreState = true
     }
