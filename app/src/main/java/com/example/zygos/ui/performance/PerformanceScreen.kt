@@ -29,15 +29,17 @@ fun PerformanceScreen(
     onTickerSelected: (String) -> Unit = { },
     onAccountPerformanceRangeSelected: (String) -> Unit = { },
     onWatchlistOptionsClick: () -> Unit = { },
+    accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos", "PerformanceScreen")
 
-    Surface(
-        modifier = Modifier
+    Column(
+        modifier = modifier
             .recomposeHighlighter()
             .fillMaxSize(),
-        color = MaterialTheme.colors.background
     ) {
+        accountSelectionBar()
+
         var hoverX by remember { mutableStateOf("") }
         var hoverY by remember { mutableStateOf("") }
 

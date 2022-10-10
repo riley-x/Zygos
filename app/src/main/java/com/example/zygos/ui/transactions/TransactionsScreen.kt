@@ -35,11 +35,14 @@ fun TransactionsScreen(
     onTransactionClick: (Transaction) -> Unit = { },
     transactionsListOptionsCallback: () -> Unit = { },
     onRecalculateAll: () -> Unit = { },
+    accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos", "TransactionsScreen")
     // TODO: Use a floating button here for adding transactions
 
     Column(modifier) {
+
+        accountSelectionBar()
 
         Divider(
             color = MaterialTheme.colors.onBackground.copy(alpha = 0.5f),

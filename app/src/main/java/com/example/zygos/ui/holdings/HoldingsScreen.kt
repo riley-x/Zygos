@@ -38,10 +38,13 @@ fun HoldingsScreen(
     modifier: Modifier = Modifier,
     onPositionClick: (String) -> Unit = { },
     holdingsListOptionsCallback: (String) -> Unit = { },
+    accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos/Compositions", "HoldingsScreen")
 
     Column(modifier) {
+        accountSelectionBar()
+
         Box(Modifier.height(3.dp)) {
             if (longPositionsAreLoading || shortPositionsAreLoading) {
                 LinearProgressIndicator(Modifier.fillMaxSize())

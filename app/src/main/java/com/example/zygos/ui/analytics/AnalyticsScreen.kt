@@ -29,74 +29,78 @@ fun AnalyticsScreen(
     transactions: SnapshotStateList<Transaction>,
     tickerColors: SnapshotStateMap<String, Color>,
     modifier: Modifier = Modifier,
-    accountBar: @Composable () -> Unit = { },
     onAddTransaction: () -> Unit = { },
     onTransactionClick: (Transaction) -> Unit = { },
     onTransactionSeeAll: () -> Unit = { },
+    accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos", "AnalyticsScreen")
     // TODO: Maybe this screen is a good place for dividend and option summaries
 
-    LazyColumn {
+    Column(modifier) {
+        accountSelectionBar()
 
-        item(key = "transactions") {
-            Card(
-                elevation = Dp(0.5f),
-                modifier = Modifier.padding(6.dp)
-            ) {
-                Column {
+        LazyColumn {
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 10.dp)
-                    ) {
-                        Text(
-                            text = "Transactions",
-                            style = MaterialTheme.typography.h3,
-                            modifier = Modifier.weight(1f)
-                        )
+            item(key = "transactions") {
+                Card(
+                    elevation = Dp(0.5f),
+                    modifier = Modifier.padding(6.dp)
+                ) {
+                    Column {
 
-                        IconButton(onClick = onAddTransaction) {
-                            Icon(
-                                imageVector = Icons.Sharp.Add,
-                                contentDescription = null,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(start = 10.dp)
+                        ) {
+                            Text(
+                                text = "Transactions",
+                                style = MaterialTheme.typography.h3,
+                                modifier = Modifier.weight(1f)
                             )
+
+                            IconButton(onClick = onAddTransaction) {
+                                Icon(
+                                    imageVector = Icons.Sharp.Add,
+                                    contentDescription = null,
+                                )
+                            }
                         }
-                    }
 
-
-                    Divider(
-                        color = MaterialTheme.colors.primary,
-                        thickness = 1.dp,
-                        modifier = modifier
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    )
-
-                    transactions.take(4).forEach { transaction ->
-                        TransactionTickerRow(
-                            transaction = transaction,
-                            tickerColors = tickerColors,
-                            modifier = Modifier
-                                .clickable { onTransactionClick(transaction) }
-                                .padding(horizontal = 10.dp, vertical = 2.dp)
-                        )
 
                         Divider(
-                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                            color = MaterialTheme.colors.primary,
                             thickness = 1.dp,
-                            modifier = modifier
-                                .padding(horizontal = 4.dp)
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
                         )
-                    }
 
-                    TextButton(
-                        onClick = onTransactionSeeAll,
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(horizontal = 4.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text("SEE ALL")
+                        transactions.take(4).forEach { transaction ->
+                            TransactionTickerRow(
+                                transaction = transaction,
+                                tickerColors = tickerColors,
+                                modifier = Modifier
+                                    .clickable { onTransactionClick(transaction) }
+                                    .padding(horizontal = 10.dp, vertical = 2.dp)
+                            )
+
+                            Divider(
+                                color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                                thickness = 1.dp,
+                                modifier = Modifier
+                                    .padding(horizontal = 4.dp)
+                            )
+                        }
+
+                        TextButton(
+                            onClick = onTransactionSeeAll,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(horizontal = 4.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Text("SEE ALL")
+                        }
                     }
                 }
             }

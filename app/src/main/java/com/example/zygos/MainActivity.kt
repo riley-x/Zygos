@@ -184,18 +184,17 @@ fun ZygosApp(
             navController.navigateSingleTopTo(ChartTab.route)
         }
 
+        val accountSelectionBar: @Composable () -> Unit = { AccountSelectionHeader(
+            accounts = viewModel.accounts,
+            currentAccount = viewModel.currentAccount,
+            onAccountSelected = viewModel::setAccount,
+            onAddAccount = ::onAddAccountClick,
+            modifier = Modifier.topBar(),
+        ) }
+
 
         /** Set the top and bottom bars **/
         Scaffold(
-            topBar = {
-                AccountSelectionHeader(
-                    accounts = viewModel.accounts,
-                    currentAccount = viewModel.currentAccount,
-                    onAccountSelected = viewModel::setAccount,
-                    onAddAccount = ::onAddAccountClick,
-                    modifier = Modifier.topBar(),
-                )
-            },
             bottomBar = {
                 ZygosNav(
                     tabs = zygosTabs,
@@ -235,6 +234,7 @@ fun ZygosApp(
                             onTickerSelected = ::onTickerSelected,
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
                             onAccountPerformanceRangeSelected = viewModel::updateAccountPerformanceRange,
+                            accountSelectionBar = accountSelectionBar,
                         )
                     }
                 }
@@ -251,6 +251,7 @@ fun ZygosApp(
                             displayOption = viewModel.longPositions.displayOption, // TODO short display
                             onPositionClick = ::onHoldingsPositionSelected,
                             holdingsListOptionsCallback = ::onHoldingsListOptionsShow,
+                            accountSelectionBar = accountSelectionBar,
                         )
                     }
                     composable(
@@ -273,6 +274,7 @@ fun ZygosApp(
                             chartRange = viewModel.chartRange,
                             onChartRangeSelected = viewModel::setChartRange,
                             onTickerChanged = viewModel::setTicker,
+                            accountSelectionBar = accountSelectionBar,
                         )
                     }
                 }
@@ -286,6 +288,7 @@ fun ZygosApp(
                             onTransactionClick = ::toTransactionDetails,
                             onTransactionSeeAll = ::toTransactionAll,
                             onAddTransaction = ::toTransactionDetails,
+                            accountSelectionBar = accountSelectionBar,
                         )
                     }
                     composable(route = TransactionAllDestination.route) {
@@ -297,6 +300,7 @@ fun ZygosApp(
                             onTransactionClick = ::toTransactionDetails,
                             transactionsListOptionsCallback = ::onTransactionsListOptionsShow,
                             onRecalculateAll = ::onRecalculateAllLotsClick,
+                            accountSelectionBar = accountSelectionBar,
                         )
                     }
                     composable(route = TransactionDetailsDestination.route) {
