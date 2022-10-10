@@ -21,10 +21,11 @@ import com.example.zygos.viewModel.PricedPosition
 import com.example.zygos.viewModel.TestViewModel
 
 /**
- * @param positions should have one entry per ticker, and correspond to each pie chart wedge and
+ * @param longPositions should have one entry per ticker, and correspond to each pie chart wedge and
  * main list ticker row. Long options will appear as fragments in the pie chart and covered calls
- * will appear as subwedges, and will show up in the watchlist when the ticker row is expanded.
- * Short positions appear as subwedges under the CASH wedge and in a separate watchlist.
+ * will appear as subwedges, and will show up in the watchlist when the ticker row is expanded. CASH
+ * should be the last entry.
+ * @param shortPositions appear as subwedges under the CASH wedge and in a separate watchlist.
  */
 @Composable
 fun HoldingsScreen(
@@ -40,7 +41,7 @@ fun HoldingsScreen(
 ) {
     LogCompositions("Zygos/Compositions", "HoldingsScreen")
 
-    LazyColumn {
+    LazyColumn(modifier) {
 
         item("pie_chart") {
             Row(

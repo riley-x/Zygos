@@ -104,11 +104,14 @@ class PositionModel(private val parent: ZygosViewModel) {
     }
 
     fun loadLaunched(positions: List<Position>, prices: Map<String, Long>) {
+
         if (positions.isEmpty()) {
             list.clear()
+            isLoading = false // this could be set from some other source
             return
         }
 
+        isLoading = true // this should happen in the main routine because launch == loading
         parent.viewModelScope.launch {
             val newList = withContext(Dispatchers.IO) {
                 val newList = mutableListOf<PricedPosition>()
@@ -121,8 +124,7 @@ class PositionModel(private val parent: ZygosViewModel) {
             /** These happen in the main thread **/
             list.clear()
             list.addAll(newList)
+            isLoading = false
         }
     }
-
-
 }

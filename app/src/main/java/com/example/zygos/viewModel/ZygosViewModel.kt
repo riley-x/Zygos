@@ -262,6 +262,10 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     /** Sets the current account to display, loading the data elements into the ui state variables.
      * This should be run on the main thread, but in a coroutine. **/
     internal suspend fun loadAccount(account: String) {
+        /** Guards **/
+        longPositions.isLoading = true // these are reset by the respective loads
+        shortPositions.isLoading = true // they need to be here because the lots load blocks
+
         transactions.loadLaunched(account)
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
         longPositions.loadLaunched(if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions, prices)
@@ -297,6 +301,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     fun recalculateAllLots() {
         viewModelScope.launch {
+            longPositions.isLoading = true // these are reset by the respective loads
+            shortPositions.isLoading = true // they need to be here because the recalculate blocks below
+
             withContext(Dispatchers.IO) {
                 recalculateAll(transactionDao, lotDao)
             }

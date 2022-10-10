@@ -145,7 +145,7 @@ private fun addDividend(t: Transaction, transactionDao: TransactionDao, lotDao: 
     if (unmatchedShares != 0L) {
         if (updatedLots.isNotEmpty()) {
             /** Add rounding errors to the first (most recent) lot **/
-            Log.w("Zygos/Data/TransactionHandler", "addDividend() couldn't match shares perfectly, unmatchedShares=$unmatchedShares")
+            Log.w("Zygos/Data/TransactionHandler", "addDividend() couldn't match shares perfectly, unmatchedShares=$unmatchedShares, from $t")
             updatedLots[0] = updatedLots[0].copy(feesAndRounding = updatedLots[0].feesAndRounding + roundingError - unmatchedShares * t.price)
         } else throw RuntimeException("Zygos/TransactionHandler::addDividend() unmatchedShares=$unmatchedShares, from $t")
     }

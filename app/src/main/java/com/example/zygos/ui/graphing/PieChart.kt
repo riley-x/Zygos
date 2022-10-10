@@ -36,7 +36,7 @@ import java.lang.Math.toDegrees
 private const val DividerLengthInDegrees = 1.8f
 
 /**
- * @param values: should be normalized already
+ * @param values do not need to be normalized
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
