@@ -111,12 +111,15 @@ private fun addDividend(t: Transaction, transactionDao: TransactionDao, lotDao: 
     // Must get all lots, since a lot could be closed between the ex date and the payout date.
     // These should be ordered by rowId already.
 
+    /** Estimate the number of shares that received the dividend. This could not be exact if the
+     * price was rounded and there are many shares. **/
     var unmatchedShares = (t.value.toDouble() / t.price).roundToLong()
     val roundingError = unmatchedShares * t.price - t.value
     val updatedLots = mutableListOf<Lot>()
 
     /** Match LIFO **/
     for (lot in lots.reversed()) {
+        if (unmatchedShares <= 0L) break
         if (lot.openTransaction.date >= t.expiration) continue
         if (lot.openTransaction.type != TransactionType.STOCK) continue
 
@@ -125,8 +128,7 @@ private fun addDividend(t: Transaction, transactionDao: TransactionDao, lotDao: 
         var sharesClosed = 0L
         lot.transactions.forEach {
             if (it.type == TransactionType.STOCK && it.shares < 0 && it.date >= t.expiration) {
-                sharesClosed -= it.shares
-                // This double counts if it closed more than one lot
+                sharesClosed = minOf(-it.shares, lot.openTransaction.shares - sharesOpen) // one transaction can close multiple lots
             }
         }
         Log.d("Zygos/Data/TransactionHandler", "sharesOpen=${sharesOpen} sharesClosed=${sharesClosed}, lot=${lot.lot}")
@@ -139,9 +141,14 @@ private fun addDividend(t: Transaction, transactionDao: TransactionDao, lotDao: 
             realizedClosed = lot.lot.realizedClosed + t.price * sharesClosed,
             feesAndRounding = lot.lot.feesAndRounding + if (unmatchedShares == 0L) roundingError else 0
         ))
-
     }
-    if (unmatchedShares != 0L) throw RuntimeException("Zygos/TransactionHandler::addDividend() unmatchedShares=$unmatchedShares, from $t")
+    if (unmatchedShares != 0L) {
+        if (updatedLots.isNotEmpty()) {
+            /** Add rounding errors to the first (most recent) lot **/
+            Log.w("Zygos/Data/TransactionHandler", "addDividend() couldn't match shares perfectly, unmatchedShares=$unmatchedShares")
+            updatedLots[0] = updatedLots[0].copy(feesAndRounding = updatedLots[0].feesAndRounding + roundingError - unmatchedShares * t.price)
+        } else throw RuntimeException("Zygos/TransactionHandler::addDividend() unmatchedShares=$unmatchedShares, from $t")
+    }
 
     /** Update the database **/
     updateLotsWithTransaction(updatedLots, t, transactionDao, lotDao)

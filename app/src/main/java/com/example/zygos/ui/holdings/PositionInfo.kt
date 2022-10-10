@@ -41,7 +41,7 @@ fun PositionInfo(
                 }
                 Column(Modifier.weight(10f)) {
                     Text(formatDateInt(position.expiration))
-                    Text(position.instrumentName.split(' ').last()) // TODO hardcoded double strike
+//                    Text(position.instrumentName.split(' ').last()) // TODO hardcoded double strike. This is too large to display properly
                 }
             }
         } else if (position.type.isOption) {
