@@ -49,10 +49,7 @@ class LotModel(private val parent: ZygosViewModel) {
                 }
 
                 if (tickerLongPositions.isNotEmpty()) {
-                    longPositions.add(AggregatePosition(
-                        realizedClosedExtra = realizedClosed,
-                        subPositions = tickerLongPositions,
-                    ))
+                    longPositions.add(tickerLongPositions.join(realizedClosed))
                 } else if (realizedClosed != 0L) {
                     exitedPositions.add(
                         LotPosition(

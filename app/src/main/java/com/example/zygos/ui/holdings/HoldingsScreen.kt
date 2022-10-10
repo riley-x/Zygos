@@ -92,7 +92,9 @@ fun HoldingsScreen(
         }
 
         if (!longPositionsAreLoading) {
-            itemsIndexed(longPositions, key = { _, pos -> pos.ticker } ) { index, pos ->
+            // This must be keyed, or else the LazyColumn will reuse composables, and the remembered
+            // expanded parameter will not be reset.
+            itemsIndexed(longPositions, key = { _, pos -> pos.account + pos.ticker } ) { index, pos ->
                 Column {
                     if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
 

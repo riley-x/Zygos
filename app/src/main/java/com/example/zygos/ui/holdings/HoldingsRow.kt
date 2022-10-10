@@ -38,7 +38,7 @@ fun HoldingsRow(
             isSubvalueDollar = (displayOption == "Returns"),
             modifier = Modifier
         ) {
-            if (position.subPositions.isNotEmpty() && position.type == PositionType.NONE) { // NONE is used for compound positions
+            if (position.subPositions.isNotEmpty() && position.type != PositionType.STOCK) {
                 IconButton(onClick = { expanded = !expanded }) {
                     if (expanded) Icon(imageVector = Icons.Sharp.ExpandLess, contentDescription = null)
                     else Icon(imageVector = Icons.Sharp.ExpandMore, contentDescription = null)

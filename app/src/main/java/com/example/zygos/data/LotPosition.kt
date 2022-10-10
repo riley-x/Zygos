@@ -1,6 +1,7 @@
 package com.example.zygos.data
 
 import androidx.compose.runtime.Immutable
+import com.example.zygos.data.database.Lot
 
 
 enum class PositionType(val displayName: String, val isOption: Boolean = false, val isShort: Boolean = false) {
@@ -66,7 +67,7 @@ interface Position {
     val realizedClosed: Long
     val realized: Long
     fun unrealized(prices: Map<String, Long>): Long
-    fun returns(prices: Map<String, Long>): Long
+    fun returns(prices: Map<String, Long>): Long // open only
     fun equity(prices: Map<String, Long>): Long
     fun returnsPercent(prices: Map<String, Long>): Float
     /** Options **/
@@ -165,7 +166,7 @@ data class AggregatePosition (
     override val realizedClosed = subPositions.sumOf(Position::realizedClosed) + realizedClosedExtra
     override val realized = realizedOpen + realizedClosed
     override fun unrealized(prices: Map<String, Long>) = subPositions.sumOf { it.unrealized(prices) }
-    override fun returns(prices: Map<String, Long>) = subPositions.sumOf { it.returns(prices) } + if (type == PositionType.CASH) realizedClosedExtra else 0
+    override fun returns(prices: Map<String, Long>) = subPositions.sumOf { it.returns(prices) }
     override fun equity(prices: Map<String, Long>) = subPositions.sumOf { it.equity(prices) } + if (type == PositionType.CASH) realizedClosedExtra else 0
     override fun returnsPercent(prices: Map<String, Long>) =
         if (type == PositionType.CASH || costBasis == 0L) 0f
@@ -174,4 +175,21 @@ data class AggregatePosition (
     override val expiration = subPositions.ifAllEqual(Position::expiration, 0)
     override val strike = subPositions.ifAllEqual(Position::strike, 0)
     override val collateral = subPositions.sumOf(Position::collateral)
+}
+
+
+fun MutableList<Position>.join(realizedClosedExtra: Long = 0): Position {
+    if (isEmpty()) throw RuntimeException("MutableList<Position>::join passed an empty list")
+    return if (size == 1) {
+        if (first() is AggregatePosition) {
+            val first = (first() as AggregatePosition)
+            first.copy(realizedClosedExtra = first.realizedClosedExtra + realizedClosedExtra)
+        } else if (first() is LotPosition) {
+            val first = (first() as LotPosition)
+            first.copy(realizedClosed = first.realizedClosed + realizedClosedExtra)
+        } else throw RuntimeException("MutableList<Position>::join passed unknown type ${first()::class}")
+    } else AggregatePosition(
+        realizedClosedExtra = realizedClosedExtra,
+        subPositions = this,
+    )
 }
