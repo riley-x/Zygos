@@ -16,12 +16,17 @@ val CandleRed = Color(0xFFEF4747)
 
 val defaultTickerColors = mapOf(
     "CASH" to Color(0xFF1EB969), // Green500
+    "ADBE" to Color(0xFFFA0F00),
     "AMD" to Color(0xffed1c24),
+    "INTC" to Color(0xFF0068B5),
     "MSFT" to Color(0xff00a1f1),
-    "VTI" to Color(0xFF96151D),
+    "NVDA" to Color(0xFF76B900),
     "VOO" to Color(0xFFBF1B25),
+    "VTI" to Color(0xFF96151D),
 )
 
-fun SnapshotStateMap<String, Color>.getOrRandom(ticker: String) =
+fun randomColor() = Color((Math.random() * 16777215).toInt() or (0xFF shl 24))
+
+fun SnapshotStateMap<String, Color>.getOrPutRandom(ticker: String) =
     getOrPut(ticker) { Color((Math.random() * 16777215).toInt() or (0xFF shl 24)) }
 

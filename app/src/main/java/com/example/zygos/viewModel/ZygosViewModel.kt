@@ -16,8 +16,9 @@ import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.theme.defaultTickerColors
-import com.example.zygos.ui.theme.getOrRandom
+import com.example.zygos.ui.theme.randomColor
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
@@ -49,10 +50,6 @@ typealias ChartState = TimeSeriesGraphState<OhlcNamed>
 
 class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
-    val tickerColors = SnapshotStateMap<String, Color>()
-    init {
-        tickerColors.putAll(defaultTickerColors)
-    }
 
     /** DAOs **/
     internal val transactionDao = application.database.transactionDao()
@@ -200,14 +197,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
     /** Color Selection Screen **/
-    var colorSelectionTicker by mutableStateOf("")
-    fun getSelectionColor() = tickerColors.getOrDefault(colorSelectionTicker, Color.White)
-    fun saveSelectionColor(color: Color) {
-        tickerColors[colorSelectionTicker] = color
-        viewModelScope.launch(Dispatchers.IO) {
-            colorDao.add(ColorSettings(colorSelectionTicker, color.toArgb()))
-        }
-    }
+    val colors = ColorModel(this)
 
     /** TransactionScreen
      * Need two separate lists of transactions: one for the latest in the analytics screen and one
@@ -230,12 +220,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             return // Initial values are set for empty data already
         }
 
-        viewModelScope.launch {
-            val colors = withContext(Dispatchers.IO) {
-                colorDao.getMap()
-            }
-            colors.mapValuesTo(tickerColors) { Color(it.value) }
-        }
+        colors.loadLaunched()
 
         accounts.clear()
         accounts.addAll(accs)
@@ -290,9 +275,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
         longPositions.loadLaunched(if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions, prices)
         shortPositions.loadLaunched(lots.shortPositions, prices)
-
-        /** Update colors **/
-        lots.tickerLots.keys.forEach { tickerColors.getOrRandom(it) }
+        colors.insertDefaults(lots.tickerLots.keys)
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale

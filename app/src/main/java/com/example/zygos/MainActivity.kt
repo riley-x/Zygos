@@ -167,7 +167,7 @@ fun ZygosApp(
             }
         }
         fun toColorSelector(ticker: String) {
-            viewModel.colorSelectionTicker = ticker
+            viewModel.colors.currentEditTicker = ticker
             navController.navigateToColorSelector()
         }
 
@@ -191,7 +191,7 @@ fun ZygosApp(
             navController.navigateSingleTopTo(ChartTab.route)
         }
         fun onColorSelectionSave(color: Color) {
-            viewModel.saveSelectionColor(color)
+            viewModel.colors.saveEditColor(color)
             popBackstack()
         }
 
@@ -261,7 +261,7 @@ fun ZygosApp(
                         HoldingsScreen(
                             longPositionsAreLoading = viewModel.longPositions.isLoading,
                             shortPositionsAreLoading = viewModel.shortPositions.isLoading,
-                            tickerColors = viewModel.tickerColors,
+                            tickerColors = viewModel.colors.tickers,
                             longPositions = viewModel.longPositions.list,
                             shortPositions = viewModel.shortPositions.list,
                             displayOption = viewModel.longPositions.displayOption, // TODO short display
@@ -299,7 +299,7 @@ fun ZygosApp(
                     composable(route = ColorSelectorDestination.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/ColorSelectorDestination.route")
                         ColorSelectorScreen(
-                            initialColor = viewModel.getSelectionColor(),
+                            initialColor = viewModel.colors.getCurrentEditColor(),
                             onCancel = ::popBackstack,
                             onSave = ::onColorSelectionSave,
                         )
@@ -311,7 +311,7 @@ fun ZygosApp(
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Transactions.route")
                         AnalyticsScreen(
                             transactions = viewModel.transactions.latest,
-                            tickerColors = viewModel.tickerColors,
+                            tickerColors = viewModel.colors.tickers,
                             onTransactionClick = ::toTransactionDetails,
                             onTransactionSeeAll = ::toTransactionAll,
                             onAddTransaction = ::toTransactionDetails,
