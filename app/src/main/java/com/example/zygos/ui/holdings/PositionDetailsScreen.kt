@@ -1,8 +1,10 @@
-package com.example.zygos.ui.positionDetails
+package com.example.zygos.ui.holdings
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateMap
@@ -13,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.formatDollar
 import com.example.zygos.ui.theme.ZygosTheme
@@ -31,7 +34,7 @@ fun PositionDetails(
 ) {
     Row {
         TitleValue("Type", position.type.displayName, defaultMod())
-        TitleValue("Shares", position.shares.toString(), defaultMod())
+        TitleValue("Account", position.account.ifEmpty { allAccounts }, defaultMod())
     }
     if (position.type.isOption) {
         Row {
@@ -40,13 +43,19 @@ fun PositionDetails(
         }
     }
     Row {
+        TitleValue("Shares", position.shares.toString(), defaultMod())
+        TitleValue("Date", formatDateInt(position.date), defaultMod())
+    }
+    Row {
         TitleValue("Price Open", formatDollar(position.priceOpen), defaultMod())
         TitleValue("Cost Basis", formatDollar(position.costBasis), defaultMod())
     }
     Row {
-        TitleValue("Realized", formatDollar(position.realizedClosed), defaultMod())
+        TitleValue("Unrealized", formatDollar(position.unrealized), defaultMod())
         TitleValue("Dividends", formatDollar(position.realizedOpen), defaultMod())
     }
+//    TitleValue("Realized", formatDollar(position.realizedClosed), defaultMod())
+
 }
 
 
@@ -76,20 +85,24 @@ fun PositionDetailsScreen(
             }
         }
 
-        if (position.subPositions.isNotEmpty()) {
-            position.subPositions.forEachIndexed { i, pos ->
-                if (i > 0) {
-                    Divider(
-                        color = MaterialTheme.colors.onBackground.copy(alpha = ContentAlpha.medium),
-                        thickness = 1.dp,
-                        modifier = Modifier
-                            .padding(bottom = 20.dp)
-                    )
+        LazyColumn {
+            if (position.subPositions.isNotEmpty()) {
+                itemsIndexed(position.subPositions) { i, pos ->
+                    if (i > 0) {
+                        Divider(
+                            color = MaterialTheme.colors.onBackground.copy(alpha = ContentAlpha.medium),
+                            thickness = 1.dp,
+                            modifier = Modifier
+                                .padding(bottom = 20.dp)
+                        )
+                    }
+                    PositionDetails(pos)
                 }
-                PositionDetails(pos)
+            } else {
+                item {
+                    PositionDetails(position)
+                }
             }
-        } else {
-            PositionDetails(position)
         }
     }
 }

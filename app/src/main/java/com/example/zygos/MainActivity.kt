@@ -17,7 +17,6 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.zygos.data.database.Transaction
@@ -32,7 +31,7 @@ import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.viewModel.holdingsListDisplayOptions
 import com.example.zygos.viewModel.holdingsListSortOptions
 import com.example.zygos.ui.performance.PerformanceScreen
-import com.example.zygos.ui.positionDetails.PositionDetailsScreen
+import com.example.zygos.ui.holdings.PositionDetailsScreen
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionDetailsScreen
 import com.example.zygos.ui.transactions.TransactionsListOptionsDialog

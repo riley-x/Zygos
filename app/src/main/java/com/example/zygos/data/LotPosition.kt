@@ -54,6 +54,7 @@ interface Position {
     val account: String
     val ticker: String
     val type: PositionType
+    val date: Int
     /** Per share **/
     val shares: Long
     val priceOpen: Long
@@ -93,6 +94,7 @@ data class LotPosition(
     override val account: String = "",
     override val ticker: String = "",
     override val type: PositionType = PositionType.NONE,
+    override val date: Int = 0,
     /** Per share **/
     override val shares: Long = 0,
     override val priceOpen: Long = 0,
@@ -156,6 +158,7 @@ data class AggregatePosition (
     /** Identifiers **/
     override val account = subPositions.ifAllEqual(Position::account, "")
     override val ticker = subPositions.ifAllEqual(Position::ticker, "")
+    override val date = subPositions.ifAllEqual(Position::date, 0)
     /** Basis **/
     override val cashEffect = subPositions.sumOf(Position::cashEffect) + realizedClosedExtra
     override val costBasis = subPositions.sumOf(Position::costBasis)

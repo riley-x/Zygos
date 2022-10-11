@@ -15,6 +15,7 @@ fun getCashPosition(openLots: List<LotWithTransactions>): Position {
             account = it.lot.account,
             ticker = "CASH",
             type = PositionType.CASH,
+            date = it.openTransaction.date,
             /** Basis and returns **/
             shares = it.lot.sharesOpen, // this makes cashEffect correct. Net transactions
             priceOpen = -1,
@@ -103,6 +104,7 @@ fun stockLotToPosition(lot: LotWithTransactions): LotPosition {
         account = lot.lot.account,
         ticker = lot.lot.ticker,
         type = PositionType.STOCK,
+        date = lot.openTransaction.date,
         /** Per share **/
         shares = lot.lot.sharesOpen,
         priceOpen = lot.openTransaction.price,
@@ -131,6 +133,7 @@ fun makeSingleOptionPosition(shares: Long, lot: LotWithTransactions): LotPositio
         account = lot.lot.account,
         ticker = lot.lot.ticker,
         type = type,
+        date = lot.openTransaction.date,
         /** Per share **/
         shares = shares,
         priceOpen = lot.openTransaction.price,

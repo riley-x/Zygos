@@ -54,6 +54,7 @@ data class PricedPosition (
     val account: String = "",
     val ticker: String = "",
     val type: PositionType = PositionType.NONE,
+    val date: Int = 0,
     val instrumentName: String = "",
     /** Per share **/
     val shares: Long = 0,
@@ -87,6 +88,7 @@ data class PricedPosition (
                 account = lot.account,
                 ticker = lot.ticker,
                 type = lot.type,
+                date = lot.date,
                 instrumentName = lot.instrumentName,
                 /** Per share **/
                 shares = lot.shares,

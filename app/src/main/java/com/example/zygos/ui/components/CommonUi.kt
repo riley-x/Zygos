@@ -32,6 +32,7 @@ fun formatPercent(value: Float): String {
 }
 
 fun formatDateInt(date: Int): String {
+    if (date == 0) return ""
     val day = date % 100
     val month = (date / 100) % 100
     val year = (date / 10000) % 100
