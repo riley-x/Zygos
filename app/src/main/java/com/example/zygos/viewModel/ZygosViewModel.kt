@@ -183,6 +183,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     val lots = LotModel(this)
     val longPositions = PositionModel(this)
     val shortPositions = PositionModel(this)
+    val detailedPosition = mutableStateOf(PricedPosition()) // Position in focus after selecting from the holdings screen
 
     /** ChartScreen **/
     val chartTicker = mutableStateOf("")

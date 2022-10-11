@@ -271,14 +271,12 @@ fun ZygosApp(
                             bottomPadding = bottomPadding,
                         )
                     }
-                    composable(
-                        route = PositionDetails.routeWithArgs,
-                        arguments = PositionDetails.arguments,
-                    ) { navBackStackEntry ->
+                    composable(route = PositionDetailsDestination.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/PositionDetails.route")
-                        val ticker =
-                            navBackStackEntry.arguments?.getString(PositionDetails.routeArgName)
-                        PositionDetailsScreen()
+                        PositionDetailsScreen(
+                            position = viewModel.detailedPosition.value,
+                            bottomPadding = bottomPadding,
+                        )
                     }
                 }
 
@@ -403,7 +401,7 @@ fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolea
     }
 
 fun NavHostController.navigateToPosition(ticker: String) {
-    this.navigate("${PositionDetails.route}/$ticker") {
+    this.navigate("${PositionDetailsDestination.route}/$ticker") {
         launchSingleTop = true
         restoreState = true
     }

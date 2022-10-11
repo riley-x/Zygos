@@ -38,14 +38,8 @@ object AnalyticsTab : ZygosTab {
     override val graph = "analytics_graph"
 }
 
-
-object PositionDetails {
-    const val route = "position"
-    const val routeArgName = "ticker"
-    const val routeWithArgs = "${route}/{${routeArgName}}"
-    val arguments = listOf(
-        navArgument(routeArgName) { type = NavType.StringType }
-    )
+object PositionDetailsDestination {
+    const val route = "position_details"
 }
 
 object ColorSelectorDestination {
