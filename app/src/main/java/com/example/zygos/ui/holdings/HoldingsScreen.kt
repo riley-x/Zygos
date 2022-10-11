@@ -38,7 +38,7 @@ fun HoldingsScreen(
     displayOption: String,
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
-    onPositionClick: (String) -> Unit = { },
+    onPositionClick: (PricedPosition) -> Unit = { },
     holdingsListOptionsCallback: (String) -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
@@ -114,7 +114,7 @@ fun HoldingsScreen(
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
                         displayOption = displayOption,
                         modifier = Modifier
-                            .clickable { onPositionClick(pos.ticker) }
+                            .clickable { onPositionClick(pos) }
                             .padding(horizontal = 6.dp) // this needs to be second so that the clickable
                                                         // animation covers the full width
                     )
@@ -140,7 +140,7 @@ fun HoldingsScreen(
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
                         displayOption = displayOption,
                         modifier = Modifier
-                            .clickable { onPositionClick(pos.ticker) }
+                            .clickable { onPositionClick(pos) }
                             .padding(horizontal = 6.dp) // this needs to be second so that the clickable
                                                         // animation covers the full width
                     )

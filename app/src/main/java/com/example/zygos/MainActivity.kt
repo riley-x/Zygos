@@ -123,6 +123,7 @@ fun ZygosApp(
             navController.popBackStack()
         }
 
+        /** Bottom Sheet and Dialog Callbacks **/
         fun onHoldingsListOptionsShow(version: String) = appScope.launch {
             listOptionsSheetVersion = version
             listOptionsSheetState.show()
@@ -139,6 +140,18 @@ fun ZygosApp(
             if (account.isNotBlank()) {
                 viewModel.addAccount(account)
             }
+        }
+
+        /** Performance Screen Callbacks **/
+        fun onTickerSelected(ticker: String) {
+            viewModel.setTicker(ticker)
+            navController.navigateSingleTopTo(ChartTab.route)
+        }
+
+        /** Holdings Screen Callbacks **/
+        fun onHoldingsPositionSelected(position: PricedPosition) {
+            viewModel.detailedPosition.value = position
+            navController.navigateToPosition()
         }
 
         /** Transaction Callbacks **/
@@ -169,15 +182,6 @@ fun ZygosApp(
                 restoreState = true
             }
         }
-        fun toColorSelectorChart(ticker: String) {
-            viewModel.colors.currentEditTicker = ticker
-            navController.navigateToColorSelector(ChartTab.graph)
-        }
-        fun toColorSelectorHoldings(ticker: String) {
-            viewModel.colors.currentEditTicker = ticker
-            navController.navigateToColorSelector(HoldingsTab.graph)
-        }
-
         fun onRecalculateAllLotsClick() {
             openRecalculateAllLotsDialog = true
         }
@@ -189,13 +193,14 @@ fun ZygosApp(
             }
         }
 
-
-        fun onHoldingsPositionSelected(ticker: String) = navController.navigateToPosition(ticker)
-
-        /** Performance Screen Callbacks **/
-        fun onTickerSelected(ticker: String) {
-            viewModel.setTicker(ticker)
-            navController.navigateSingleTopTo(ChartTab.route)
+        /** Color Selector **/
+        fun toColorSelectorChart(ticker: String) {
+            viewModel.colors.currentEditTicker = ticker
+            navController.navigateToColorSelector(ChartTab.graph)
+        }
+        fun toColorSelectorHoldings(ticker: String) {
+            viewModel.colors.currentEditTicker = ticker
+            navController.navigateToColorSelector(HoldingsTab.graph)
         }
         fun onColorSelectionSave(color: Color) {
             viewModel.colors.saveEditColor(color)
@@ -414,7 +419,7 @@ fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolea
     }
 }
 
-fun NavHostController.navigateToPosition(ticker: String) {
+fun NavHostController.navigateToPosition() {
     this.navigate(PositionDetailsDestination.route) {
         launchSingleTop = true
         restoreState = true
