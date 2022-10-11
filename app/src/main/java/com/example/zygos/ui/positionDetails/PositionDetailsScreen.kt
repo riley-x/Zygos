@@ -1,6 +1,7 @@
 package com.example.zygos.ui.positionDetails
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -40,7 +41,7 @@ fun PositionDetails(
     }
     Row {
         TitleValue("Price Open", formatDollar(position.priceOpen), defaultMod())
-        TitleValue("Dividends", formatDollar(position.realizedOpen), defaultMod())
+        TitleValue("Cost Basis", formatDollar(position.costBasis), defaultMod())
     }
     Row {
         TitleValue("Realized", formatDollar(position.realizedClosed), defaultMod())
@@ -54,6 +55,7 @@ fun PositionDetailsScreen(
     position: PricedPosition,
     colors: SnapshotStateMap<String, Color>,
     bottomPadding: Dp = 0.dp,
+    onChangeColor: (String) -> Unit = { },
 ) {
     Column(
         modifier = Modifier
@@ -66,7 +68,10 @@ fun PositionDetailsScreen(
             modifier = Modifier.padding(bottom = 10.dp)
         ) {
             Text(position.ticker, style = MaterialTheme.typography.h2, modifier = Modifier.weight(10f))
-            Canvas(modifier = Modifier.size(30.dp)) {
+            Canvas(modifier = Modifier
+                .size(30.dp)
+                .clickable { onChangeColor(position.ticker) }
+            ) {
                 drawRect(color = colors.getOrDefault(position.ticker, Color.White))
             }
         }

@@ -17,6 +17,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.example.zygos.data.database.Transaction
@@ -166,9 +167,13 @@ fun ZygosApp(
                 restoreState = true
             }
         }
-        fun toColorSelector(ticker: String) {
+        fun toColorSelectorChart(ticker: String) {
             viewModel.colors.currentEditTicker = ticker
-            navController.navigateToColorSelector()
+            navController.navigateToColorSelector(ChartTab.graph)
+        }
+        fun toColorSelectorHoldings(ticker: String) {
+            viewModel.colors.currentEditTicker = ticker
+            navController.navigateToColorSelector(HoldingsTab.graph)
         }
 
         fun onRecalculateAllLotsClick() {
@@ -193,6 +198,18 @@ fun ZygosApp(
         fun onColorSelectionSave(color: Color) {
             viewModel.colors.saveEditColor(color)
             popBackstack()
+        }
+
+
+        fun NavGraphBuilder.colorSelector(graph: String) {
+            composable(route = ColorSelectorDestination.route + graph) {
+                LogCompositions("Zygos", "ZygosApp/Scaffold/ColorSelectorDestination.route")
+                ColorSelectorScreen(
+                    initialColor = viewModel.colors.getCurrentEditColor(),
+                    onCancel = ::popBackstack,
+                    onSave = ::onColorSelectionSave,
+                )
+            }
         }
 
 
@@ -275,9 +292,12 @@ fun ZygosApp(
                         LogCompositions("Zygos", "ZygosApp/Scaffold/PositionDetails.route")
                         PositionDetailsScreen(
                             position = viewModel.detailedPosition.value,
+                            colors = viewModel.colors.tickers,
                             bottomPadding = bottomPadding,
+                            onChangeColor = ::toColorSelectorHoldings,
                         )
                     }
+                    colorSelector(HoldingsTab.graph)
                 }
 
                 navigation(startDestination = ChartTab.route, route = ChartTab.graph) {
@@ -289,19 +309,12 @@ fun ZygosApp(
                             chartRange = viewModel.chartRange,
                             onChartRangeSelected = viewModel::setChartRange,
                             onTickerChanged = viewModel::setTicker,
-                            onChangeColor = ::toColorSelector,
+                            onChangeColor = ::toColorSelectorChart,
                             accountSelectionBar = accountSelectionBar,
                             bottomPadding = bottomPadding,
                         )
                     }
-                    composable(route = ColorSelectorDestination.route) {
-                        LogCompositions("Zygos", "ZygosApp/Scaffold/ColorSelectorDestination.route")
-                        ColorSelectorScreen(
-                            initialColor = viewModel.colors.getCurrentEditColor(),
-                            onCancel = ::popBackstack,
-                            onSave = ::onColorSelectionSave,
-                        )
-                    }
+                    colorSelector(ChartTab.graph)
                 }
 
                 navigation(startDestination = AnalyticsTab.route, route = AnalyticsTab.graph) {
@@ -401,14 +414,14 @@ fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolea
     }
 
 fun NavHostController.navigateToPosition(ticker: String) {
-    this.navigate("${PositionDetailsDestination.route}/$ticker") {
+    this.navigate(PositionDetailsDestination.route) {
         launchSingleTop = true
         restoreState = true
     }
 }
 
-fun NavHostController.navigateToColorSelector() {
-    this.navigate(ColorSelectorDestination.route) {
+fun NavHostController.navigateToColorSelector(graph: String) {
+    this.navigate(ColorSelectorDestination.route + graph) {
         launchSingleTop = true
         restoreState = true
     }
