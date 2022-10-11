@@ -2,24 +2,28 @@ package com.example.zygos.ui.colorSelector
 
 import android.view.MotionEvent
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.BrightnessHigh
+import androidx.compose.material.icons.sharp.BrightnessLow
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
@@ -27,10 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import androidx.core.math.MathUtils
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.database.Transaction
 import com.example.zygos.ui.components.LogCompositions
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.ui.transactions.TransactionDetailsScreen
 import com.example.zygos.viewModel.TestViewModel
 import kotlin.math.*
 
@@ -44,7 +46,19 @@ fun ColorSelectorScreen(
 ) {
     LogCompositions("Zygos", "ColorSelectorScreen")
 
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    fun clearFocus() {
+        keyboardController?.hide()
+        focusManager.clearFocus(true)
+    }
+
     var boxSize by remember { mutableStateOf(IntSize(10, 10)) } // 960 x 1644
+
+    var currentColor by remember { mutableStateOf(initialColor) }
+//    var currentHover by remember { mutableStateOf(colorToPixel(initialColor)) }
+    var currentHover by remember(boxSize) { mutableStateOf(Offset(boxSize.width / 2f, boxSize.height / 2f)) }
+    var brightness by remember { mutableStateOf(1.0f) }
 
     fun toPolar(point: Offset, clamp: Boolean = false): Pair<Float, Float> {
         val x = point.x - boxSize.width / 2
@@ -80,20 +94,17 @@ fun ColorSelectorScreen(
             colors.items[stopIndex + 1].toArgb(),
             phi / 60 - stopIndex,
         )
-        return Color(ColorUtils.blendARGB(Color.White.toArgb(), hue, r))
+        val sat = ColorUtils.blendARGB(Color.White.toArgb(), hue, r)
+        return Color(ColorUtils.blendARGB(Color.Black.toArgb(), sat, brightness))
     }
 
-    var currentColor by remember { mutableStateOf(initialColor) }
-//    var currentHover by remember { mutableStateOf(colorToPixel(initialColor)) }
-    var currentHover by remember(boxSize) { mutableStateOf(Offset(boxSize.width / 2f, boxSize.height / 2f)) }
-    var brightness by remember { mutableStateOf(1.0f) }
 
     var red by remember { mutableStateOf((currentColor.red * 255).roundToInt().toString())}
     var green by remember { mutableStateOf((currentColor.green * 255).roundToInt().toString())}
     var blue by remember { mutableStateOf((currentColor.blue * 255).roundToInt().toString())}
 
 
-    fun updateHover(red: String, green: String, blue: String) {
+    fun updateSelection(red: String, green: String, blue: String) {
         val r = red.toIntOrNull()
         val g = green.toIntOrNull()
         val b = blue.toIntOrNull()
@@ -101,6 +112,7 @@ fun ColorSelectorScreen(
         if (r !in 0..255 || g !in 0..255 || b !in 0..255) return
         currentColor = Color(red.toInt(), green.toInt(), blue.toInt())
 //        currentHover = ...
+//        brightness =
     }
     fun updateStrings(color: Color) {
         red = (color.red * 255).roundToInt().toString()
@@ -123,6 +135,9 @@ fun ColorSelectorScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxWidth()
+            .pointerInput(Unit) {
+                detectTapGestures(onPress = { clearFocus() })
+            }
     ) {
 
         Box(
@@ -134,11 +149,11 @@ fun ColorSelectorScreen(
                 .onGloballyPositioned {
                     boxSize = it.size
                 }
-                .pointerInteropFilter(
-                ) { motionEvent ->
+                .pointerInteropFilter { motionEvent ->
                     when (motionEvent.action) {
                         MotionEvent.ACTION_DOWN -> {
                             dragStart = Offset(motionEvent.x, motionEvent.y)
+                            clearFocus()
                         }
                         MotionEvent.ACTION_MOVE -> {
                             var newPos =
@@ -171,7 +186,18 @@ fun ColorSelectorScreen(
             }
         }
 
-
+        BrightnessSelector(
+            brightness = brightness,
+            onChange = {
+                brightness = it
+                currentColor = pixelToColor(currentHover)
+                updateStrings(currentColor)
+                clearFocus()
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp, horizontal = 20.dp)
+        )
 
         Row(
             horizontalArrangement = Arrangement.spacedBy(30.dp),
@@ -189,7 +215,7 @@ fun ColorSelectorScreen(
                 onValueChange = {
                     if (it.length <= 3) {
                         red = it
-                        updateHover(red, green, blue)
+                        updateSelection(red, green, blue)
                     }
                 },
                 colors = textFieldColors(MaterialTheme.colors.error),
@@ -202,7 +228,7 @@ fun ColorSelectorScreen(
                 onValueChange = {
                     if (it.length <= 3) {
                         green = it
-                        updateHover(red, green, blue)
+                        updateSelection(red, green, blue)
                     }
                 },
                 colors = textFieldColors(MaterialTheme.colors.primary),
@@ -215,7 +241,7 @@ fun ColorSelectorScreen(
                 onValueChange = {
                     if (it.length <= 3) {
                         blue = it
-                        updateHover(red, green, blue)
+                        updateSelection(red, green, blue)
                     }
                 },
                 colors = textFieldColors(Color(83, 117, 218, 255)),
