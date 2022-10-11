@@ -196,6 +196,11 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         chartRange.value = range
     }
 
+    /** Color Selection Screen **/
+    var colorSelectionTicker by mutableStateOf("")
+    fun getSelectionColor() = tickerColors.getOrDefault(colorSelectionTicker, Color.White)
+    fun saveSelectionColor(color: Color) { /* TODO */ }
+
     /** TransactionScreen
      * Need two separate lists of transactions: one for the latest in the analytics screen and one
      * for the all transactions screen, which can be sorted and filtered.

@@ -35,7 +35,7 @@ fun ChartScreen(
     bottomPadding: Dp = 0.dp,
     onChartRangeSelected: (String) -> Unit = { },
     onTickerChanged: (String) -> Unit = { },
-    onChangeColor: () -> Unit = { },
+    onChangeColor: (String) -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos", "ChartScreen")
@@ -150,7 +150,7 @@ fun ChartScreen(
 
             item("select color button") {
                 TextButton(
-                    onClick = onChangeColor,
+                    onClick = { onChangeColor(ticker.value) },
                     border = BorderStroke(2.dp, MaterialTheme.colors.error),
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colors.error

@@ -166,6 +166,11 @@ fun ZygosApp(
                 restoreState = true
             }
         }
+        fun toColorSelector(ticker: String) {
+            viewModel.colorSelectionTicker = ticker
+            navController.navigateToColorSelector()
+        }
+
         fun onRecalculateAllLotsClick() {
             openRecalculateAllLotsDialog = true
         }
@@ -180,10 +185,18 @@ fun ZygosApp(
 
         fun onHoldingsPositionSelected(ticker: String) = navController.navigateToPosition(ticker)
 
+        /** Performance Screen Callbacks **/
         fun onTickerSelected(ticker: String) {
             viewModel.setTicker(ticker)
             navController.navigateSingleTopTo(ChartTab.route)
         }
+        fun onColorSelectionSave(color: Color) {
+            viewModel.saveSelectionColor(color)
+            popBackstack()
+        }
+
+
+
 
         val accountSelectionBar: @Composable () -> Unit = { AccountSelectionHeader(
             accounts = viewModel.accounts,
@@ -278,7 +291,7 @@ fun ZygosApp(
                             chartRange = viewModel.chartRange,
                             onChartRangeSelected = viewModel::setChartRange,
                             onTickerChanged = viewModel::setTicker,
-                            onChangeColor = navController::navigateToColorSelector,
+                            onChangeColor = ::toColorSelector,
                             accountSelectionBar = accountSelectionBar,
                             bottomPadding = bottomPadding,
                         )
@@ -286,7 +299,9 @@ fun ZygosApp(
                     composable(route = ColorSelectorDestination.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/ColorSelectorDestination.route")
                         ColorSelectorScreen(
+                            initialColor = viewModel.getSelectionColor(),
                             onCancel = ::popBackstack,
+                            onSave = ::onColorSelectionSave,
                         )
                     }
                 }

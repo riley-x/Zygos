@@ -1,5 +1,6 @@
 package com.example.zygos.ui.colorSelector
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -83,7 +84,7 @@ fun ColorSelectorScreen(
                 currentColor = PolarColor(r = r, phi = phi, brightness = brightness)
                 updateStrings()
             },
-            modifier = Modifier
+            modifier = Modifier.padding(top = 20.dp)
         )
 
         BrightnessSelector(
@@ -147,6 +148,54 @@ fun ColorSelectorScreen(
                 keyboardOptions = keyboardOptions,
                 modifier = Modifier.weight(10f)
             )
+        }
+
+        Spacer(Modifier.height(30.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Old")
+                Canvas(modifier = Modifier.size(60.dp)) {
+                    drawRect(initialColor)
+                }
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("New")
+                Canvas(modifier = Modifier.size(60.dp)) {
+                    drawRect(currentColor.color)
+                }
+
+            }
+        }
+
+        Spacer(Modifier.height(20.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = onCancel,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = MaterialTheme.colors.error,
+                ),
+                modifier = Modifier.width(100.dp)
+            ) {
+                Text("Cancel")
+            }
+            Button(
+                onClick = { onSave(currentColor.color) },
+                modifier = Modifier.width(100.dp)
+            ) {
+                Text("Save")
+            }
         }
     }
 }
