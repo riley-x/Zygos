@@ -10,15 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
+import androidx.core.math.MathUtils.clamp
 import com.example.zygos.ui.components.ImmutableList
 import com.example.zygos.ui.theme.ZygosTheme
 
-
-val colors = ImmutableList(listOf(
-    Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red
-))
 
 
 @Composable

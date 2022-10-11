@@ -37,7 +37,9 @@ fun BrightnessSelector(
                 thumbColor = MaterialTheme.colors.onSurface,
                 activeTrackColor = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
             ),
-            modifier = Modifier.weight(10f) // So that the second icon isn't hidden
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .weight(10f) // So that the second icon isn't hidden
         )
 
         Icon(
