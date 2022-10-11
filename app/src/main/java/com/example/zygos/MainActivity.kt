@@ -83,10 +83,12 @@ fun ZygosApp(
         val navController = rememberNavController()
         val currentBackStack by navController.currentBackStackEntryAsState()
         val currentDestination = currentBackStack?.destination
-        val currentTab = zygosTabs.drop(1).find { tab ->
-            currentDestination?.hierarchy?.any { it.route == tab.graph || it.route == tab.route } == true
-        } ?: zygosTabs[0]
-
+        val isColor = currentDestination?.route?.equals(ColorSelectorDestination.routeWithArgs)
+        fun ZygosTab.isActive(): Boolean? {
+            if (isColor == true) return currentBackStack?.arguments?.getString(ColorSelectorDestination.routeArgName)?.equals(graph)
+            return currentDestination?.hierarchy?.any { it.route == graph || it.route == route }
+        }
+        val currentTab = zygosTabs.drop(1).find { it.isActive() == true } ?: zygosTabs[0]
 
         /** Dialog state **/
         var openAddAccountDialog by remember { mutableStateOf(false) }
@@ -201,20 +203,6 @@ fun ZygosApp(
         }
 
 
-        fun NavGraphBuilder.colorSelector(graph: String) {
-            composable(route = ColorSelectorDestination.route + graph) {
-                LogCompositions("Zygos", "ZygosApp/Scaffold/ColorSelectorDestination.route")
-                ColorSelectorScreen(
-                    initialColor = viewModel.colors.getCurrentEditColor(),
-                    onCancel = ::popBackstack,
-                    onSave = ::onColorSelectionSave,
-                )
-            }
-        }
-
-
-
-
         val accountSelectionBar: @Composable () -> Unit = { AccountSelectionHeader(
             accounts = viewModel.accounts,
             currentAccount = viewModel.currentAccount,
@@ -297,7 +285,6 @@ fun ZygosApp(
                             onChangeColor = ::toColorSelectorHoldings,
                         )
                     }
-                    colorSelector(HoldingsTab.graph)
                 }
 
                 navigation(startDestination = ChartTab.route, route = ChartTab.graph) {
@@ -314,7 +301,6 @@ fun ZygosApp(
                             bottomPadding = bottomPadding,
                         )
                     }
-                    colorSelector(ChartTab.graph)
                 }
 
                 navigation(startDestination = AnalyticsTab.route, route = AnalyticsTab.graph) {
@@ -351,6 +337,15 @@ fun ZygosApp(
                             onCancel = ::popBackstack,
                         )
                     }
+                }
+
+                composable(route = ColorSelectorDestination.routeWithArgs, arguments = ColorSelectorDestination.arguments) {
+                    LogCompositions("Zygos", "ZygosApp/Scaffold/ColorSelectorDestination.route")
+                    ColorSelectorScreen(
+                        initialColor = viewModel.colors.getCurrentEditColor(),
+                        onCancel = ::popBackstack,
+                        onSave = ::onColorSelectionSave,
+                    )
                 }
             }
         }
@@ -421,7 +416,7 @@ fun NavHostController.navigateToPosition(ticker: String) {
 }
 
 fun NavHostController.navigateToColorSelector(graph: String) {
-    this.navigate(ColorSelectorDestination.route + graph) {
+    this.navigate("${ColorSelectorDestination.route}/$graph") {
         launchSingleTop = true
         restoreState = true
     }

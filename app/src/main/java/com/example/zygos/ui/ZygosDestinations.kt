@@ -44,6 +44,11 @@ object PositionDetailsDestination {
 
 object ColorSelectorDestination {
     const val route = "color_selector"
+    const val routeArgName = "tab"
+    const val routeWithArgs = "$route/{$routeArgName}"
+    val arguments = listOf(
+        navArgument(routeArgName) { type = NavType.StringType }
+    )
 }
 
 object TransactionAllDestination {
