@@ -42,6 +42,9 @@ data class PolarColor(
 
 /** Solves for the original color from blendedColor = blend(origColor, filterColor, ratio) **/
 fun unblend(blendedColor: Color, filterColor: Color, ratio: Float): Color {
+    if (ratio <= 0) return blendedColor
+    if (ratio >= 1) return filterColor
+
     fun eval(fn: Color.() -> Float) = MathUtils.clamp(
         (blendedColor.fn() - filterColor.fn() * ratio) / (1 - ratio),
         0f, 1f
@@ -70,7 +73,7 @@ fun colorFromPolar(r: Float, phi: Float, brightness: Float): Color {
 }
 
 fun colorToPolar(color: Color, brightness: Float): Pair<Float, Float> {
-    if (brightness >= 1f || brightness <= 0f) return Pair(0f, 0f)
+    if (brightness <= 0f) return Pair(0f, 0f) // Can't get polar coordinates if fully black
 
     val noBlack = unblend(color, Color.Black, 1 - brightness)
 
