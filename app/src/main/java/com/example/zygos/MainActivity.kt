@@ -397,7 +397,8 @@ fun Modifier.topBar(): Modifier {
     return this.padding(horizontal = 8.dp, vertical = 6.dp)
 }
 
-fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolean = true) =
+fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolean = true) {
+    val wasColor = currentDestination?.route?.equals(ColorSelectorDestination.routeWithArgs) == true
     this.navigate(route) {
         popUpTo(
             this@navigateSingleTopTo.graph.findStartDestination().id
@@ -407,6 +408,11 @@ fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolea
         launchSingleTop = true
         restoreState = true
     }
+    if (wasColor) {
+        val isColor = currentDestination?.route?.equals(ColorSelectorDestination.routeWithArgs) == true
+        if (isColor) popBackStack()
+    }
+}
 
 fun NavHostController.navigateToPosition(ticker: String) {
     this.navigate(PositionDetailsDestination.route) {
