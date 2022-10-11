@@ -8,14 +8,21 @@ import androidx.room.RoomDatabase
 import java.io.File
 
 @Database(
-    entities = [Transaction::class, EquityHistory::class, Lot::class, LotTransactionCrossRef::class, Ohlc::class],
-    version = 4
+    entities = [
+        Transaction::class,
+        EquityHistory::class,
+        Lot::class,
+        LotTransactionCrossRef::class,
+        Ohlc::class,
+        ColorSettings::class],
+    version = 5
 )
 abstract class ZygosDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun lotDao(): LotDao
     abstract fun equityHistoryDao(): EquityHistoryDao
     abstract fun ohlcDao(): OhlcDao
+    abstract fun colorDao(): ColorDao
 
     companion object {
         @Volatile
@@ -23,7 +30,10 @@ abstract class ZygosDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): ZygosDatabase {
             return INSTANCE ?: synchronized(this) {
-                val prepopFile = File(context.filesDir, "parthenos.db") // TODO hardcoded. Just drag drop this into the Android Studio file explorer
+                val prepopFile = File(
+                    context.filesDir,
+                    "parthenos.db"
+                ) // TODO hardcoded. Just drag drop this into the Android Studio file explorer
                 Log.d("Zygos/ZygosDatabase/getDatabase", prepopFile.absolutePath)
                 var builder = Room.databaseBuilder(
                     context,

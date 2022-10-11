@@ -18,6 +18,8 @@ val defaultTickerColors = mapOf(
     "CASH" to Color(0xFF1EB969), // Green500
     "AMD" to Color(0xffed1c24),
     "MSFT" to Color(0xff00a1f1),
+    "VTI" to Color(0xFF96151D),
+    "VOO" to Color(0xFFBF1B25),
 )
 
 fun SnapshotStateMap<String, Color>.getOrRandom(ticker: String) =

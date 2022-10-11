@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.Transaction
@@ -32,6 +33,7 @@ fun TransactionsScreen(
     currentFilterTicker: String,
     currentFilterType: TransactionType,
     modifier: Modifier = Modifier,
+    bottomPadding: Dp = 0.dp,
     onTransactionClick: (Transaction) -> Unit = { },
     transactionsListOptionsCallback: () -> Unit = { },
     onRecalculateAll: () -> Unit = { },
@@ -40,7 +42,7 @@ fun TransactionsScreen(
     LogCompositions("Zygos", "TransactionsScreen")
     // TODO: Use a floating button here for adding transactions
 
-    Column(modifier) {
+    Column(modifier.padding(bottom = bottomPadding)) {
 
         accountSelectionBar()
 
@@ -104,7 +106,9 @@ fun TransactionsScreen(
             colors = ButtonDefaults.textButtonColors(
                 contentColor = MaterialTheme.colors.error
             ),
-            modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 4.dp)
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 4.dp)
         ) {
             Text("Recalculate All")
         }

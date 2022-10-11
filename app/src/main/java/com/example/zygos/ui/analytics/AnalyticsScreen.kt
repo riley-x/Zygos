@@ -29,6 +29,7 @@ fun AnalyticsScreen(
     transactions: SnapshotStateList<Transaction>,
     tickerColors: SnapshotStateMap<String, Color>,
     modifier: Modifier = Modifier,
+    bottomPadding: Dp = 0.dp,
     onAddTransaction: () -> Unit = { },
     onTransactionClick: (Transaction) -> Unit = { },
     onTransactionSeeAll: () -> Unit = { },
@@ -37,7 +38,7 @@ fun AnalyticsScreen(
     LogCompositions("Zygos", "AnalyticsScreen")
     // TODO: Maybe this screen is a good place for dividend and option summaries
 
-    Column(modifier) {
+    Column(modifier.padding(bottomPadding)) {
         accountSelectionBar()
 
         LazyColumn {

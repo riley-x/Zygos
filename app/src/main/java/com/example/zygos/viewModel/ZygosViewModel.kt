@@ -5,11 +5,13 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
+import com.example.zygos.data.database.ColorSettings
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
@@ -57,6 +59,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     internal val equityHistoryDao = application.database.equityHistoryDao()
     internal val lotDao = application.database.lotDao()
     internal val ohlcDao = application.database.ohlcDao()
+    internal val colorDao = application.database.colorDao()
 
     /** Account state **/
     val accounts = mutableStateListOf(noAccountMessage)
@@ -199,7 +202,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     /** Color Selection Screen **/
     var colorSelectionTicker by mutableStateOf("")
     fun getSelectionColor() = tickerColors.getOrDefault(colorSelectionTicker, Color.White)
-    fun saveSelectionColor(color: Color) { /* TODO */ }
+    fun saveSelectionColor(color: Color) {
+        tickerColors[colorSelectionTicker] = color
+        viewModelScope.launch(Dispatchers.IO) {
+            colorDao.add(ColorSettings(colorSelectionTicker, color.toArgb()))
+        }
+    }
 
     /** TransactionScreen
      * Need two separate lists of transactions: one for the latest in the analytics screen and one
@@ -220,6 +228,13 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         val accs = readAccounts(localFileDir)
         if (accs.isEmpty()) {
             return // Initial values are set for empty data already
+        }
+
+        viewModelScope.launch {
+            val colors = withContext(Dispatchers.IO) {
+                colorDao.getMap()
+            }
+            colors.mapValuesTo(tickerColors) { Color(it.value) }
         }
 
         accounts.clear()

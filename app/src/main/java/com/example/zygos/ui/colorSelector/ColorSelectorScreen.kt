@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.components.LogCompositions
+import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.TestViewModel
 import kotlin.math.*
@@ -31,7 +32,7 @@ fun ColorSelectorScreen(
     onSave: (Color) -> Unit = { },
     onCancel: () -> Unit = { },
 ) {
-    LogCompositions("Zygos", "ColorSelectorScreen")
+//    LogCompositions("Zygos", "ColorSelectorScreen") This happens on each selection change
 
     /** Keyboard and focus **/
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -66,6 +67,39 @@ fun ColorSelectorScreen(
         blue = (currentColor.color.blue * 255).roundToInt().toString()
     }
 
+    /** Callbacks
+     * These need to be declared here and not as lambdas or else, for example, changing the wheel
+     * selector will cause the brightness bar to recompomse **/
+    fun onSelection(r: Float, phi: Float) {
+        currentColor = PolarColor(r = r, phi = phi, brightness = brightness)
+        updateStrings()
+    }
+    fun onBrightness(it: Float) {
+        brightness = it
+        currentColor = PolarColor(r = currentColor.r, phi = currentColor.phi, brightness = brightness)
+        updateStrings()
+        clearFocus()
+    }
+    fun onRed(it: String) {
+        if (it.length <= 3) {
+            red = it
+            updateSelection()
+        }
+    }
+    fun onGreen(it: String) {
+        if (it.length <= 3) {
+            green = it
+            updateSelection()
+        }
+    }
+    fun onBlue(it: String) {
+        if (it.length <= 3) {
+            blue = it
+            updateSelection()
+        }
+    }
+    fun onClickSave() = onSave(currentColor.color)
+
     /** Composable **/
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -80,21 +114,13 @@ fun ColorSelectorScreen(
             currentColor = currentColor,
             brightness = brightness,
             onPress = ::clearFocus,
-            onChange = { r, phi ->
-                currentColor = PolarColor(r = r, phi = phi, brightness = brightness)
-                updateStrings()
-            },
+            onChange = ::onSelection,
             modifier = Modifier.padding(top = 20.dp)
         )
 
         BrightnessSelector(
             brightness = brightness,
-            onChange = {
-                brightness = it
-                currentColor = PolarColor(r = currentColor.r, phi = currentColor.phi, brightness = brightness)
-                updateStrings()
-                clearFocus()
-            },
+            onChange = ::onBrightness,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 6.dp, horizontal = 20.dp)
@@ -112,12 +138,7 @@ fun ColorSelectorScreen(
             OutlinedTextField(
                 value = red,
                 label = { Text("Red") },
-                onValueChange = {
-                    if (it.length <= 3) {
-                        red = it
-                        updateSelection()
-                    }
-                },
+                onValueChange = ::onRed,
                 colors = textFieldColors(MaterialTheme.colors.error),
                 keyboardOptions = keyboardOptions,
                 modifier = Modifier.weight(10f)
@@ -125,12 +146,7 @@ fun ColorSelectorScreen(
             OutlinedTextField(
                 value = green,
                 label = { Text("Green") },
-                onValueChange = {
-                    if (it.length <= 3) {
-                        green = it
-                        updateSelection()
-                    }
-                },
+                onValueChange = ::onGreen,
                 colors = textFieldColors(MaterialTheme.colors.primary),
                 keyboardOptions = keyboardOptions,
                 modifier = Modifier.weight(10f)
@@ -138,12 +154,7 @@ fun ColorSelectorScreen(
             OutlinedTextField(
                 value = blue,
                 label = { Text("Blue") },
-                onValueChange = {
-                    if (it.length <= 3) {
-                        blue = it
-                        updateSelection()
-                    }
-                },
+                onValueChange = ::onBlue,
                 colors = textFieldColors(Color(83, 117, 218, 255)),
                 keyboardOptions = keyboardOptions,
                 modifier = Modifier.weight(10f)
@@ -191,7 +202,7 @@ fun ColorSelectorScreen(
                 Text("Cancel")
             }
             Button(
-                onClick = { onSave(currentColor.color) },
+                onClick = ::onClickSave,
                 modifier = Modifier.width(100.dp)
             ) {
                 Text("Save")

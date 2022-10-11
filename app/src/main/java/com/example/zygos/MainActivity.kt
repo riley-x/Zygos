@@ -324,6 +324,7 @@ fun ZygosApp(
                             transactions = viewModel.transactions.all,
                             currentFilterTicker = viewModel.transactions.currentFilterTicker,
                             currentFilterType = viewModel.transactions.currentFilterType,
+                            bottomPadding = bottomPadding,
                             onTransactionClick = ::toTransactionDetails,
                             transactionsListOptionsCallback = ::onTransactionsListOptionsShow,
                             onRecalculateAll = ::onRecalculateAllLotsClick,
