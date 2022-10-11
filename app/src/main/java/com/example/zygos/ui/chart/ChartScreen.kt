@@ -14,6 +14,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.components.*
@@ -31,6 +32,7 @@ fun ChartScreen(
     chartState: State<ChartState>,
     chartRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     modifier: Modifier = Modifier,
+    bottomPadding: Dp = 0.dp,
     onChartRangeSelected: (String) -> Unit = { },
     onTickerChanged: (String) -> Unit = { },
     onChangeColor: () -> Unit = { },
@@ -87,6 +89,7 @@ fun ChartScreen(
                     }
                 )
             }
+            .padding(bottom = bottomPadding) // TODO might need to move this to inside lazy column if it causes flicker
     ) {
         accountSelectionBar()
 

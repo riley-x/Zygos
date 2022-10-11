@@ -216,13 +216,14 @@ fun ZygosApp(
             },
             modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
         ) { innerPadding ->
+            val bottomPadding = if (WindowInsets.Companion.isImeVisible) 0.dp else innerPadding.calculateBottomPadding()
             /** Pick the tab to show **/
             NavHost(
                 navController = navController,
                 startDestination = PerformanceTab.graph,
                 modifier = Modifier
                     .windowInsetsPadding(WindowInsets.ime)
-                    .padding(if (WindowInsets.Companion.isImeVisible) PaddingValues() else innerPadding)
+//                    .padding(if (WindowInsets.Companion.isImeVisible) PaddingValues() else innerPadding) this causes a flicker since the ime opening is animated
             ) {
                 navigation(startDestination = PerformanceTab.route, route = PerformanceTab.graph) {
                     composable(route = PerformanceTab.route) {
@@ -236,6 +237,7 @@ fun ZygosApp(
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
                             onAccountPerformanceRangeSelected = viewModel::updateAccountPerformanceRange,
                             accountSelectionBar = accountSelectionBar,
+                            bottomPadding = bottomPadding,
                         )
                     }
                 }
@@ -253,6 +255,7 @@ fun ZygosApp(
                             onPositionClick = ::onHoldingsPositionSelected,
                             holdingsListOptionsCallback = ::onHoldingsListOptionsShow,
                             accountSelectionBar = accountSelectionBar,
+                            bottomPadding = bottomPadding,
                         )
                     }
                     composable(
@@ -277,6 +280,7 @@ fun ZygosApp(
                             onTickerChanged = viewModel::setTicker,
                             onChangeColor = navController::navigateToColorSelector,
                             accountSelectionBar = accountSelectionBar,
+                            bottomPadding = bottomPadding,
                         )
                     }
                     composable(route = ColorSelectorDestination.route) {

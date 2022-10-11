@@ -18,9 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.math.MathUtils
-import com.example.zygos.data.Position
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.PricedPosition
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
