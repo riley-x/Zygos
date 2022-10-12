@@ -13,6 +13,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.theme.ZygosTheme
 
+/**
+ * This draws a right-angled line that indicates a nested heirarchy or child
+ * component(s).
+ */
+
 @Composable
 fun ComponentIndicatorLine(
     modifier: Modifier = Modifier,
