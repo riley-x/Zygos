@@ -46,12 +46,12 @@ fun ChartScreenHeader(
         ) {
             Text(
                 text = hoverTime,
-                style = MaterialTheme.typography.subtitle2,
+                style = MaterialTheme.typography.overline,
             )
             Spacer(Modifier.width(10.dp))
             Text(
                 text = hoverValues,
-                style = MaterialTheme.typography.subtitle2,
+                style = MaterialTheme.typography.overline,
             )
         }
     }

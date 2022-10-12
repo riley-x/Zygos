@@ -68,13 +68,13 @@ val Typography = Typography(
         fontWeight = FontWeight.Light,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 3.sp
+        letterSpacing = 3.sp // TODO TextField sometimes crashes because it tries to lerp between sp and em.
     ),
-    subtitle2 = TextStyle( // Monospaced for grids/etc. TODO replace usage with overline
+    subtitle2 = TextStyle( // Monospaced, i.e. apiKey
         fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
+        fontSize = 16.sp,
         fontFamily = UmTypewriter,
-        letterSpacing = 0.1.em
+        letterSpacing = 0.25.sp
     ),
     body1 = TextStyle( // Default text, ticker row, options menu
         fontWeight = FontWeight.Normal,
@@ -93,16 +93,14 @@ val Typography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.2.em
     ),
-    caption = TextStyle( // Monospaced, i.e. apiKey
+    caption = TextStyle( // Used by OutlinedTextField for the label
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        fontFamily = UmTypewriter,
-        letterSpacing = 0.25.em
+        fontSize = 12.sp,
     ),
     overline = TextStyle( // Monospaced for grids/etc.
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         fontFamily = UmTypewriter,
-        letterSpacing = 0.1.em
+        letterSpacing = 0.1.sp
     ),
 )

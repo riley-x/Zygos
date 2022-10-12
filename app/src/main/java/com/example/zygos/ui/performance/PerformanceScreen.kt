@@ -67,13 +67,13 @@ fun PerformanceScreen(
                 ) {
                     Text(
                         text = hoverX,
-                        style = MaterialTheme.typography.subtitle2,
+                        style = MaterialTheme.typography.overline,
                         modifier = Modifier
                             .weight(1f)
                     )
                     Text(
                         text = hoverY,
-                        style = MaterialTheme.typography.subtitle2,
+                        style = MaterialTheme.typography.overline,
                     )
                 }
             }
