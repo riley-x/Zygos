@@ -6,9 +6,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 private const val BASE_URL =
-    "https://cloud.iexapis.com"
+    "https://api.tdameritrade.com"
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
@@ -19,14 +20,24 @@ private val retrofit = Retrofit.Builder()
     .baseUrl(BASE_URL)
     .build()
 
-interface IexService {
-    @GET("stable/stock/{ticker}/quote") // this is the http endpoint!
-    suspend fun getQuote(@Path("ticker") ticker: String): IexQuote
+interface TdService {
+    @GET("v1/marketdata/quotes") // this is the http endpoint!
+    suspend fun getQuote(
+        @Query("apikey") apiKey: String,
+        @Query("symbol") symbols: String, // Comma separated
+    ): Map<String, TdQuote>
+
+    suspend fun getQuote(
+        apiKey: String,
+        symbols: List<String>,
+    ): Map<String, TdQuote> {
+        return getQuote(apiKey, symbols.joinToString(","))
+    }
 }
 
-object IexApi {
-    val iexService : IexService by lazy {
-        retrofit.create(IexService::class.java)
+object TdApi {
+    val tdService : TdService by lazy {
+        retrofit.create(TdService::class.java)
     }
 }
 

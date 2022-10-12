@@ -48,12 +48,13 @@ typealias ChartState = TimeSeriesGraphState<OhlcNamed>
 
 class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
+    /** Preferences **/
     internal val preferences: SharedPreferences? = application.getSharedPreferences(
         PREFERENCE_FILE_KEY,
         Context.MODE_PRIVATE,
     )
-
-
+    val apiKeys = mutableStateMapOf<String, String>()
+    var currentEditApiKey by mutableStateOf(apiServices[0])
     fun saveApiKey(newKey: String) {
         apiKeys[currentEditApiKey.name] = newKey
         if (preferences != null) {
@@ -63,11 +64,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             }
         }
     }
-
-    var currentEditApiKey by mutableStateOf(apiServices[0])
-
-    val apiKeys = mutableStateMapOf<String, String>()
-
 
     /** DAOs **/
     internal val transactionDao = application.database.transactionDao()
@@ -283,11 +279,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
     }
 
-    val prices = mapOf<String, Long>(
-        "MSFT" to 2500000,
-        "MSFT Call 20231010 1250000" to 600000, // $60
-        "AMD" to 1300000, // $130
-    )
+    val prices = mapOf<String, Long>()
 
     /** Sets the current account to display, loading the data elements into the ui state variables.
      * This should be run on the main thread, but in a coroutine. **/
@@ -298,9 +290,11 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         transactions.loadLaunched(account)
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
+        colors.insertDefaults(lots.tickerLots.keys)
+
+
         longPositions.loadLaunched(if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions, prices)
         shortPositions.loadLaunched(lots.shortPositions, prices)
-        colors.insertDefaults(lots.tickerLots.keys)
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale
