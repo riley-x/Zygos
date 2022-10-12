@@ -52,9 +52,10 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         PREFERENCE_FILE_KEY,
         Context.MODE_PRIVATE,
     )
-    internal var iexApiKey = preferences?.getString(PREFERENCE_IEX_API_KEY_KEY, "") ?: ""
+
 
     fun saveApiKey(newKey: String) {
+        apiKeys[currentEditApiKey.name] = newKey
         if (preferences != null) {
             with(preferences.edit()) {
                 putString(currentEditApiKey.preferenceKey, newKey)
@@ -65,11 +66,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     var currentEditApiKey by mutableStateOf(apiServices[0])
 
-    val apiKeys = mutableStateMapOf(
-        "IEX" to "123456",
-        "Alpha Vantage" to "asdfgh",
-        "Polygon" to "qwertyu"
-    )
+    val apiKeys = mutableStateMapOf<String, String>()
 
 
     /** DAOs **/
@@ -235,10 +232,17 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         val localFileDir = application.filesDir ?: return
         Log.d("Zygos/ZygosViewModel/startup", localFileDir.absolutePath)
 
-        // TODO place into a async
+        // TODO place into a async?
         val accs = readAccounts(localFileDir)
         if (accs.isEmpty()) {
             return // Initial values are set for empty data already
+        }
+
+        apiServices.forEach {
+            val key = preferences?.getString(it.preferenceKey, "") ?: ""
+            if (key.isNotBlank()) {
+                apiKeys[it.name] = key
+            }
         }
 
         colors.loadLaunched()
