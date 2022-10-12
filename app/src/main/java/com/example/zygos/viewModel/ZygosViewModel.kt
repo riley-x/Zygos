@@ -196,8 +196,11 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         watchlistLastSortOption = watchlistSortOption
     }
 
-    /** Holdings **/
+    /** Lots **/
     val lots = LotModel(this)
+    /** Prices **/
+    val market = MarketModel(this)
+    /** Priced Positions **/
     val longPositions = PositionModel(this)
     val shortPositions = PositionModel(this)
     val detailedPosition = mutableStateOf(PricedPosition()) // Position in focus after selecting from the holdings screen
@@ -280,22 +283,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
     }
 
-    val prices = mutableMapOf<String, Long>()
-
-
-    private suspend fun updatePrices(tickers: MutableSet<String>, updatePositions: Boolean = false) {
-        val key = apiKeys[tdService.name]
-        if (key.isNullOrBlank()) return
-
-        try {
-            tickers.remove("CASH")
-            val quotes = TdApi.getQuote(key, tickers)
-            quotes.mapValuesTo(prices) { it.value.lastPrice.toLongDollar() }
-            if (updatePositions) loadPricedPositions()
-        } catch (e: Exception) {
-            Log.w("Zygos/ZygosViewModel", "Failure: ${e.message}")
-        }
-    }
 
     private fun loadPricedPositions() {
         /** This check, the load launch, and the reset happen on the main thread, so there's no
@@ -305,8 +292,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         if (!lots.isLoading) {
             val long = if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions.toList()
             val short = lots.shortPositions.toList()
-            longPositions.loadLaunched(long, prices)
-            shortPositions.loadLaunched(short, prices)
+            longPositions.loadLaunched(long, market.latestPrices)
+            shortPositions.loadLaunched(short, market.latestPrices)
         }
     }
 
@@ -325,7 +312,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         loadPricedPositions()
 
         // TODO place this into a timer
-        updatePrices(lots.tickerLots.keys)
+        if (market.updatePrices(lots.tickerLots.keys)) loadPricedPositions()
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale
