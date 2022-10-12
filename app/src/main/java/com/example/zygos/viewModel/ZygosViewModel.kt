@@ -11,6 +11,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
+import com.example.zygos.network.ApiService
+import com.example.zygos.network.apiServices
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
@@ -52,14 +54,22 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     )
     internal var iexApiKey = preferences?.getString(PREFERENCE_IEX_API_KEY_KEY, "") ?: ""
 
-    fun saveApiKey(preferenceKey: String, apiKey: String) {
+    fun saveApiKey(newKey: String) {
         if (preferences != null) {
             with(preferences.edit()) {
-                putString(preferenceKey, apiKey)
+                putString(currentEditApiKey.preferenceKey, newKey)
                 apply()
             }
         }
     }
+
+    var currentEditApiKey by mutableStateOf(apiServices[0])
+
+    val apiKeys = mutableStateMapOf(
+        "IEX" to "123456",
+        "Alpha Vantage" to "asdfgh",
+        "Polygon" to "qwertyu"
+    )
 
 
     /** DAOs **/

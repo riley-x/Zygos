@@ -180,4 +180,10 @@ class TestViewModel: ViewModel() {
         private set
     var transactionListSortIsAscending by mutableStateOf(true)
         private set
+
+    val apiKeys = mutableStateMapOf(
+        "IEX" to "123456",
+        "Alpha Vantage" to "asdfgh",
+        "Polygon" to "qwertyu"
+    )
 }

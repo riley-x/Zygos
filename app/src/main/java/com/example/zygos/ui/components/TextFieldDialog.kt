@@ -5,15 +5,15 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
-fun AddAccountDialog(
+fun TextFieldDialog(
     modifier: Modifier = Modifier,
+    title: String = "",
+    placeholder: String = "",
     onDismiss: (String) -> Unit = { },
 ) {
     var text by remember { mutableStateOf("") }
@@ -23,7 +23,7 @@ fun AddAccountDialog(
         // don't use the title argument, it really messes with the layouts
         text = {
             Column {
-                Text(text = "Add Account", modifier = Modifier.padding(bottom = 6.dp))
+                Text(text = title, modifier = Modifier.padding(bottom = 6.dp))
                 OutlinedTextField(
                     value = text,
                     textStyle = MaterialTheme.typography.h5,
@@ -33,7 +33,7 @@ fun AddAccountDialog(
                             contentAlignment = Alignment.CenterStart,
                             modifier = Modifier.fillMaxHeight()
                         ) {
-                            Text("Account name")
+                            Text(placeholder)
                         }
                     },
                     colors = TextFieldDefaults.outlinedTextFieldColors(
@@ -72,8 +72,8 @@ fun AddAccountDialog(
 
 @Preview
 @Composable
-fun PreviewAddAccountDialog() {
+fun PreviewTextFieldDialog() {
     ZygosTheme {
-        AddAccountDialog()
+        TextFieldDialog()
     }
 }

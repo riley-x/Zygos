@@ -70,7 +70,7 @@ val Typography = Typography(
         lineHeight = 20.sp,
         letterSpacing = 3.sp
     ),
-    subtitle2 = TextStyle( // Monospaced for grids/etc.
+    subtitle2 = TextStyle( // Monospaced for grids/etc. TODO replace usage with overline
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         fontFamily = UmTypewriter,
@@ -93,12 +93,16 @@ val Typography = Typography(
         lineHeight = 16.sp,
         letterSpacing = 0.2.em
     ),
-    caption = TextStyle(
-        fontWeight = FontWeight.W500,
-        fontSize = 12.sp
+    caption = TextStyle( // Monospaced, i.e. apiKey
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        fontFamily = UmTypewriter,
+        letterSpacing = 0.25.em
     ),
-    overline = TextStyle(
-        fontWeight = FontWeight.W500,
-        fontSize = 10.sp
-    )
+    overline = TextStyle( // Monospaced for grids/etc.
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        fontFamily = UmTypewriter,
+        letterSpacing = 0.1.em
+    ),
 )

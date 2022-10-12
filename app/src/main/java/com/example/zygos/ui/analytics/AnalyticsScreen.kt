@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.Transaction
+import com.example.zygos.network.ApiService
+import com.example.zygos.network.apiServices
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.TestViewModel
@@ -28,8 +30,10 @@ import kotlinx.coroutines.channels.ticker
 fun AnalyticsScreen(
     transactions: SnapshotStateList<Transaction>,
     tickerColors: SnapshotStateMap<String, Color>,
+    apiKeys: SnapshotStateMap<String, String>,
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
+    onApiKeyClick: (ApiService) -> Unit = { },
     onAddTransaction: () -> Unit = { },
     onTransactionClick: (Transaction) -> Unit = { },
     onTransactionSeeAll: () -> Unit = { },
@@ -61,29 +65,24 @@ fun AnalyticsScreen(
 
                         CardRowDivider(color = MaterialTheme.colors.primary)
 
-                        val services = listOf("IEX", "Alpha Vantage", "Polygon")
-
-                        services.forEachIndexed { i, service ->
+                        apiServices.forEachIndexed { i, service ->
                             if (i > 0) CardRowDivider()
 
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(horizontal = 10.dp).heightIn(min = 40.dp)
+                                modifier = Modifier
+                                    .heightIn(min = 40.dp)
+                                    .clickable { onApiKeyClick(service) }
+                                    .padding(horizontal = 10.dp, vertical = 6.dp)
                             ) {
-                                Text(service, modifier = Modifier.weight(10f))
-                                Text("••••13414")
+                                Text(service.name, modifier = Modifier.weight(10f))
+                                val key = apiKeys.getOrDefault(service.name, "").takeLast(4)
+                                if (key.isNotBlank())
+                                    Text("••••$key", style = MaterialTheme.typography.caption)
                             }
-
                         }
                     }
 
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 10.dp)
-                    ) {
-                        Text("", modifier = Modifier.weight(10f))
-                    }
                 }
             }
 
@@ -113,6 +112,7 @@ fun PreviewAnalyticsScreen() {
     ZygosTheme {
         Surface {
             AnalyticsScreen(
+                apiKeys = viewModel.apiKeys,
                 transactions = viewModel.transactions,
                 tickerColors = viewModel.tickerColors,
             )

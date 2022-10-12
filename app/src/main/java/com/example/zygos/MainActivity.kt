@@ -22,6 +22,7 @@ import androidx.navigation.compose.*
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.data.database.ZygosDatabase
+import com.example.zygos.network.ApiService
 import com.example.zygos.ui.*
 import com.example.zygos.ui.analytics.AnalyticsScreen
 import com.example.zygos.ui.chart.ChartScreen
@@ -89,10 +90,7 @@ fun ZygosApp(
         }
         val currentTab = zygosTabs.drop(1).find { it.isActive() == true } ?: zygosTabs[0]
 
-        /** Dialog state **/
-        var openAddAccountDialog by remember { mutableStateOf(false) }
-        var openTransactionsListOptionsDialog by remember { mutableStateOf(false) }
-        var openRecalculateAllLotsDialog by remember { mutableStateOf(false) }
+
 
         /** ModalBottomSheetLayout state **/
         var listOptionsSheetVersion by remember { mutableStateOf("") }
@@ -122,7 +120,7 @@ fun ZygosApp(
             navController.popBackStack()
         }
 
-        /** Bottom Sheet and Dialog Callbacks **/
+        /** Bottom Sheet Callbacks **/
         fun onHoldingsListOptionsShow(version: String) = appScope.launch {
             listOptionsSheetVersion = version
             listOptionsSheetState.show()
@@ -131,6 +129,13 @@ fun ZygosApp(
             listOptionsSheetVersion = "watchlist"
             listOptionsSheetState.show()
         }
+
+        /** Dialog Callbacks **/
+        var openAddAccountDialog by remember { mutableStateOf(false) }
+        var openEditApiKeyDialog by remember { mutableStateOf(false) }
+        var openTransactionsListOptionsDialog by remember { mutableStateOf(false) }
+        var openRecalculateAllLotsDialog by remember { mutableStateOf(false) }
+
         fun onAddAccountClick() {
             openAddAccountDialog = true
         }
@@ -140,6 +145,26 @@ fun ZygosApp(
                 viewModel.addAccount(account)
             }
         }
+        fun onEditApiKeyOpen(service: ApiService) {
+            viewModel.currentEditApiKey = service
+            openEditApiKeyDialog = true
+        }
+        fun onEditApiKeyClose(newKey: String) {
+            openEditApiKeyDialog = false
+            if (newKey.isNotBlank()) {
+                viewModel.saveApiKey(newKey)
+            }
+        }
+        fun onTransactionsListOptionsShow() {
+            openTransactionsListOptionsDialog = true
+        }
+        fun onTransactionsListOptionsDialogClose(isCancel: Boolean, ticker: String, type: TransactionType) {
+            openTransactionsListOptionsDialog = false
+            if (!isCancel) {
+                viewModel.transactions.filterLaunch(ticker, type)
+            }
+        }
+
 
         /** Performance Screen Callbacks **/
         fun onTickerSelected(ticker: String) {
@@ -153,16 +178,9 @@ fun ZygosApp(
             navController.navigateToPosition()
         }
 
+        /** Analytics Screen Callbacks **/
+
         /** Transaction Callbacks **/
-        fun onTransactionsListOptionsShow() {
-            openTransactionsListOptionsDialog = true
-        }
-        fun onTransactionsListOptionsDialogClose(isCancel: Boolean, ticker: String, type: TransactionType) {
-            openTransactionsListOptionsDialog = false
-            if (!isCancel) {
-                viewModel.transactions.filterLaunch(ticker, type)
-            }
-        }
         fun toTransactionAll() = navController.navigate(TransactionAllDestination.route) {
             launchSingleTop = true
             restoreState = true
@@ -309,10 +327,12 @@ fun ZygosApp(
 
                 navigation(startDestination = AnalyticsTab.route, route = AnalyticsTab.graph) {
                     composable(route = AnalyticsTab.route) {
-                        LogCompositions("Zygos", "ZygosApp/Scaffold/Transactions.route")
+                        LogCompositions("Zygos", "ZygosApp/Scaffold/AnalyticsTab.route")
                         AnalyticsScreen(
+                            apiKeys = viewModel.apiKeys,
                             transactions = viewModel.transactions.latest,
                             tickerColors = viewModel.colors.tickers,
+                            onApiKeyClick = ::onEditApiKeyOpen,
                             onTransactionClick = ::toTransactionDetails,
                             onTransactionSeeAll = ::toTransactionAll,
                             onAddTransaction = ::toTransactionDetails,
@@ -373,7 +393,9 @@ fun ZygosApp(
             }
         }
         if (openAddAccountDialog) {
-            AddAccountDialog(
+            TextFieldDialog(
+                title = "Add Account",
+                placeholder = "Account name",
                 onDismiss = ::onAddAccount
             )
         }
@@ -390,6 +412,13 @@ fun ZygosApp(
             ConfirmationDialog(
                 text = "Recalculate all holdings from transactions?",
                 onDismiss = ::onRecalculateAllLotsClose,
+            )
+        }
+        if (openEditApiKeyDialog) {
+            TextFieldDialog(
+                title = viewModel.currentEditApiKey.name,
+                placeholder = "New key",
+                onDismiss = ::onEditApiKeyClose
             )
         }
     }
