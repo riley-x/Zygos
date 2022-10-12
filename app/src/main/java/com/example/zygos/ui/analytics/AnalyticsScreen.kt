@@ -43,6 +43,50 @@ fun AnalyticsScreen(
 
         LazyColumn {
 
+            item(key = "api_keys") {
+                Card(
+                    elevation = 1.dp,
+                    modifier = Modifier.padding(10.dp)
+                ) {
+                    Column() {
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(start = 10.dp)
+                                .heightIn(min = 48.dp)
+                        ) {
+                            Text("API Keys", style = MaterialTheme.typography.h3)
+                        }
+
+                        CardRowDivider(color = MaterialTheme.colors.primary)
+
+                        val services = listOf("IEX", "Alpha Vantage", "Polygon")
+
+                        services.forEachIndexed { i, service ->
+                            if (i > 0) CardRowDivider()
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 10.dp).heightIn(min = 40.dp)
+                            ) {
+                                Text(service, modifier = Modifier.weight(10f))
+                                Text("••••13414")
+                            }
+
+                        }
+                    }
+
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 10.dp)
+                    ) {
+                        Text("", modifier = Modifier.weight(10f))
+                    }
+                }
+            }
+
             item(key = "transactions") {
                 TransactionCard(
                     transactions = transactions,
@@ -50,7 +94,7 @@ fun AnalyticsScreen(
                     onAddTransaction = onAddTransaction,
                     onTransactionClick = onTransactionClick,
                     onTransactionSeeAll = onTransactionSeeAll,
-                    modifier = Modifier.padding(6.dp),
+                    modifier = Modifier.padding(10.dp),
                 )
             }
         }

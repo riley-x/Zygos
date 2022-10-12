@@ -32,7 +32,7 @@ fun TransactionCard(
     onTransactionSeeAll: () -> Unit = { },
 ) {
     Card(
-        elevation = Dp(1f),
+        elevation = 1.dp,
         modifier = modifier
     ) {
         Column {
@@ -56,12 +56,7 @@ fun TransactionCard(
             }
 
 
-            Divider(
-                color = MaterialTheme.colors.primary,
-                thickness = 1.dp,
-                modifier = Modifier
-                    .padding(horizontal = 4.dp, vertical = 2.dp)
-            )
+            CardRowDivider(color = MaterialTheme.colors.primary)
 
             transactions.take(4).forEach { transaction ->
                 TransactionTickerRow(
@@ -72,12 +67,7 @@ fun TransactionCard(
                         .padding(horizontal = 10.dp, vertical = 2.dp)
                 )
 
-                Divider(
-                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                    thickness = 1.dp,
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp)
-                )
+                CardRowDivider()
             }
 
             TextButton(
