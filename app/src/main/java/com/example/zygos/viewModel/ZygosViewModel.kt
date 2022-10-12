@@ -1,24 +1,20 @@
 package com.example.zygos.viewModel
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.icu.util.Calendar
 import android.util.Log
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
-import com.example.zygos.data.database.ColorSettings
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
-import com.example.zygos.ui.theme.defaultTickerColors
-import com.example.zygos.ui.theme.randomColor
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.ticker
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
@@ -50,6 +46,21 @@ typealias ChartState = TimeSeriesGraphState<OhlcNamed>
 
 class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
+    internal val preferences: SharedPreferences? = application.getSharedPreferences(
+        PREFERENCE_FILE_KEY,
+        Context.MODE_PRIVATE,
+    )
+    internal var iexApiKey = preferences?.getString(PREFERENCE_IEX_API_KEY_KEY, "") ?: ""
+
+    fun saveApiKey(preferenceKey: String, apiKey: String) {
+        if (preferences != null) {
+            with(preferences.edit()) {
+                putString(preferenceKey, apiKey)
+                apply()
+            }
+        }
+    }
+
 
     /** DAOs **/
     internal val transactionDao = application.database.transactionDao()
@@ -66,6 +77,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         private set
 
     /** Account Performance **/
+    // TODO move into subclass
     var accountPerformanceTimeRange = mutableStateOf(accountPerformanceRangeOptions.items.last()) // must be state to pass down to button group derivedStateOf
         private set
     var accountPerformanceState = mutableStateOf(AccountPerformanceState())
@@ -125,6 +137,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
     /** Watchlist **/
+    // TODO move into subclass
     val watchlist = mutableStateListOf(
         Quote("t1", Color.Blue,  123.23f,  21.20f, 0.123f),
         Quote("t2", Color.Black, 1263.23f, 3.02f,  -0.123f),
@@ -184,8 +197,14 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     val longPositions = PositionModel(this)
     val shortPositions = PositionModel(this)
     val detailedPosition = mutableStateOf(PricedPosition()) // Position in focus after selecting from the holdings screen
+    /** Color Selection Screen **/
+    val colors = ColorModel(this)
+    /** TransactionScreen **/
+    val transactions = TransactionModel(this)
+
 
     /** ChartScreen **/
+    // TODO move into subclass
     val chartTicker = mutableStateOf("")
     val chartState = mutableStateOf(ChartState())
     val chartRange = mutableStateOf(chartRangeOptions.items.last())
@@ -196,15 +215,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     fun setChartRange(range: String) {
         chartRange.value = range
     }
-
-    /** Color Selection Screen **/
-    val colors = ColorModel(this)
-
-    /** TransactionScreen
-     * Need two separate lists of transactions: one for the latest in the analytics screen and one
-     * for the all transactions screen, which can be sorted and filtered.
-     */
-    val transactions = TransactionModel(this)
 
 
     /** Main startup sequence that loads all data!
