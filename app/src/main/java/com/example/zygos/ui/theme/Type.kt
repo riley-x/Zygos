@@ -74,7 +74,7 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         fontFamily = UmTypewriter,
-        letterSpacing = 0.25.sp
+        letterSpacing = 4.sp
     ),
     body1 = TextStyle( // Default text, ticker row, options menu
         fontWeight = FontWeight.Normal,
@@ -101,6 +101,5 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         fontFamily = UmTypewriter,
-        letterSpacing = 0.1.sp
     ),
 )

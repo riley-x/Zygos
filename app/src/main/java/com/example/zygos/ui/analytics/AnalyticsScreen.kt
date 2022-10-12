@@ -78,7 +78,7 @@ fun AnalyticsScreen(
                                 Text(service.name, modifier = Modifier.weight(10f))
                                 val key = apiKeys.getOrDefault(service.name, "").takeLast(4)
                                 if (key.isNotBlank())
-                                    Text("••••$key", style = MaterialTheme.typography.caption)
+                                    Text("••••$key", style = MaterialTheme.typography.subtitle2)
                             }
                         }
                     }
