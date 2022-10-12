@@ -38,6 +38,15 @@ fun addTransaction(
     } else {
         throw RuntimeException("Unable to handle transaction $transaction")
     }
+
+    /** Update CASH lot **/
+    if (transaction.ticker != "CASH" && transaction.value != 0L) {
+        val lots = lotDao.getTicker(transaction.account, "CASH")
+        if (lots.size > 1) throw RuntimeException("Found ${lots.size} cash lots in account ${transaction.account}")
+        val lotOld = lots[0].lot
+        val lot = lotOld.copy(realizedClosed = lotOld.realizedClosed + transaction.value)
+        lotDao.update(lot)
+    }
 }
 
 /** A transaction might have its id set already if being called from [recalculateAll] **/
@@ -100,7 +109,7 @@ private fun addCashTransaction(
         val lotOld = lots[0].lot
         val lot = when (t.type) {
             TransactionType.TRANSFER -> lotOld.copy(sharesOpen = lotOld.sharesOpen + t.value)
-            else -> lotOld.copy(realizedClosed = lotOld.realizedClosed + t.value)
+            else -> lotOld.copy(dividendsPerShare = lotOld.dividendsPerShare + t.value)
         }
         updateLotWithTransaction(lot, t, transactionDao, lotDao)
     }

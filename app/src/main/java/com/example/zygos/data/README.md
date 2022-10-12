@@ -19,7 +19,8 @@ lot and position after initial setup.
 Lots:
 - `openTransactionId` keeps track of when the account was opened/first funded.
 - `sharesOpen` is the net value sum of all transfers
-- `realizedClosed` is all interest
+- `dividendsPerShare` is all interest
+- `realizedClosed` is all cash effects from other transactions
 
 LotPosition:
 - `shares` is net transfers

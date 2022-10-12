@@ -16,7 +16,7 @@ import com.example.zygos.ui.components.formatDollarNoSymbol
 import com.example.zygos.viewModel.PricedPosition
 
 /**
- * These are the composables that show extra TickerList info
+ * These are the composables that show extra TickerListRow info
  */
 
 @Composable

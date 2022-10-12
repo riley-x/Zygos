@@ -15,6 +15,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.zygos.data.PositionType
+import com.example.zygos.data.toFloatDollar
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.formatDollar
@@ -42,20 +44,29 @@ fun PositionDetails(
             TitleValue("Strike", formatDollar(position.strike), defaultMod())
         }
     }
-    Row {
-        TitleValue("Shares", position.shares.toString(), defaultMod())
-        TitleValue("Date", formatDateInt(position.date), defaultMod())
+    if (position.type == PositionType.CASH) {
+        Row {
+            TitleValue("Contributions", formatDollar(position.shares.toFloatDollar()), defaultMod())
+            TitleValue("First Funded", formatDateInt(position.date), defaultMod())
+        }
+        Row {
+            TitleValue("Available", formatDollar(position.equity), defaultMod())
+            TitleValue("Interest Earned", formatDollar(position.realizedOpen), defaultMod())
+        }
+    } else {
+        Row {
+            TitleValue("Shares", position.shares.toString(), defaultMod())
+            TitleValue("Date", formatDateInt(position.date), defaultMod())
+        }
+        Row {
+            TitleValue("Price Open", formatDollar(position.priceOpen), defaultMod())
+            TitleValue("Cost Basis", formatDollar(position.costBasis), defaultMod())
+        }
+        Row {
+            TitleValue("Unrealized", formatDollar(position.unrealized), defaultMod())
+            TitleValue("Dividends", formatDollar(position.realizedOpen), defaultMod())
+        }
     }
-    Row {
-        TitleValue("Price Open", formatDollar(position.priceOpen), defaultMod())
-        TitleValue("Cost Basis", formatDollar(position.costBasis), defaultMod())
-    }
-    Row {
-        TitleValue("Unrealized", formatDollar(position.unrealized), defaultMod())
-        TitleValue("Dividends", formatDollar(position.realizedOpen), defaultMod())
-    }
-//    TitleValue("Realized", formatDollar(position.realizedClosed), defaultMod())
-
 }
 
 

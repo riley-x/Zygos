@@ -17,10 +17,10 @@ fun getCashPosition(openLots: List<LotWithTransactions>): Position {
             type = PositionType.CASH,
             date = it.openTransaction.date,
             /** Basis and returns **/
-            shares = it.lot.sharesOpen, // this makes cashEffect correct. Net transactions
-            priceOpen = -1,
-            realizedOpen = it.lot.realizedClosed, // interest
-            realizedClosed = 0, // MUST subtract all other cashEffects
+            shares = it.lot.sharesOpen, // Net transactions
+            priceOpen = -1, // This makes cashEffect correct
+            realizedOpen = it.lot.dividendsPerShare, // interest
+            realizedClosed = it.lot.realizedClosed, // MUST subtract all other cashEffects
         )
     }.reduce(Position::plus)
 }

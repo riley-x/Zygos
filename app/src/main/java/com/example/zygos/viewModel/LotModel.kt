@@ -1,5 +1,6 @@
 package com.example.zygos.viewModel
 
+import android.text.Html
 import android.util.Log
 import com.example.zygos.data.*
 import com.example.zygos.data.database.LotWithTransactions
@@ -65,18 +66,12 @@ class LotModel(private val parent: ZygosViewModel) {
                 }
             }
         }
-        val cashEffect = longPositions.sumOf(Position::cashEffect) + shortPositions.sumOf(Position::cashEffect) + exitedPositions.sumOf(Position::cashEffect)
-        if (cashPosition is LotPosition) {
-            cashPosition = (cashPosition as LotPosition).copy(realizedClosed = cashEffect)
-        } else if (cashPosition is AggregatePosition) {
-            cashPosition = (cashPosition as AggregatePosition).copy(realizedClosedExtra = cashEffect)
-        } // null can happen when data is empty
     }
 
     internal fun logPositions() {
-        val n = System.getProperty("line.separator")
+        val n = "<br>"
         Log.i("Zygos/LotModel/createLotPositions", "cash $cashPosition")
-        longPositions.forEach { Log.i("Zygos/LotModel/createLotPositions", "long $it") }
+        longPositions.forEach { Log.i("Zygos/LotModel/createLotPositions", "$n long $it") }
         shortPositions.forEach { Log.i("Zygos/LotModel/createLotPositions", "short $it") }
         exitedPositions.forEach { Log.i("Zygos/LotModel/createLotPositions", "exited $it") }
     }

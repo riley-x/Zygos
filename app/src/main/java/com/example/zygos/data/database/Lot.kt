@@ -14,11 +14,29 @@ data class Lot(
     @PrimaryKey(autoGenerate = true) val lotId: Long = 0, // 0 to auto generate a key
     val account: String, // these are duplicated from the transaction since we query on them a lot
     val ticker: String,
-    val sharesOpen: Long, // for options, also a multiple of 100
+    val sharesOpen: Long, // for options, also a multiple of 100. NET TRANSFERS FOR CASH
     val feesAndRounding: Long, // -value = feesAndRounding + price * sharesAll. Fees are positive here, and is not altered if sharesOpen changes.
-    val dividendsPerShare: Long, // any rounding errors should be placed into feesAndRounding above
-    val realizedClosed: Long, // sum of realized returns of all closed shares
-)
+    val dividendsPerShare: Long, // any rounding errors should be placed into feesAndRounding above. NET INTEREST FOR CASH
+    val realizedClosed: Long, // sum of realized returns of all closed shares. NET CASH EFFECTS FOR CASH
+) {
+//    @Ignore val netContributions = if (ticker == "CASH") sharesOpen else 0L
+//    @Ignore val interest = if (ticker == "CASH") dividendsPerShare else 0L
+//    @Ignore val cashSpent = if (ticker == "CASH") realizedClosed else 0L
+//
+//    @Ignore constructor(
+//        account: String,
+//        netContributions: Long,
+//        interest: Long,
+//        cashSpent: Long
+//    ) : this(
+//        account = account,
+//        ticker = "CASH",
+//        sharesOpen = netContributions,
+//        feesAndRounding = 0L,
+//        dividendsPerShare = interest,
+//        realizedClosed = cashSpent,
+//    )
+}
 
 
 @Entity(primaryKeys = ["transactionId", "lotId"])
