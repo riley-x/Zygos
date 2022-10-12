@@ -39,7 +39,7 @@ object TdApi {
 
     suspend fun getQuote(
         apiKey: String,
-        symbols: List<String>,
+        symbols: Collection<String>,
     ): Map<String, TdQuote> {
         return tdService.getQuote(apiKey, symbols.joinToString(","))
     }

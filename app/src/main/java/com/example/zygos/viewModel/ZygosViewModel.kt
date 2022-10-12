@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
-import com.example.zygos.network.ApiService
 import com.example.zygos.network.TdApi
 import com.example.zygos.network.apiServices
 import com.example.zygos.network.tdService
@@ -281,7 +280,36 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
     }
 
-    val prices = mapOf<String, Long>()
+    val prices = mutableMapOf<String, Long>()
+
+
+    private suspend fun updatePrices(tickers: MutableSet<String>, updatePositions: Boolean = false) {
+        val key = apiKeys[tdService.name]
+        if (key.isNullOrBlank()) return
+
+        try {
+            tickers.remove("CASH")
+            val quotes = TdApi.getQuote(key, tickers)
+            quotes.mapValuesTo(prices) { it.value.lastPrice.toLongDollar() }
+            if (updatePositions) loadPricedPositions()
+        } catch (e: Exception) {
+            Log.w("Zygos/ZygosViewModel", "Failure: ${e.message}")
+        }
+    }
+
+    private fun loadPricedPositions() {
+        /** This check, the load launch, and the reset happen on the main thread, so there's no
+         * way they can conflict. However, need to copy the lists since both the loads below and
+         * the loads in lotModel happen on dispatched threads
+         */
+        if (!lots.isLoading) {
+            val long = if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions.toList()
+            val short = lots.shortPositions.toList()
+            longPositions.loadLaunched(long, prices)
+            shortPositions.loadLaunched(short, prices)
+        }
+    }
+
 
     /** Sets the current account to display, loading the data elements into the ui state variables.
      * This should be run on the main thread, but in a coroutine. **/
@@ -294,8 +322,10 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
         colors.insertDefaults(lots.tickerLots.keys)
 
-        longPositions.loadLaunched(if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions, prices)
-        shortPositions.loadLaunched(lots.shortPositions, prices)
+        loadPricedPositions()
+
+        // TODO place this into a timer
+        updatePrices(lots.tickerLots.keys)
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale
@@ -312,17 +342,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         // Don't actually need to block, the state list update is scheduled in a coroutine already
 //        jobs.joinAll()
-
-
-        val key = apiKeys[tdService.name]
-        if (!key.isNullOrBlank()) {
-            try {
-                val listResult = TdApi.getQuote(key, listOf("MSFT", "AAPL"))
-                Log.w("Zygos/ZygosViewModel", "$listResult")
-            } catch (e: Exception) {
-                Log.w("Zygos/ZygosViewModel", "Failure: ${e.message}")
-            }
-        }
     }
 
     suspend fun sortList(whichList: String) {

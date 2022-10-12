@@ -111,7 +111,7 @@ class PositionModel(private val parent: ZygosViewModel) {
             return
         }
 
-        isLoading = true // this should happen in the main routine because launch == loading
+        isLoading = true // this can be called earlier too
         parent.viewModelScope.launch {
             val newList = withContext(Dispatchers.IO) {
                 val newList = mutableListOf<PricedPosition>()
