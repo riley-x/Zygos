@@ -12,7 +12,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
 import com.example.zygos.network.ApiService
+import com.example.zygos.network.TdApi
 import com.example.zygos.network.apiServices
+import com.example.zygos.network.tdService
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
@@ -292,7 +294,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
         colors.insertDefaults(lots.tickerLots.keys)
 
-
         longPositions.loadLaunched(if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions, prices)
         shortPositions.loadLaunched(lots.shortPositions, prices)
 
@@ -311,6 +312,17 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         // Don't actually need to block, the state list update is scheduled in a coroutine already
 //        jobs.joinAll()
+
+
+        val key = apiKeys[tdService.name]
+        if (!key.isNullOrBlank()) {
+            try {
+                val listResult = TdApi.getQuote(key, listOf("MSFT", "AAPL"))
+                Log.w("Zygos/ZygosViewModel", "$listResult")
+            } catch (e: Exception) {
+                Log.w("Zygos/ZygosViewModel", "Failure: ${e.message}")
+            }
+        }
     }
 
     suspend fun sortList(whichList: String) {

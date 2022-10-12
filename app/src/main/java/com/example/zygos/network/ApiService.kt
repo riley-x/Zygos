@@ -12,6 +12,7 @@ data class ApiService(
 
 // TODO
 val apiServices = listOf(
+    tdService,
     ApiService(
         name = "IEX",
         preferenceKey = PREFERENCE_IEX_API_KEY_KEY,
