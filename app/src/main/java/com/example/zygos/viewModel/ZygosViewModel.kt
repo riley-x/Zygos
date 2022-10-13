@@ -41,7 +41,6 @@ class ZygosViewModelFactory(
 }
 
 
-typealias AccountPerformanceState = TimeSeriesGraphState<TimeSeries>
 typealias ChartState = TimeSeriesGraphState<OhlcNamed>
 
 
@@ -81,64 +80,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         private set
 
     /** Account Performance **/
-    // TODO move into subclass
-    var accountPerformanceTimeRange = mutableStateOf(accountPerformanceRangeOptions.items.last()) // must be state to pass down to button group derivedStateOf
-        private set
-    var accountPerformanceState = mutableStateOf(AccountPerformanceState())
-        private set
-    private var equityHistorySeries = mutableListOf<TimeSeries>() // Caches time range changes; accountPerformanceState.values are sliced from this
-
-    fun updateAccountPerformanceRange(range: String) {
-        if (accountPerformanceTimeRange.value != range)
-            setAccountPerformanceRange(range)
-    }
-    private fun setAccountPerformanceRange(range: String) {
-        // don't check if time range is the same, since this is called in statup too. Use update instead
-        accountPerformanceTimeRange.value = range
-        if (equityHistorySeries.isEmpty()) return
-
-        viewModelScope.launch(Dispatchers.IO) {
-            /** Get the y min/max and xrange of the performance plot **/
-            var minY = equityHistorySeries.last().value
-            var maxY = equityHistorySeries.last().value
-            var startIndex = 0
-            val startDate = if (range == "All") 0 else {
-                val cal = Calendar.getInstance()
-                when (range) {
-                    "1m" -> cal.add(Calendar.MONTH, -1)
-                    "3m" -> cal.add(Calendar.MONTH, -3)
-                    "1y" -> cal.add(Calendar.YEAR, -1)
-                    "5y" -> cal.add(Calendar.YEAR, -5)
-                }
-                cal.toIntDate()
-            }
-            for (i in equityHistorySeries.lastIndex downTo 0) {
-                val x = equityHistorySeries[i]
-                if (x.date < startDate) {
-                    startIndex = i + 1
-                    break
-                }
-                if (x.value < minY) minY = x.value
-                if (x.value > maxY) maxY = x.value
-            }
-            val pad = (maxY - minY) * performanceGraphYPad
-            maxY += pad
-            minY -= pad
-
-            /** Get the axis positions **/
-            val stepX = (equityHistorySeries.lastIndex - startIndex).toFloat() / performanceGraphTickDivisionsX
-            val ticksX = IntRange(1, performanceGraphTickDivisionsX - 1).map { (stepX * it).roundToInt() }
-            val ticksY = autoYTicks(minY, maxY, performanceGraphTickDivisionsY, performanceGraphTickDivisionsY - 1)
-
-            accountPerformanceState.value = AccountPerformanceState(
-                values = equityHistorySeries.slice(startIndex..equityHistorySeries.lastIndex),
-                minY = minY,
-                maxY = maxY,
-                ticksX = ticksX,
-                ticksY = ticksY,
-            )
-        }
-    }
 
     /** Watchlist **/
     // TODO move into subclass
@@ -200,6 +141,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     val lots = LotModel(this)
     /** Prices **/
     val market = MarketModel(this)
+    /** Performance Screen **/
+    val equityHistory = EquityHistoryModel(this)
     /** Priced Positions **/
     val longPositions = PositionModel(this)
     val shortPositions = PositionModel(this)
@@ -306,6 +249,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         shortPositions.isLoading = true // they need to be here because the lots load blocks
 
         transactions.loadLaunched(account)
+        equityHistory.loadLaunched(account)
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
         colors.insertDefaults(lots.tickerLots.keys)
 
@@ -319,13 +263,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lots.tickerLots.size}")
         Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lots.longPositions.size}")
         lots.logPositions()
-
-        // TODO
-//        equityHistorySeries.clear()
-//        equityHistorySeries.addAll(equityHistoryDao.getAccount(currentAccount).map() {
-//            TimeSeries(it.returns / 10000f, it.date, formatDateInt(it.date))
-//        })
-//        setAccountPerformanceRange(accountPerformanceTimeRange.value)
 
         // Don't actually need to block, the state list update is scheduled in a coroutine already
 //        jobs.joinAll()

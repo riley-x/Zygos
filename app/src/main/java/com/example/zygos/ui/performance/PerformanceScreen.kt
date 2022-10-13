@@ -16,13 +16,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.graphing.TimeSeriesGraph
 import com.example.zygos.ui.graphing.TimeSeriesGraphSelector
+import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.graphing.lineGraph
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.*
 
 @Composable
 fun PerformanceScreen(
-    accountPerformanceState: State<AccountPerformanceState>,
+    accountPerformanceState: State<TimeSeriesGraphState<TimeSeries>>,
     accountPerformanceTimeRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     watchlist: SnapshotStateList<Quote>,
     watchlistDisplayOption: String,

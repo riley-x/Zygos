@@ -8,6 +8,7 @@ import com.example.zygos.data.LotPosition
 import com.example.zygos.data.PositionType
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
+import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.theme.defaultTickerColors
 
 class TestViewModel: ViewModel() {
@@ -20,10 +21,10 @@ class TestViewModel: ViewModel() {
     }
 
     /** PerformanceScreen **/
-    var accountPerformanceState = mutableStateOf(AccountPerformanceState(
+    var accountPerformanceState = mutableStateOf(TimeSeriesGraphState(
         xAxisLoc = 12f,
         values = List(20) {
-            TimeSeries(it * if (it % 2 == 0) 1.2f else 0.8f, it, "$it/${it * 2}")
+            TimeSeries(it * if (it % 2 == 0) 1.2f else 0.8f, it)
         },
         ticksY = listOf(5f, 10f, 15f, 20f),
         ticksX = listOf(5, 10, 15),

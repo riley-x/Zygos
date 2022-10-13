@@ -3,6 +3,7 @@ package com.example.zygos.viewModel
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.example.zygos.data.*
+import com.example.zygos.ui.components.formatDateInt
 
 /**
  * This file contains data classes that are passed into composables
@@ -26,8 +27,9 @@ data class NamedValue(
 data class TimeSeries(
     override val value: Float,
     val date: Int,
-    override val name: String,
-): HasName, HasValue
+): HasName, HasValue {
+    override val name = formatDateInt(date)
+}
 
 @Immutable
 data class OhlcNamed(

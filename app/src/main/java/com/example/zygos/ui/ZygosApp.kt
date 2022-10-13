@@ -238,13 +238,13 @@ fun ZygosApp(
                     composable(route = PerformanceTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Performance.route")
                         PerformanceScreen(
-                            accountPerformanceState = viewModel.accountPerformanceState,
-                            accountPerformanceTimeRange = viewModel.accountPerformanceTimeRange,
+                            accountPerformanceState = viewModel.equityHistory.graphState,
+                            accountPerformanceTimeRange = viewModel.equityHistory.timeRange,
                             watchlist = viewModel.watchlist,
                             watchlistDisplayOption = viewModel.watchlistDisplayOption,
                             onTickerSelected = ::onTickerSelected,
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
-                            onAccountPerformanceRangeSelected = viewModel::updateAccountPerformanceRange,
+                            onAccountPerformanceRangeSelected = viewModel.equityHistory::updateTimeRange,
                             accountSelectionBar = accountSelectionBar,
                             bottomPadding = bottomPadding,
                         )

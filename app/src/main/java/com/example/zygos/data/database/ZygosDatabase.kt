@@ -15,7 +15,7 @@ import java.io.File
         LotTransactionCrossRef::class,
         Ohlc::class,
         ColorSettings::class],
-    version = 5
+    version = 6
 )
 abstract class ZygosDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao

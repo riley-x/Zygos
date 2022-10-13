@@ -14,7 +14,7 @@ import androidx.room.*
 data class EquityHistory(
     @NonNull val account: String, // can be "All Accounts"
     val date: Int,
-    val returns: Int,
+    val returns: Long,
 )
 
 
