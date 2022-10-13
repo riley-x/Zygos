@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.toFloatDollar
 import com.example.zygos.data.toIntDate
+import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,10 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
     private fun setTimeRange(range: String) {
         // don't check if time range is the same, since this is called in startup too. Use update instead
         timeRange.value = range
-        if (series.isEmpty()) return
+        if (series.isEmpty()) {
+            graphState.value = TimeSeriesGraphState()
+            return
+        }
 
         parent.viewModelScope.launch {
             graphState.value = withContext(Dispatchers.Default) {
@@ -39,7 +43,8 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         parent.viewModelScope.launch {
             /** Get series from database **/
             val loadedSeries = withContext(Dispatchers.IO) {
-                parent.equityHistoryDao.getAccount(account)
+                if (account == allAccounts) parent.equityHistoryDao.getAllAccounts()
+                else parent.equityHistoryDao.getAccount(account)
             }
             /** Upload to in-memory map **/
             series.clear()

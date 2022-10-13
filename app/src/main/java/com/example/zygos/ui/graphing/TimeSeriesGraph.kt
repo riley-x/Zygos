@@ -113,7 +113,7 @@ fun <T: HasName> TimeSeriesGraph(
     else {
         /** Cache some text variables (note MaterialTheme is not accessible in DrawScope) **/
         val textMeasurer = rememberTextMeasurer()
-        val textStyle = MaterialTheme.typography.subtitle2
+        val textStyle = MaterialTheme.typography.overline
         val textColor = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium)
         val labelYWidth = if (state.value.ticksY.isEmpty()) 0 else {
             val textLayoutResult1: TextLayoutResult =
