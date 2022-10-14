@@ -1,4 +1,4 @@
-package com.example.zygos.ui.transactions
+package com.example.zygos.ui.holdings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -6,7 +6,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -15,28 +14,35 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.TransactionType
-import com.example.zygos.data.database.allTransactionTypes
-import com.example.zygos.ui.components.*
+import com.example.zygos.ui.components.ConfirmationButtons
+import com.example.zygos.ui.components.ImmutableList
+import com.example.zygos.ui.components.ListSortOptionRow
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.ui.transactions.TransactionTypeSelector
 import com.example.zygos.viewModel.TestViewModel
 import com.example.zygos.viewModel.transactionSortOptions
 
+
+
+
+
+
 @Composable
-fun TransactionsListOptionsDialog(
+fun HoldingsListOptionsDialog(
+    currentDisplayOption: String,
     currentSortOption: String,
-    isSortedAscending: Boolean,
+    currentSortIsAscending: Boolean,
     sortOptions: ImmutableList<String>,
     modifier: Modifier = Modifier,
-    onSortOptionSelected: (String) -> Unit = { },
-    onDismiss: (isCancel: Boolean, String, TransactionType) -> Unit = { _, _, _ -> },
+    onDismiss: (isCancel: Boolean, displayOption: String, sortOption: String, sortIsAscending: Boolean ) -> Unit = { _, _, _, _ -> },
 ) {
-    val focusManager = LocalFocusManager.current
-
     var ticker by remember { mutableStateOf("") }
     var type by remember { mutableStateOf(TransactionType.NONE) }
 
+    fun onCancel() = onDismiss(true, "", "", false)
+
     AlertDialog(
-        onDismissRequest = { onDismiss(true, "", TransactionType.NONE) },
+        onDismissRequest = ::onCancel,
         // don't use the title argument, it really messes with the layouts
         text = {
             Column {
@@ -46,28 +52,8 @@ fun TransactionsListOptionsDialog(
                     modifier = Modifier
                         .padding(bottom = 8.dp)
                 )
-                OutlinedTextField(
-                    value = ticker,
-                    onValueChange = { ticker = it },
-                    label = { Text("Ticker") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Characters,
-                        autoCorrect = false,
-                        imeAction = ImeAction.Done,
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            focusManager.clearFocus()
-                        }
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-                DropdownSelector(
-                    currentValue = type,
-                    allValues = allTransactionTypes,
-                    label = "Type",
+                TransactionTypeSelector(
+                    type = type,
                     onSelection = { type = it },
                     modifier = Modifier
                         .padding(vertical = 8.dp)
@@ -117,17 +103,12 @@ fun TransactionsListOptionsDialog(
 fun PreviewTransactionListOptionsDialog() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.Bottom,
-        ) {
-            Surface {
-                TransactionsListOptionsDialog(
-                    currentSortOption = transactionSortOptions.items[0],
-                    isSortedAscending = true,
-                    sortOptions = transactionSortOptions,
-                )
-            }
+        Surface {
+            HoldingsListOptionsDialog(
+                currentSortOption = transactionSortOptions.items[0],
+                isSortedAscending = true,
+                sortOptions = transactionSortOptions,
+            )
         }
     }
 }

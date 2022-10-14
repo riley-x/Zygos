@@ -1,4 +1,4 @@
-package com.example.zygos.ui.transactions
+package com.example.zygos.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.*
@@ -6,28 +6,33 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.zygos.data.database.TransactionType
+import com.example.zygos.ui.holdings.HoldingsListSortOptions
+import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.theme.ZygosTheme
 
+/**
+ * Wrapper class for a read-only ExposedDropdownMenu
+ */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TransactionTypeSelector(
-    type: TransactionType,
+fun <T: HasDisplayName> DropdownSelector(
+    currentValue: T,
+    allValues: ImmutableList<T>,
     modifier: Modifier = Modifier,
-    onSelection: (TransactionType) -> Unit = { },
+    label: String = "",
+    onSelection: (T) -> Unit = { },
 ) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = {
-            expanded = !expanded
-        },
+        onExpandedChange = { expanded = !expanded },
         modifier = modifier
     ) {
         OutlinedTextField(
             readOnly = true,
-            value = type.name,
+            value = currentValue.displayName,
             onValueChange = {  },
-            label = { Text("Type") },
+            label = { if (label.isNotBlank()) Text(label) },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(
                     expanded = expanded
@@ -37,18 +42,16 @@ fun TransactionTypeSelector(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = {
-                expanded = false
-            }
+            onDismissRequest = { expanded = false }
         ) {
-            TransactionType.values().forEach {
+            allValues.items.forEach {
                 DropdownMenuItem(
                     onClick = {
                         onSelection(it)
                         expanded = false
                     }
                 ) {
-                    Text(text = it.name)
+                    Text(text = it.displayName)
                 }
             }
         }
@@ -60,7 +63,10 @@ fun TransactionTypeSelector(
 fun PreviewTransactionTypeSelector() {
     ZygosTheme {
         Surface {
-            TransactionTypeSelector(TransactionType.TRANSFER)
+            DropdownSelector(
+                currentValue = HoldingsListSortOptions.EQUITY,
+                allValues = holdingsListSortOptions,
+            )
         }
     }
 }

@@ -4,10 +4,12 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.room.*
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.example.zygos.ui.components.HasDisplayName
+import com.example.zygos.ui.components.ImmutableList
 import com.example.zygos.ui.components.allAccounts
 import java.util.*
 
-enum class TransactionType(val displayName: String, val isOption: Boolean = false, val isShort: Boolean = false) {
+enum class TransactionType(override val displayName: String, val isOption: Boolean = false, val isShort: Boolean = false) : HasDisplayName {
     TRANSFER("Transfer"),
     INTEREST("Interest"),
     DIVIDEND("Dividend"),
@@ -26,6 +28,7 @@ enum class TransactionType(val displayName: String, val isOption: Boolean = fals
         return displayName
     }
 }
+val allTransactionTypes = ImmutableList(TransactionType.values().toList())
 
 
 /**

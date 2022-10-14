@@ -15,6 +15,3 @@ val watchlistSortOptions = ImmutableList(listOf("Ticker", "% Change"))
 val watchlistDisplayOptions = ImmutableList(listOf("Change", "% Change"))
 
 val transactionSortOptions = ImmutableList(listOf("Date", "Ticker"))
-
-val holdingsListSortOptions = ImmutableList(listOf("Ticker", "Equity", "Returns", "% Change"))
-val holdingsListDisplayOptions = ImmutableList(listOf("Returns", "% Change"))

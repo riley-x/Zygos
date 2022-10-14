@@ -18,9 +18,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
+import com.example.zygos.data.database.allTransactionTypes
 import com.example.zygos.data.toFloatDollar
 import com.example.zygos.data.toLongDollar
 import com.example.zygos.ui.components.AccountSelector
+import com.example.zygos.ui.components.DropdownSelector
 import com.example.zygos.ui.components.LogCompositions
 import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.theme.ZygosTheme
@@ -130,7 +132,12 @@ fun TransactionDetailsScreen(
         ) {
             AccountSelector(account = account, accounts = accounts, modifier = Modifier.fillMaxWidth())
 
-            TransactionTypeSelector(type = type.value, modifier = Modifier.fillMaxWidth()) {
+            DropdownSelector(
+                currentValue = type.value,
+                allValues = allTransactionTypes,
+                modifier = Modifier.fillMaxWidth(),
+                label = "Type",
+            ) {
                 type.value = it
                 defaultFields(it)
             }
