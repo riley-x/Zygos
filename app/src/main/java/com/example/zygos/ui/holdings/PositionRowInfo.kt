@@ -61,7 +61,9 @@ fun PositionRowInfo(
         HoldingsListOptions.EQUITY -> Text(formatDollar(position.equity), modifier)
         HoldingsListOptions.RETURNS -> ColoredDollar(position.returnsTotal, modifier)
         HoldingsListOptions.RETURNS_PERCENT -> ColoredPercent(position.returnsPercent, modifier)
-        else -> {} // TODO
+        HoldingsListOptions.RETURNS_TODAY -> ColoredDollar(position.returnsToday, modifier)
+        HoldingsListOptions.RETURNS_PERCENT_TODAY -> ColoredPercent(position.returnsTodayPercent, modifier)
+        else -> Unit
     }
 }
 

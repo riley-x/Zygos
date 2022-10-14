@@ -63,14 +63,10 @@ interface Position {
     val costBasis: Long
     val taxBasis: Long
     val feesAndRounding: Long
-    /** Returns **/
+    /** Realized **/
     val realizedOpen: Long
     val realizedClosed: Long
     val realized: Long
-    fun unrealized(prices: Map<String, Long>): Long
-    fun returns(prices: Map<String, Long>): Long // open only
-    fun equity(prices: Map<String, Long>): Long
-    fun returnsPercent(prices: Map<String, Long>): Float
     /** Options **/
     val expiration: Int
     val strike: Long
@@ -78,6 +74,13 @@ interface Position {
     val instrumentName: String
     /** Sub-positions **/
     val subPositions: List<Position>
+
+    fun equity(prices: Map<String, Long>): Long
+    fun unrealized(prices: Map<String, Long>): Long
+    fun returns(prices: Map<String, Long>): Long // open only
+    fun returnsPercent(prices: Map<String, Long>): Float
+    fun returnsPeriod(pricesStart: Map<String, Long>, pricesEnd: Map<String, Long>): Long
+//    fun returnsPeriodPercent(pricesStart: Map<String, Long>, pricesEnd: Map<String, Long>): Float
 
     operator fun plus(b: Position): AggregatePosition {
         return AggregatePosition(
@@ -132,6 +135,13 @@ data class LotPosition(
     override fun returnsPercent(prices: Map<String, Long>) =
         if (type == PositionType.CASH || costBasis == 0L) 0f
         else (realizedOpen + unrealized(prices)).toFloat() / costBasis
+
+    override fun returnsPeriod(pricesStart: Map<String, Long>, pricesEnd: Map<String, Long>) =
+        unrealized(pricesEnd) - unrealized(pricesStart)
+
+//    override fun returnsPeriodPercent(pricesStart: Map<String, Long>, pricesEnd: Map<String, Long>) =
+//        if (type == PositionType.CASH || costBasis == 0L) 0f
+//        else unrealized(pricesEnd).toFloat() / equity(pricesStart)
 }
 
 
@@ -164,20 +174,28 @@ data class AggregatePosition (
     override val costBasis = subPositions.sumOf(Position::costBasis)
     override val taxBasis = subPositions.sumOf(Position::taxBasis)
     override val feesAndRounding = subPositions.sumOf(Position::feesAndRounding)
-    /** Returns **/
+    /** Realized **/
     override val realizedOpen = subPositions.sumOf(Position::realizedOpen)
     override val realizedClosed = subPositions.sumOf(Position::realizedClosed) + realizedClosedExtra
     override val realized = realizedOpen + realizedClosed
+    /** Options **/
+    override val expiration = subPositions.ifAllEqual(Position::expiration, 0)
+    override val strike = subPositions.ifAllEqual(Position::strike, 0)
+    override val collateral = subPositions.sumOf(Position::collateral)
+
+    /** Functions **/
     override fun unrealized(prices: Map<String, Long>) = subPositions.sumOf { it.unrealized(prices) }
     override fun returns(prices: Map<String, Long>) = subPositions.sumOf { it.returns(prices) }
     override fun equity(prices: Map<String, Long>) = subPositions.sumOf { it.equity(prices) } + if (type == PositionType.CASH) realizedClosedExtra else 0
     override fun returnsPercent(prices: Map<String, Long>) =
         if (type == PositionType.CASH || costBasis == 0L) 0f
         else (realizedOpen + unrealized(prices)).toFloat() / costBasis
-    /** Options **/
-    override val expiration = subPositions.ifAllEqual(Position::expiration, 0)
-    override val strike = subPositions.ifAllEqual(Position::strike, 0)
-    override val collateral = subPositions.sumOf(Position::collateral)
+
+    override fun returnsPeriod(pricesStart: Map<String, Long>, pricesEnd: Map<String, Long>): Long =
+        subPositions.sumOf { it.returnsPeriod(pricesStart, pricesEnd) }
+//    override fun returnsPeriodPercent(pricesStart: Map<String, Long>, pricesEnd: Map<String, Long>) =
+//        if (type == PositionType.CASH || costBasis == 0L) 0f
+//        else returnsPeriod(pricesStart, pricesEnd).toFloat() / costBasis
 }
 
 

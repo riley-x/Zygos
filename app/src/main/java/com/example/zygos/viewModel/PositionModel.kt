@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.Position
+import com.example.zygos.network.TdQuote
 import com.example.zygos.ui.holdings.HoldingsListOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -98,7 +99,7 @@ class PositionModel(private val parent: ZygosViewModel) {
         isLoading = false
     }
 
-    fun loadLaunched(positions: List<Position>, prices: Map<String, Long>) {
+    fun loadLaunched(positions: List<Position>, quotes: Map<String, TdQuote>) {
 
         if (positions.isEmpty()) {
             list.clear()
@@ -111,7 +112,7 @@ class PositionModel(private val parent: ZygosViewModel) {
             val newList = withContext(Dispatchers.IO) {
                 val newList = mutableListOf<PricedPosition>()
                 positions.forEach {
-                    newList.add(PricedPosition(lot = it, prices = prices))
+                    newList.add(PricedPosition(lot = it, quotes = quotes))
                 }
                 getSortedList(newList, sortOption, sortIsAscending)
             }

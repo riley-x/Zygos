@@ -3,6 +3,7 @@ package com.example.zygos.viewModel
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.example.zygos.data.*
+import com.example.zygos.network.TdQuote
 import com.example.zygos.ui.components.formatDateInt
 
 /**
@@ -74,6 +75,8 @@ data class PricedPosition (
     val returnsOpen: Float = 0f,
     val returnsPercent: Float = 0f,
     val returnsTotal: Float = 0f,
+    val returnsToday: Float = 0f,
+    val returnsTodayPercent: Float = 0f,
     val equity: Float = 0f,
     /** Sub-positions **/
     val subPositions: List<PricedPosition> = emptyList(),
@@ -81,10 +84,12 @@ data class PricedPosition (
     companion object Factory {
         operator fun invoke(
             lot: Position,
-            prices: Map<String, Long>,
+            quotes: Map<String, TdQuote>,
         ): PricedPosition {
+            val markPrices = quotes.mapValues { it.value.mark.toLongDollar() }
+            val closePrices = quotes.mapValues { it.value.closePrice.toLongDollar() }
             val realizedOpen = lot.realizedOpen.toFloatDollar()
-            val unrealized = lot.unrealized(prices).toFloatDollar()
+            val unrealized = lot.unrealized(markPrices).toFloatDollar()
             return PricedPosition(
                 /** Identifiers **/
                 account = lot.account,
@@ -106,11 +111,13 @@ data class PricedPosition (
                 /** Price-dependent **/
                 unrealized = unrealized,
                 returnsOpen = realizedOpen + unrealized,
-                returnsPercent = lot.returnsPercent(prices),
-                returnsTotal = lot.returns(prices).toFloatDollar(),
-                equity = lot.equity(prices).toFloatDollar(),
+                returnsPercent = lot.returnsPercent(markPrices),
+                returnsTotal = lot.returns(markPrices).toFloatDollar(),
+                returnsToday = lot.returnsPeriod(closePrices, markPrices).toFloatDollar(),
+                returnsTodayPercent = quotes[lot.instrumentName]?.netPercentChangeInDouble ?: 0f,
+                equity = lot.equity(markPrices).toFloatDollar(),
                 /** Sub-positions **/
-                subPositions = lot.subPositions.map { PricedPosition(it, prices) },
+                subPositions = lot.subPositions.map { PricedPosition(it, quotes) },
             )
         }
     }

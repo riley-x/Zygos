@@ -8,6 +8,7 @@ import com.example.zygos.data.LotPosition
 import com.example.zygos.data.PositionType
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
+import com.example.zygos.network.TdQuote
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.holdings.HoldingsListOptions
 import com.example.zygos.ui.theme.defaultTickerColors
@@ -55,12 +56,25 @@ class TestViewModel: ViewModel() {
     var watchlistDisplayOption by mutableStateOf(watchlistDisplayOptions.items[0])
 
     /** Holdings **/
-    val prices = mapOf<String, Long>(
-        "MSFT" to 2500000,
-        "MSFT Call 20231010 1250000" to 600000, // $60
-        "AMD" to 700000, // $70
+
+    val quotes = mutableStateMapOf(
+        "MSFT" to TdQuote(
+            symbol = "MSFT",
+            mark = 120f,
+            lastPrice = 120f,
+            openPrice = 120f,
+            highPrice = 120f,
+            lowPrice = 120f,
+            closePrice = 120f,
+            netPercentChangeInDouble = 2f,
+            netChange = 10f,
+            regularMarketPercentChangeInDouble = 2f,
+            regularMarketNetChange = 10f
+        )
     )
-    val lots = mutableListOf<LotPosition>(
+    val latestPrices = quotes.mapValues { it.value.mark }
+    val closePrices = quotes.mapValues { it.value.closePrice }
+    val lots = mutableListOf(
         LotPosition(
             account = "Robinhood",
             ticker = "MSFT",
@@ -98,9 +112,9 @@ class TestViewModel: ViewModel() {
         ),
     )
     val longPositions = mutableStateListOf(
-        PricedPosition(lot = lots[0] + lots[1], prices = prices),
-        PricedPosition(lot = lots[2], prices = prices),
-        PricedPosition(lot = lots[3], prices = prices),
+        PricedPosition(lot = lots[0] + lots[1], quotes = quotes),
+        PricedPosition(lot = lots[2], quotes = quotes),
+        PricedPosition(lot = lots[3], quotes = quotes),
     )
     val shortPositions = mutableStateListOf<PricedPosition>()
 

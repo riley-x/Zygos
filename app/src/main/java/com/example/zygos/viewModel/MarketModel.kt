@@ -1,12 +1,14 @@
 package com.example.zygos.viewModel
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateMapOf
 import com.example.zygos.data.toLongDollar
 import com.example.zygos.network.TdApi
+import com.example.zygos.network.TdQuote
 import com.example.zygos.network.tdService
 
 class MarketModel(private val parent: ZygosViewModel) {
-    val latestPrices = mutableMapOf<String, Long>()
+    val quotes = mutableStateMapOf<String, TdQuote>()
 
     suspend fun updatePrices(tickers: MutableSet<String>): Boolean {
         val key = parent.apiKeys[tdService.name]
@@ -14,9 +16,10 @@ class MarketModel(private val parent: ZygosViewModel) {
 
         try {
             tickers.remove("CASH")
-            val quotes = TdApi.getQuote(key, tickers)
+            val newQuotes = TdApi.getQuote(key, tickers)
+            quotes.clear()
+            quotes.putAll(newQuotes)
             Log.d("Zygos/MarketModel/updatePrices", "$quotes")
-            quotes.mapValuesTo(latestPrices) { it.value.mark.toLongDollar() }
             return true
         } catch (e: Exception) {
             Log.w("Zygos/MarketModel/updatePrices", "Failure: ${e.message}")
