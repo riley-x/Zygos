@@ -15,10 +15,11 @@ class MarketModel(private val parent: ZygosViewModel) {
         try {
             tickers.remove("CASH")
             val quotes = TdApi.getQuote(key, tickers)
+            Log.d("Zygos/MarketModel/updatePrices", "$quotes")
             quotes.mapValuesTo(latestPrices) { it.value.mark.toLongDollar() }
             return true
         } catch (e: Exception) {
-            Log.w("Zygos/ZygosViewModel", "Failure: ${e.message}")
+            Log.w("Zygos/MarketModel/updatePrices", "Failure: ${e.message}")
         }
         return false
     }

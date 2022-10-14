@@ -61,7 +61,7 @@ private fun PositionDetails(
         }
         Row {
             TitleValue("Price Open", formatDollar(position.priceOpen), defaultMod())
-            TitleValue("Cost Basis", formatDollar(position.costBasis), defaultMod())
+            TitleValue("Equity", formatDollar(position.equity), defaultMod())
         }
         Row {
             TitleValue("Unrealized", formatDollar(position.unrealized), defaultMod())

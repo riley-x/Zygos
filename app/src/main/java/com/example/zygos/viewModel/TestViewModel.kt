@@ -58,7 +58,7 @@ class TestViewModel: ViewModel() {
     val prices = mapOf<String, Long>(
         "MSFT" to 2500000,
         "MSFT Call 20231010 1250000" to 600000, // $60
-        "AMD" to 1300000, // $130
+        "AMD" to 700000, // $70
     )
     val lots = mutableListOf<LotPosition>(
         LotPosition(

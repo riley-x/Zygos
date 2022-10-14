@@ -13,19 +13,19 @@ data class ApiService(
 // TODO
 val apiServices = listOf(
     tdService,
-    ApiService(
-        name = "IEX",
-        preferenceKey = PREFERENCE_IEX_API_KEY_KEY,
-        url = "",
-    ),
+//    ApiService(
+//        name = "IEX",
+//        preferenceKey = PREFERENCE_IEX_API_KEY_KEY,
+//        url = "",
+//    ),
     ApiService(
         name = "Alpha Vantage",
         preferenceKey = PREFERENCE_ALPHA_VANTAGE_API_KEY_KEY,
         url = "",
     ),
-    ApiService(
-        name = "Polygon",
-        preferenceKey = PREFERENCE_POLYGON_API_KEY_KEY,
-        url = "",
-    ),
+//    ApiService(
+//        name = "Polygon",
+//        preferenceKey = PREFERENCE_POLYGON_API_KEY_KEY,
+//        url = "",
+//    ),
 )

@@ -33,7 +33,7 @@ fun ColoredDollar(
 ) {
     Text(
         text = formatDollar(value),
-        color = if (value >= 0) MaterialTheme.colors.primary.copy(alpha = ContentAlpha.medium) else MaterialTheme.colors.error,
+        color = if (value >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error,
         modifier = modifier
     )
 }
@@ -45,7 +45,7 @@ fun ColoredPercent(
 ) {
     Text(
         text = formatPercent(value),
-        color = if (value >= 0) MaterialTheme.colors.primary.copy(alpha = ContentAlpha.medium) else MaterialTheme.colors.error,
+        color = if (value >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error,
         modifier = modifier
     )
 }
@@ -59,7 +59,7 @@ fun PositionRowInfo(
 ) {
     when (displayOption) {
         HoldingsListOptions.EQUITY -> Text(formatDollar(position.equity), modifier)
-        HoldingsListOptions.RETURNS -> ColoredDollar(position.realizedOpen, modifier)
+        HoldingsListOptions.RETURNS -> ColoredDollar(position.returnsTotal, modifier)
         HoldingsListOptions.RETURNS_PERCENT -> ColoredPercent(position.returnsPercent, modifier)
         else -> {} // TODO
     }
@@ -82,7 +82,7 @@ fun PositionRowSubInfo(
             }
         } else if (position.type.isSpread) {
             Row(modifier) {
-                Column(Modifier.width(120.dp)) {
+                Column(Modifier.width(100.dp)) {
                     Text(position.type.toString())
                     Text("x${position.shares}")
                 }
@@ -93,7 +93,7 @@ fun PositionRowSubInfo(
             }
         } else if (position.type.isOption) {
             Row(modifier) {
-                Column(Modifier.width(120.dp)) {
+                Column(Modifier.width(100.dp)) {
                     Text(position.type.toString())
                     Text("x${position.shares}")
                 }

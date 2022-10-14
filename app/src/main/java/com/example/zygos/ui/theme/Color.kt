@@ -1,5 +1,6 @@
 package com.example.zygos.ui.theme
 
+import androidx.compose.material.darkColors
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.graphics.Color
 
@@ -13,6 +14,15 @@ val DarkBlue900 = Color(0xFF26282F)
 
 val CandleGreen = Color(0xFF2DBF78)
 val CandleRed = Color(0xFFEF4747)
+
+val DarkColorPalette = darkColors(
+    primary = Green500,
+    surface = DarkBlue900,
+    onSurface = Color.White,
+    background = DarkBlue900,
+    onBackground = Color.White,
+    error = Color(0xFFEB5858),
+)
 
 val defaultTickerColors = mapOf(
     "CASH" to Color(0xFF1EB969), // Green500
