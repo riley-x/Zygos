@@ -22,27 +22,10 @@ fun ConfirmationDialog(
             Text(text = text, modifier = Modifier.padding(bottom = 6.dp))
         },
         buttons = {
-            Row(
-                modifier = Modifier
-                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = { onDismiss(false) },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.error,
-                    )
-                ) {
-                    Text("Cancel")
-                }
-
-                Button(
-                    onClick = { onDismiss(true) },
-                ) {
-                    Text("OK")
-                }
-            }
+            ConfirmationButtons(
+                onCancel = { onDismiss(false) },
+                onOk = { onDismiss(true) },
+            )
         },
         modifier = modifier,
     )

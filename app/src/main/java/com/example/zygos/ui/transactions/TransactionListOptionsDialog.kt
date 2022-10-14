@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.TransactionType
+import com.example.zygos.ui.components.ConfirmationButtons
 import com.example.zygos.ui.components.ImmutableList
 import com.example.zygos.ui.components.ListOptionDivider
 import com.example.zygos.ui.components.ListSortOptionRow
@@ -98,27 +99,10 @@ fun TransactionsListOptionsDialog(
             }
         },
         buttons = {
-            Row(
-                modifier = Modifier
-                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = { onDismiss(true, "", TransactionType.NONE) },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.error,
-                    )
-                ) {
-                    Text("Cancel")
-                }
-
-                Button(
-                    onClick = { onDismiss(false, ticker, type) },
-                ) {
-                    Text("OK")
-                }
-            }
+            ConfirmationButtons(
+                onCancel = { onDismiss(true, "", TransactionType.NONE) },
+                onOk = { onDismiss(false, ticker, type) },
+            )
         },
         modifier = modifier,
     )

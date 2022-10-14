@@ -59,8 +59,6 @@ fun ZygosApp(
         }
         val currentTab = zygosTabs.drop(1).find { it.isActive() == true } ?: zygosTabs[0]
 
-
-
         /** ModalBottomSheetLayout state **/
         var listOptionsSheetVersion by remember { mutableStateOf("") }
         var listOptionsSheetIsClosing by remember { mutableStateOf(false) }

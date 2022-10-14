@@ -9,6 +9,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.theme.ZygosTheme
 
+/**
+ * Dialog box with a single text field, with ok and cancel buttons
+ */
 @Composable
 fun TextFieldDialog(
     modifier: Modifier = Modifier,
@@ -44,27 +47,10 @@ fun TextFieldDialog(
             }
         },
         buttons = {
-            Row(
-                modifier = Modifier
-                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = { onDismiss("") },
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = MaterialTheme.colors.error,
-                    )
-                ) {
-                    Text("Cancel")
-                }
-
-                Button(
-                    onClick = { onDismiss(text) },
-                ) {
-                    Text("OK")
-                }
-            }
+            ConfirmationButtons(
+                onCancel = { onDismiss("") },
+                onOk = { onDismiss(text) },
+            )
         },
         modifier = modifier,
     )
@@ -74,6 +60,9 @@ fun TextFieldDialog(
 @Composable
 fun PreviewTextFieldDialog() {
     ZygosTheme {
-        TextFieldDialog()
+        TextFieldDialog(
+            title = "Add Account",
+            placeholder = "Account name",
+        )
     }
 }
