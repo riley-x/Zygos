@@ -6,6 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.Position
+import com.example.zygos.ui.holdings.HoldingsListSortOptions
+import com.example.zygos.ui.holdings.holdingsListDisplayOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -16,26 +18,20 @@ class PositionModel(private val parent: ZygosViewModel) {
     val list = mutableStateListOf<PricedPosition>()
 
     var isLoading by mutableStateOf(false)
-    var displayOption by mutableStateOf(holdingsListDisplayOptions.items[0])
-
-    // These variables are merely the ui state of the options selection menu.
-    // The actual sorting is called in sort() via a callback when the menu is hidden.
-    var sortOption by mutableStateOf("Equity")
-        private set
+    var displayOption by mutableStateOf(HoldingsListSortOptions.EQUITY)
+    var sortOption by mutableStateOf(HoldingsListSortOptions.EQUITY)
     var sortIsAscending by mutableStateOf(false)
-        private set
-
-    // Cached sort options to not re-sort if nothing was changed
-    private var lastSortOption = ""
-    private var lastSortIsAscending = true
 
     // Called from composable onClick callbacks
-    fun setSortMethod(opt: String) {
-        if (sortOption == opt) sortIsAscending = !sortIsAscending
-        else sortOption = opt
+    fun setSortAndDisplay(isCancel: Boolean, newDisplay: HoldingsListSortOptions, newSort: HoldingsListSortOptions, newIsAscending: Boolean) {
+        if (isCancel) return
+        parent.viewModelScope.launch {
+            displayOption = newDisplay
+            sort(newSort, newIsAscending)
+        }
     }
 
-    private fun getSortedList(oldList: List<PricedPosition>, option: String, ascending: Boolean): MutableList<PricedPosition> {
+    private fun getSortedList(oldList: List<PricedPosition>, option: HoldingsListSortOptions, ascending: Boolean): MutableList<PricedPosition> {
         if (oldList.isEmpty()) return mutableListOf()
         val newList = oldList.toMutableList()
 
@@ -51,10 +47,11 @@ class PositionModel(private val parent: ZygosViewModel) {
             else newList.sortByDescending(fn)
         }
         when (option) {
-            "Ticker" -> sortBy(PricedPosition::ticker)
-            "Equity" -> sortBy(PricedPosition::equity)
-            "Returns" -> sortBy(PricedPosition::returnsOpen)
-            "% Change" -> sortBy(PricedPosition::returnsPercent)
+            HoldingsListSortOptions.TICKER -> sortBy(PricedPosition::ticker)
+            HoldingsListSortOptions.EQUITY -> sortBy(PricedPosition::equity)
+            HoldingsListSortOptions.RETURNS -> sortBy(PricedPosition::returnsOpen)
+            HoldingsListSortOptions.RETURNS_PERCENT -> sortBy(PricedPosition::returnsPercent)
+            else -> Unit // TODO
         }
 
         /** Add back cash **/
@@ -80,27 +77,27 @@ class PositionModel(private val parent: ZygosViewModel) {
     }
 
 
-    suspend fun sort(force: Boolean = false) {
+    suspend fun sort(newSortOption: HoldingsListSortOptions, newSortIsAscending: Boolean, force: Boolean = false) {
         if (list.isEmpty()) return
-        if (!force && sortOption == lastSortOption && sortIsAscending == lastSortIsAscending) return
-//        isLoading = true
+        if (!force && newSortOption == sortOption && newSortIsAscending == sortIsAscending) return
+        isLoading = true
 
         /** Sort - this blocks this routine, but the main UI routine continues since sort() is called
          * from a LaunchedEffect. **/
         val newList = withContext(Dispatchers.IO) {
-            if (!force && lastSortOption == sortOption) {
+            if (!force && sortOption == newSortOption) {
                 getReversedList(list)
             } else {
-                getSortedList(list, sortOption, sortIsAscending)
+                getSortedList(list, newSortOption, newSortIsAscending)
             }
         }
 
         /** Update. This happens in the main thread when called from LaunchedEffect with no dispatcher **/
         list.clear()
         list.addAll(newList)
-        lastSortIsAscending = sortIsAscending
-        lastSortOption = sortOption
-//        isLoading = false
+        sortIsAscending = newSortIsAscending
+        sortOption = newSortOption
+        isLoading = false
     }
 
     fun loadLaunched(positions: List<Position>, prices: Map<String, Long>) {

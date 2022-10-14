@@ -22,6 +22,8 @@ import com.example.zygos.ui.colorSelector.ColorSelectorScreen
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.holdings.HoldingsScreen
 import com.example.zygos.ui.holdings.PositionDetailsScreen
+import com.example.zygos.ui.holdings.holdingsListDisplayOptions
+import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionDetailsScreen
@@ -366,6 +368,16 @@ fun ZygosApp(
                 onDismiss = ::onAddAccount
             )
         }
+        if () {
+            ListOptionsDialog(
+                currentDisplayOption = viewModel.longPositions.displayOption,
+                currentSortOption = viewModel.longPositions.sortOption,
+                currentSortIsAscending = viewModel.longPositions.sortIsAscending,
+                allDisplayOptions = holdingsListDisplayOptions,
+                allSortOptions = holdingsListSortOptions,
+                onDismiss = viewModel.longPositions::setSortAndDisplay,
+            )
+        }
         if (openTransactionsListOptionsDialog) {
             TransactionsListOptionsDialog(
                 currentSortOption = viewModel.transactions.sortOption,
@@ -434,24 +446,6 @@ fun bottomSheetContent(
     viewModel: ZygosViewModel,
 ): (@Composable ColumnScope.() -> Unit) {
     return when (version) {
-        "long positions" -> listOptionsSheet(
-            currentSortOption = viewModel.longPositions.sortOption,
-            currentDisplayOption = viewModel.longPositions.displayOption,
-            isSortedAscending = viewModel.longPositions.sortIsAscending,
-            displayOptions = holdingsListDisplayOptions,
-            sortOptions = holdingsListSortOptions,
-            onDisplayOptionSelected = viewModel.longPositions::displayOption::set,
-            onSortOptionSelected = viewModel.longPositions::setSortMethod,
-        )
-        "short positions" -> listOptionsSheet(
-            currentSortOption = viewModel.shortPositions.sortOption,
-            currentDisplayOption = viewModel.shortPositions.displayOption,
-            isSortedAscending = viewModel.shortPositions.sortIsAscending,
-            displayOptions = holdingsListDisplayOptions,
-            sortOptions = holdingsListSortOptions,
-            onDisplayOptionSelected = viewModel.shortPositions::displayOption::set,
-            onSortOptionSelected = viewModel.shortPositions::setSortMethod,
-        )
         else -> listOptionsSheet(
             currentSortOption = viewModel.watchlistSortOption,
             currentDisplayOption = viewModel.watchlistDisplayOption,

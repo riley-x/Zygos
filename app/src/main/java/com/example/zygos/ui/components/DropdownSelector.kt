@@ -60,7 +60,7 @@ fun <T: HasDisplayName> DropdownSelector(
 
 @Preview
 @Composable
-fun PreviewTransactionTypeSelector() {
+fun PreviewDropdownSelector() {
     ZygosTheme {
         Surface {
             DropdownSelector(
