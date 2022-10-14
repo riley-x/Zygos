@@ -10,9 +10,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.zygos.viewModel.holdingsListDisplayOptions
-import com.example.zygos.viewModel.holdingsListSortOptions
+import com.example.zygos.ui.holdings.holdingsListDisplayOptions
+import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.theme.ZygosTheme
+import com.example.zygos.viewModel.watchlistDisplayOptions
+import com.example.zygos.viewModel.watchlistSortOptions
 
 fun listOptionsSheet(
     currentSortOption: String,
@@ -90,11 +92,11 @@ fun PreviewHoldingsListOptionsSheet() {
         ) {
             Surface {
                 listOptionsSheet(
-                    currentSortOption = holdingsListSortOptions.items[0],
-                    currentDisplayOption = holdingsListDisplayOptions.items[0],
+                    currentSortOption = watchlistSortOptions.items[0],
+                    currentDisplayOption = watchlistDisplayOptions.items[0],
                     isSortedAscending = true,
-                    sortOptions = holdingsListSortOptions,
-                    displayOptions = holdingsListDisplayOptions,
+                    sortOptions = watchlistSortOptions,
+                    displayOptions = watchlistDisplayOptions,
                 )(this)
             }
         }

@@ -5,8 +5,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.zygos.data.database.TransactionType
-import com.example.zygos.ui.holdings.HoldingsListSortOptions
+import com.example.zygos.ui.holdings.HoldingsListOptions
 import com.example.zygos.ui.holdings.holdingsListSortOptions
 import com.example.zygos.ui.theme.ZygosTheme
 
@@ -64,7 +63,7 @@ fun PreviewDropdownSelector() {
     ZygosTheme {
         Surface {
             DropdownSelector(
-                currentValue = HoldingsListSortOptions.EQUITY,
+                currentValue = HoldingsListOptions.EQUITY,
                 allValues = holdingsListSortOptions,
             )
         }

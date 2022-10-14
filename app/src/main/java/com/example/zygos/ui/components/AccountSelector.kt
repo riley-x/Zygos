@@ -9,7 +9,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.ui.transactions.TransactionTypeSelector
 import com.example.zygos.viewModel.TestViewModel
 
 @OptIn(ExperimentalMaterialApi::class)

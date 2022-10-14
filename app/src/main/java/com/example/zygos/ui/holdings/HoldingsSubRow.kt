@@ -11,8 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.PositionType
-import com.example.zygos.data.toFloatDollar
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.PricedPosition
@@ -22,7 +20,7 @@ import com.example.zygos.viewModel.TestViewModel
 fun HoldingsSubRow(
     position: PricedPosition,
     color: Color,
-    displayOption: String,
+    displayOption: HoldingsListOptions,
     last: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -55,8 +53,8 @@ fun HoldingsSubRow(
         
         ValueAndSubvalue(
             value = position.equity,
-            subvalue = if (displayOption == "Returns") position.returnsOpen else position.returnsPercent,
-            isSubvalueDollar = (displayOption == "Returns"),
+            subvalue = if (displayOption == HoldingsListOptions.RETURNS) position.returnsOpen else position.returnsPercent,
+            isSubvalueDollar = (displayOption == HoldingsListOptions.RETURNS), // TODO
             modifier = Modifier.weight(10f)
         )
     }
@@ -72,13 +70,13 @@ fun HoldingsSubRowPreview() {
             Column() {
                 HoldingsSubRow(
                     position = viewModel.longPositions[0].subPositions[0],
-                    displayOption = "Returns",
+                    displayOption = HoldingsListOptions.RETURNS,
                     last = false,
                     color = Color(0xff00a1f1),
                 )
                 HoldingsSubRow(
                     position = viewModel.longPositions[0].subPositions[1],
-                    displayOption = "% Change",
+                    displayOption = HoldingsListOptions.RETURNS_PERCENT,
                     last = true,
                     color = Color(0xff00a1f1),
                 )

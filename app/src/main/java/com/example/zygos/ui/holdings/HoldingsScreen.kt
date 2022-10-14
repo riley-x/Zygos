@@ -35,11 +35,13 @@ fun HoldingsScreen(
     longPositions: SnapshotStateList<PricedPosition>,
     shortPositions: SnapshotStateList<PricedPosition>,
     tickerColors: SnapshotStateMap<String, Color>,
-    displayOption: String,
+    displayLongOption: HoldingsListOptions,
+    displayShortOption: HoldingsListOptions,
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
     onPositionClick: (PricedPosition) -> Unit = { },
-    holdingsListOptionsCallback: (String) -> Unit = { },
+    holdingsListLongOptionsCallback: () -> Unit = { },
+    holdingsListShortOptionsCallback: () -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos/Compositions", "HoldingsScreen")
@@ -98,7 +100,7 @@ fun HoldingsScreen(
                     ListTitleBar(
                         text = "Long Positions",
                         modifier = Modifier.padding(start = 22.dp),
-                        onOptionsButtonClick = { holdingsListOptionsCallback("long positions") },
+                        onOptionsButtonClick = holdingsListLongOptionsCallback,
                     )
                 }
             }
@@ -112,7 +114,7 @@ fun HoldingsScreen(
                     HoldingsRow(
                         position = pos,
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
-                        displayOption = displayOption,
+                        displayOption = displayLongOption,
                         modifier = Modifier
                             .clickable { onPositionClick(pos) }
                             .padding(horizontal = 6.dp) // this needs to be second so that the clickable
@@ -126,7 +128,7 @@ fun HoldingsScreen(
                     ListTitleBar(
                         text = "Short Positions",
                         modifier = Modifier.padding(start = 22.dp, top = 20.dp),
-                        onOptionsButtonClick = { holdingsListOptionsCallback("short positions") },
+                        onOptionsButtonClick = holdingsListShortOptionsCallback,
                     )
                 }
             }
@@ -138,7 +140,7 @@ fun HoldingsScreen(
                     HoldingsRow(
                         position = pos,
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
-                        displayOption = displayOption,
+                        displayOption = displayShortOption,
                         modifier = Modifier
                             .clickable { onPositionClick(pos) }
                             .padding(horizontal = 6.dp) // this needs to be second so that the clickable
@@ -167,7 +169,8 @@ fun PreviewHoldingsScreen() {
                 longPositions = viewModel.longPositions,
                 shortPositions = viewModel.shortPositions,
                 tickerColors = viewModel.tickerColors,
-                displayOption = "Returns",
+                displayLongOption = HoldingsListOptions.RETURNS,
+                displayShortOption = HoldingsListOptions.RETURNS,
             )
         }
     }

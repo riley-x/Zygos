@@ -3,7 +3,7 @@ package com.example.zygos.ui.holdings
 import com.example.zygos.ui.components.HasDisplayName
 import com.example.zygos.ui.components.ImmutableList
 
-enum class HoldingsListSortOptions(override val displayName: String) : HasDisplayName {
+enum class HoldingsListOptions(override val displayName: String) : HasDisplayName {
     TICKER("Ticker"),
     EQUITY("Equity"),
     RETURNS("Returns"),
@@ -12,12 +12,12 @@ enum class HoldingsListSortOptions(override val displayName: String) : HasDispla
     RETURNS_PERCENT_TODAY("% Returns Today")
 }
 
-val holdingsListSortOptions = ImmutableList(HoldingsListSortOptions.values().toList())
+val holdingsListSortOptions = ImmutableList(HoldingsListOptions.values().toList())
 
 val holdingsListDisplayOptions = ImmutableList(listOf(
-    HoldingsListSortOptions.EQUITY,
-    HoldingsListSortOptions.RETURNS,
-    HoldingsListSortOptions.RETURNS_PERCENT,
-    HoldingsListSortOptions.RETURNS_TODAY,
-    HoldingsListSortOptions.RETURNS_PERCENT_TODAY,
+    HoldingsListOptions.EQUITY,
+    HoldingsListOptions.RETURNS,
+    HoldingsListOptions.RETURNS_PERCENT,
+    HoldingsListOptions.RETURNS_TODAY,
+    HoldingsListOptions.RETURNS_PERCENT_TODAY,
 ))

@@ -24,7 +24,7 @@ import com.example.zygos.viewModel.TestViewModel
 fun HoldingsRow(
     position: PricedPosition,
     color: Color,
-    displayOption: String,
+    displayOption: HoldingsListOptions,
     modifier: Modifier = Modifier,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -37,8 +37,9 @@ fun HoldingsRow(
             ticker = position.ticker,
             color = color,
             value = position.equity,
-            subvalue = if (displayOption == "Returns") position.returnsOpen else position.returnsPercent,
-            isSubvalueDollar = (displayOption == "Returns"),
+            subvalue = if (displayOption == HoldingsListOptions.RETURNS) position.returnsOpen
+            else position.returnsPercent, // TODO
+            isSubvalueDollar = (displayOption == HoldingsListOptions.RETURNS), // TODO
             modifier = Modifier
         ) {
             if (hasSubpositions) {
@@ -82,7 +83,7 @@ fun HoldingsRowPreview() {
             Column() {
                 HoldingsRow(
                     position = viewModel.longPositions[0],
-                    displayOption = "Returns",
+                    displayOption = HoldingsListOptions.RETURNS,
                     color = Color(0xff00a1f1),
                 )
 
@@ -90,7 +91,7 @@ fun HoldingsRowPreview() {
 
                 HoldingsRow(
                     position = viewModel.longPositions[1],
-                    displayOption = "% Change",
+                    displayOption = HoldingsListOptions.RETURNS_PERCENT,
                     color = Color(0xff00a1f1),
                 )
             }

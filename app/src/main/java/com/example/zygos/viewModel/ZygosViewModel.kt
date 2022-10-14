@@ -270,8 +270,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     suspend fun sortList(whichList: String) {
         when(whichList) {
-            "long positions" -> longPositions.sort()
-            "short positions" -> shortPositions.sort()
             "watchlist" -> sortWatchlist()
         }
     }

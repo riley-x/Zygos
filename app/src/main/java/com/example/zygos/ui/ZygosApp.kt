@@ -130,8 +130,8 @@ fun ZygosApp(
         }
         fun onHoldingsListLongOptionsDialogClose(
             isCancel: Boolean,
-            newDisplay: HoldingsListSortOptions,
-            newSort: HoldingsListSortOptions,
+            newDisplay: HoldingsListOptions,
+            newSort: HoldingsListOptions,
             newIsAscending: Boolean
         ) {
             openHoldingsListLongOptionsDialog = false
@@ -141,8 +141,8 @@ fun ZygosApp(
         }
         fun onHoldingsListShortOptionsDialogClose(
             isCancel: Boolean,
-            newDisplay: HoldingsListSortOptions,
-            newSort: HoldingsListSortOptions,
+            newDisplay: HoldingsListOptions,
+            newSort: HoldingsListOptions,
             newIsAscending: Boolean
         ) {
             openHoldingsListShortOptionsDialog = false
@@ -283,9 +283,11 @@ fun ZygosApp(
                             tickerColors = viewModel.colors.tickers,
                             longPositions = viewModel.longPositions.list,
                             shortPositions = viewModel.shortPositions.list,
-                            displayOption = viewModel.longPositions.displayOption, // TODO short display
+                            displayLongOption = viewModel.longPositions.displayOption,
+                            displayShortOption = viewModel.shortPositions.displayOption,
                             onPositionClick = ::onHoldingsPositionSelected,
-                            holdingsListOptionsCallback = ::onHoldingsListLongOptionsShow,
+                            holdingsListLongOptionsCallback = ::onHoldingsListLongOptionsShow,
+                            holdingsListShortOptionsCallback = ::onHoldingsListShortOptionsShow,
                             accountSelectionBar = accountSelectionBar,
                             bottomPadding = bottomPadding,
                         )
