@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.PositionType
 import com.example.zygos.data.toFloatDollar
+import com.example.zygos.ui.components.TitleValue
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.formatDollar
@@ -31,7 +32,7 @@ private fun RowScope.defaultMod() = Modifier
 
 /** This functions draws the details for the top-level position only **/
 @Composable
-fun PositionDetails(
+private fun PositionDetails(
     position: PricedPosition
 ) {
     Row {
@@ -118,18 +119,6 @@ fun PositionDetailsScreen(
     }
 }
 
-
-@Composable
-fun TitleValue(
-    title: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier) {
-        Text(title, color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium))
-        Text(value)
-    }
-}
 
 
 @Preview(

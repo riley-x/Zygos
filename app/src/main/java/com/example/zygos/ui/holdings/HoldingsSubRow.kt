@@ -48,15 +48,8 @@ fun HoldingsSubRow(
                 .padding(start = 26.dp, end = 4.dp)
                 .size(width = 20.dp, height = 52.dp)
         )
-        
-        PositionInfo(position = position, Modifier.weight(20f))
-        
-        ValueAndSubvalue(
-            value = position.equity,
-            subvalue = if (displayOption == HoldingsListOptions.RETURNS) position.returnsOpen else position.returnsPercent,
-            isSubvalueDollar = (displayOption == HoldingsListOptions.RETURNS), // TODO
-            modifier = Modifier.weight(10f)
-        )
+        PositionRowSubInfo(position = position, Modifier.weight(10f))
+        PositionRowInfo(position = position, displayOption = displayOption)
     }
 }
 

@@ -1,6 +1,7 @@
 package com.example.zygos.ui.holdings
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -20,27 +21,28 @@ import com.example.zygos.viewModel.PricedPosition
 import com.example.zygos.viewModel.TestViewModel
 
 
+
 @Composable
 fun HoldingsRow(
     position: PricedPosition,
     color: Color,
     displayOption: HoldingsListOptions,
     modifier: Modifier = Modifier,
-) {
+    onPositionClick: (PricedPosition) -> Unit = { },
+    ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     val hasSubpositions by remember { derivedStateOf {
         position.subPositions.isNotEmpty() && position.instrumentName.isEmpty()
     } }
 
     Column(modifier = modifier) {
-        TickerListValueRow(
+        TickerListRow(
             ticker = position.ticker,
             color = color,
-            value = position.equity,
-            subvalue = if (displayOption == HoldingsListOptions.RETURNS) position.returnsOpen
-            else position.returnsPercent, // TODO
-            isSubvalueDollar = (displayOption == HoldingsListOptions.RETURNS), // TODO
             modifier = Modifier
+                .clickable { onPositionClick(position) }
+                .padding(horizontal = 6.dp) // this needs to be here so that the clickable
+                                            // animation covers the full width
         ) {
             if (hasSubpositions) {
                 IconButton(onClick = { expanded = !expanded }) {
@@ -48,8 +50,10 @@ fun HoldingsRow(
                     else Icon(imageVector = Icons.Sharp.ExpandMore, contentDescription = null)
                 }
             } else {
-                PositionInfo(position = position, Modifier.weight(20f))
+                PositionRowSubInfo(position = position)
             }
+            Spacer(Modifier.weight(10f))
+            PositionRowInfo(position = position, displayOption = displayOption)
         }
 
         if (hasSubpositions) {
@@ -65,6 +69,10 @@ fun HoldingsRow(
                             color = color,
                             displayOption = displayOption,
                             last = index == position.subPositions.lastIndex,
+                            modifier = Modifier
+                                .clickable { onPositionClick(pos) }
+                                .padding(horizontal = 6.dp) // this needs to be here so that the clickable
+                                                            // animation covers the full width
                         )
                     }
                 }
@@ -72,6 +80,7 @@ fun HoldingsRow(
         }
     }
 }
+
 
 
 @Preview(showBackground = true)

@@ -58,12 +58,10 @@ fun ValueAndSubvalue(
 ) {
     Column(modifier, horizontalAlignment = Alignment.End) {
         Text(text = formatDollar(value), style = MaterialTheme.typography.body1)
-        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Text(text = if (isSubvalueDollar) formatDollar(subvalue) else formatPercent(subvalue),
-                style = MaterialTheme.typography.subtitle1,
-                color = if (subvalue >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error
-            )
-        }
+        Text(text = if (isSubvalueDollar) formatDollar(subvalue) else formatPercent(subvalue),
+            style = MaterialTheme.typography.subtitle1,
+            color = if (subvalue >= 0) MaterialTheme.colors.primary.copy(alpha = ContentAlpha.medium) else MaterialTheme.colors.error
+        )
     }
 }
 

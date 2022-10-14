@@ -3,7 +3,13 @@ package com.example.zygos.ui.components
 import android.icu.text.DecimalFormat
 import android.icu.text.DecimalFormatSymbols
 import android.icu.text.NumberFormat
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Modifier
 
 fun <E> List<E>.normalized(selector: (E) -> Float): List<Float> {
     val total = this.sumOf { selector(it).toDouble() }
@@ -44,6 +50,20 @@ fun formatDateInt(date: Long): String {
     val year = (date / 10000) % 100
     return "$month/$day/$year"
 }
+
+
+@Composable
+fun TitleValue(
+    title: String,
+    value: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier) {
+        Text(title, color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium))
+        Text(value)
+    }
+}
+
 
 /**
  * Use this for const lists. Otherwise an composable that accepts a List<T> will recompose with the

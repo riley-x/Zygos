@@ -115,10 +115,8 @@ fun HoldingsScreen(
                         position = pos,
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
                         displayOption = displayLongOption,
+                        onPositionClick = onPositionClick,
                         modifier = Modifier
-                            .clickable { onPositionClick(pos) }
-                            .padding(horizontal = 6.dp) // this needs to be second so that the clickable
-                                                        // animation covers the full width
                     )
                 }
             }
