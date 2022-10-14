@@ -14,7 +14,8 @@ import com.example.zygos.ui.theme.ZygosTheme
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun <T: HasDisplayName> DropdownSelector(
+private fun <T> DropdownSelectorHelper(
+    toString: (T) -> String,
     currentValue: T,
     allValues: ImmutableList<T>,
     modifier: Modifier = Modifier,
@@ -29,7 +30,7 @@ fun <T: HasDisplayName> DropdownSelector(
     ) {
         OutlinedTextField(
             readOnly = true,
-            value = currentValue.displayName,
+            value = toString(currentValue),
             onValueChange = {  },
             label = { if (label.isNotBlank()) Text(label) },
             trailingIcon = {
@@ -50,12 +51,53 @@ fun <T: HasDisplayName> DropdownSelector(
                         expanded = false
                     }
                 ) {
-                    Text(text = it.displayName)
+                    Text(text = toString(it))
                 }
             }
         }
     }
 }
+
+
+@Composable
+fun <T: HasDisplayName> DropdownSelector(
+    currentValue: T,
+    allValues: ImmutableList<T>,
+    modifier: Modifier = Modifier,
+    label: String = "",
+    onSelection: (T) -> Unit = { },
+) {
+    DropdownSelectorHelper(
+        toString = { it.displayName },
+        currentValue = currentValue,
+        allValues = allValues,
+        modifier = modifier,
+        label = label,
+        onSelection = onSelection,
+    )
+}
+
+@Composable
+fun DropdownSelector(
+    currentValue: String,
+    allValues: ImmutableList<String>,
+    modifier: Modifier = Modifier,
+    label: String = "",
+    onSelection: (String) -> Unit = { },
+) {
+    DropdownSelectorHelper(
+        toString = { it },
+        currentValue = currentValue,
+        allValues = allValues,
+        modifier = modifier,
+        label = label,
+        onSelection = onSelection,
+    )
+}
+
+
+
+
 
 @Preview
 @Composable

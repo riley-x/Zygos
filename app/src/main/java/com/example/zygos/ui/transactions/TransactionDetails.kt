@@ -21,10 +21,7 @@ import com.example.zygos.data.database.TransactionType
 import com.example.zygos.data.database.allTransactionTypes
 import com.example.zygos.data.toFloatDollar
 import com.example.zygos.data.toLongDollar
-import com.example.zygos.ui.components.AccountSelector
-import com.example.zygos.ui.components.DropdownSelector
-import com.example.zygos.ui.components.LogCompositions
-import com.example.zygos.ui.components.recomposeHighlighter
+import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.TestViewModel
 import kotlin.reflect.KProperty1
@@ -130,7 +127,13 @@ fun TransactionDetailsScreen(
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
         ) {
-            AccountSelector(account = account, accounts = accounts, modifier = Modifier.fillMaxWidth())
+            DropdownSelector(
+                currentValue = account.value,
+                allValues = ImmutableList(accounts.toList()),
+                label = "Account",
+                onSelection = { account.value = it },
+                modifier = Modifier.fillMaxWidth()
+            )
 
             DropdownSelector(
                 currentValue = type.value,
