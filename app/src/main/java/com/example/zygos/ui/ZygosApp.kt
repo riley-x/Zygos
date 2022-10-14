@@ -20,10 +20,7 @@ import com.example.zygos.ui.analytics.AnalyticsScreen
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.colorSelector.ColorSelectorScreen
 import com.example.zygos.ui.components.*
-import com.example.zygos.ui.holdings.HoldingsScreen
-import com.example.zygos.ui.holdings.PositionDetailsScreen
-import com.example.zygos.ui.holdings.holdingsListDisplayOptions
-import com.example.zygos.ui.holdings.holdingsListSortOptions
+import com.example.zygos.ui.holdings.*
 import com.example.zygos.ui.performance.PerformanceScreen
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.ui.transactions.TransactionDetailsScreen
@@ -90,10 +87,6 @@ fun ZygosApp(
         }
 
         /** Bottom Sheet Callbacks **/
-        fun onHoldingsListOptionsShow(version: String) = appScope.launch {
-            listOptionsSheetVersion = version
-            listOptionsSheetState.show()
-        }
         fun onWatchlistOptionsShow() = appScope.launch {
             listOptionsSheetVersion = "watchlist"
             listOptionsSheetState.show()
@@ -102,6 +95,8 @@ fun ZygosApp(
         /** Dialog Callbacks **/
         var openAddAccountDialog by remember { mutableStateOf(false) }
         var openEditApiKeyDialog by remember { mutableStateOf(false) }
+        var openHoldingsListLongOptionsDialog by remember { mutableStateOf(false) }
+        var openHoldingsListShortOptionsDialog by remember { mutableStateOf(false) }
         var openTransactionsListOptionsDialog by remember { mutableStateOf(false) }
         var openRecalculateAllLotsDialog by remember { mutableStateOf(false) }
 
@@ -124,8 +119,36 @@ fun ZygosApp(
                 viewModel.saveApiKey(newKey)
             }
         }
+        fun onHoldingsListLongOptionsShow() {
+            openHoldingsListLongOptionsDialog = true
+        }
+        fun onHoldingsListShortOptionsShow() {
+            openHoldingsListShortOptionsDialog = true
+        }
         fun onTransactionsListOptionsShow() {
             openTransactionsListOptionsDialog = true
+        }
+        fun onHoldingsListLongOptionsDialogClose(
+            isCancel: Boolean,
+            newDisplay: HoldingsListSortOptions,
+            newSort: HoldingsListSortOptions,
+            newIsAscending: Boolean
+        ) {
+            openHoldingsListLongOptionsDialog = false
+            if (!isCancel) {
+                viewModel.longPositions.setSortAndDisplay(newDisplay, newSort, newIsAscending)
+            }
+        }
+        fun onHoldingsListShortOptionsDialogClose(
+            isCancel: Boolean,
+            newDisplay: HoldingsListSortOptions,
+            newSort: HoldingsListSortOptions,
+            newIsAscending: Boolean
+        ) {
+            openHoldingsListShortOptionsDialog = false
+            if (!isCancel) {
+                viewModel.shortPositions.setSortAndDisplay(newDisplay, newSort, newIsAscending)
+            }
         }
         fun onTransactionsListOptionsDialogClose(isCancel: Boolean, ticker: String, type: TransactionType) {
             openTransactionsListOptionsDialog = false
@@ -262,7 +285,7 @@ fun ZygosApp(
                             shortPositions = viewModel.shortPositions.list,
                             displayOption = viewModel.longPositions.displayOption, // TODO short display
                             onPositionClick = ::onHoldingsPositionSelected,
-                            holdingsListOptionsCallback = ::onHoldingsListOptionsShow,
+                            holdingsListOptionsCallback = ::onHoldingsListLongOptionsShow,
                             accountSelectionBar = accountSelectionBar,
                             bottomPadding = bottomPadding,
                         )
@@ -368,14 +391,24 @@ fun ZygosApp(
                 onDismiss = ::onAddAccount
             )
         }
-        if () {
+        if (openHoldingsListLongOptionsDialog) {
             ListOptionsDialog(
                 currentDisplayOption = viewModel.longPositions.displayOption,
                 currentSortOption = viewModel.longPositions.sortOption,
                 currentSortIsAscending = viewModel.longPositions.sortIsAscending,
                 allDisplayOptions = holdingsListDisplayOptions,
                 allSortOptions = holdingsListSortOptions,
-                onDismiss = viewModel.longPositions::setSortAndDisplay,
+                onDismiss = ::onHoldingsListLongOptionsDialogClose,
+            )
+        }
+        if (openHoldingsListShortOptionsDialog) {
+            ListOptionsDialog(
+                currentDisplayOption = viewModel.shortPositions.displayOption,
+                currentSortOption = viewModel.shortPositions.sortOption,
+                currentSortIsAscending = viewModel.shortPositions.sortIsAscending,
+                allDisplayOptions = holdingsListDisplayOptions,
+                allSortOptions = holdingsListSortOptions,
+                onDismiss = ::onHoldingsListShortOptionsDialogClose,
             )
         }
         if (openTransactionsListOptionsDialog) {

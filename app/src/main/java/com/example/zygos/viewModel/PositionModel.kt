@@ -23,8 +23,7 @@ class PositionModel(private val parent: ZygosViewModel) {
     var sortIsAscending by mutableStateOf(false)
 
     // Called from composable onClick callbacks
-    fun setSortAndDisplay(isCancel: Boolean, newDisplay: HoldingsListSortOptions, newSort: HoldingsListSortOptions, newIsAscending: Boolean) {
-        if (isCancel) return
+    fun setSortAndDisplay(newDisplay: HoldingsListSortOptions, newSort: HoldingsListSortOptions, newIsAscending: Boolean) {
         parent.viewModelScope.launch {
             displayOption = newDisplay
             sort(newSort, newIsAscending)
