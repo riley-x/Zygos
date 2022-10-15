@@ -2,7 +2,6 @@ package com.example.zygos.viewModel
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.icu.util.Calendar
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
@@ -11,16 +10,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
-import com.example.zygos.network.TdApi
 import com.example.zygos.network.apiServices
-import com.example.zygos.network.tdService
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.roundToInt
 
 
 const val performanceGraphYPad = 0.1f // fractional padding for each top/bottom
@@ -235,8 +231,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         if (!lots.isLoading) {
             val long = if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions.toList()
             val short = lots.shortPositions.toList()
-            longPositions.loadLaunched(long, market.quotes)
-            shortPositions.loadLaunched(short, market.quotes)
+            longPositions.loadLaunched(long, market.markPrices, market.closePrices, market.percentChanges)
+            shortPositions.loadLaunched(short, market.markPrices, market.closePrices, market.percentChanges)
         }
     }
 
@@ -256,7 +252,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         loadPricedPositions()
 
         // TODO place this into a timer
-        if (market.updatePrices(lots.tickerLots.keys)) loadPricedPositions()
+        if (market.updatePrices(lots.tickerLots.keys, lots.optionNames())) loadPricedPositions()
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale

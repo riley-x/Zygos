@@ -23,14 +23,22 @@ class PositionModel(private val parent: ZygosViewModel) {
     var sortIsAscending by mutableStateOf(false)
 
     // Called from composable onClick callbacks
-    fun setSortAndDisplay(newDisplay: HoldingsListOptions, newSort: HoldingsListOptions, newIsAscending: Boolean) {
+    fun setSortAndDisplay(
+        newDisplay: HoldingsListOptions,
+        newSort: HoldingsListOptions,
+        newIsAscending: Boolean
+    ) {
         parent.viewModelScope.launch {
             displayOption = newDisplay
             sort(newSort, newIsAscending)
         }
     }
 
-    private fun getSortedList(oldList: List<PricedPosition>, option: HoldingsListOptions, ascending: Boolean): MutableList<PricedPosition> {
+    private fun getSortedList(
+        oldList: List<PricedPosition>,
+        option: HoldingsListOptions,
+        ascending: Boolean
+    ): MutableList<PricedPosition> {
         if (oldList.isEmpty()) return mutableListOf()
         val newList = oldList.toMutableList()
 
@@ -41,7 +49,7 @@ class PositionModel(private val parent: ZygosViewModel) {
         }
 
         /** Do sort **/
-        fun <T: Comparable<T>> sortBy(fn: PricedPosition.() -> T) {
+        fun <T : Comparable<T>> sortBy(fn: PricedPosition.() -> T) {
             if (ascending) newList.sortBy(fn)
             else newList.sortByDescending(fn)
         }
@@ -76,7 +84,11 @@ class PositionModel(private val parent: ZygosViewModel) {
     }
 
 
-    suspend fun sort(newSortOption: HoldingsListOptions, newSortIsAscending: Boolean, force: Boolean = false) {
+    suspend fun sort(
+        newSortOption: HoldingsListOptions,
+        newSortIsAscending: Boolean,
+        force: Boolean = false
+    ) {
         if (list.isEmpty()) return
         if (!force && newSortOption == sortOption && newSortIsAscending == sortIsAscending) return
         isLoading = true
@@ -99,7 +111,12 @@ class PositionModel(private val parent: ZygosViewModel) {
         isLoading = false
     }
 
-    fun loadLaunched(positions: List<Position>, quotes: Map<String, TdQuote>) {
+    fun loadLaunched(
+        positions: List<Position>,
+        markPrices: Map<String, Long>,
+        closePrices: Map<String, Long>,
+        percentChanges: Map<String, Float>,
+    ) {
 
         if (positions.isEmpty()) {
             list.clear()
@@ -112,7 +129,14 @@ class PositionModel(private val parent: ZygosViewModel) {
             val newList = withContext(Dispatchers.IO) {
                 val newList = mutableListOf<PricedPosition>()
                 positions.forEach {
-                    newList.add(PricedPosition(lot = it, quotes = quotes))
+                    newList.add(
+                        PricedPosition(
+                            lot = it,
+                            markPrices = markPrices,
+                            closePrices = closePrices,
+                            percentChanges = percentChanges
+                        )
+                    )
                 }
                 getSortedList(newList, sortOption, sortIsAscending)
             }

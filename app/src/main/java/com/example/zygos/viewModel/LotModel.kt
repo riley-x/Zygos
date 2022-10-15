@@ -75,4 +75,22 @@ class LotModel(private val parent: ZygosViewModel) {
         shortPositions.forEach { Log.i("Zygos/LotModel/createLotPositions", "short $it") }
         exitedPositions.forEach { Log.i("Zygos/LotModel/createLotPositions", "exited $it") }
     }
+
+
+    private fun optionNames(names: MutableSet<String>, pos: Position) {
+        if (pos.subPositions.isEmpty()) {
+            if (pos.type.isOption) names.add(pos.instrumentName)
+        } else {
+            pos.subPositions.forEach { optionNames(names, it) }
+        }
+    }
+
+    fun optionNames(): MutableSet<String> {
+        val names = mutableSetOf<String>()
+        (longPositions + shortPositions).forEach {
+            optionNames(names, it)
+        }
+        Log.d("Zygos/LotModel/optionNames", "$names")
+        return names
+    }
 }

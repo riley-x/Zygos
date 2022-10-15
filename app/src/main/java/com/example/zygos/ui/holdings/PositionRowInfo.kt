@@ -43,11 +43,13 @@ fun ColoredPercent(
     value: Float,
     modifier: Modifier = Modifier,
 ) {
-    Text(
-        text = formatPercent(value),
-        color = if (value >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error,
-        modifier = modifier
-    )
+    if (!value.isNaN()) {
+        Text(
+            text = formatPercent(value),
+            color = if (value >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error,
+            modifier = modifier
+        )
+    }
 }
 
 

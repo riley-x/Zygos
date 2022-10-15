@@ -11,6 +11,11 @@ fun Calendar.toIntDate() : Int {
     return year * 10000 + month * 100 + day
 }
 
+fun getDay(date: Int) = date % 100
+fun getMonth(date: Int) = (date / 100) % 100
+fun getYear(date: Int) = (date / 10000) % 100
+
+
 fun floatToLongDollar(x: Float) : Long {
     return (x * 10000f).roundToLong()
 }

@@ -30,6 +30,12 @@ interface TdService {
         @Query("apikey") apiKey: String,
         @Query("symbol") symbols: String, // Comma separated
     ): Map<String, TdQuote>
+
+    @GET("v1/marketdata/quotes") // this is the http endpoint!
+    suspend fun getOptionQuote(
+        @Query("apikey") apiKey: String,
+        @Query("symbol") symbols: String, // Comma separated
+    ): Map<String, TdOptionQuote>
 }
 
 object TdApi {
@@ -42,5 +48,12 @@ object TdApi {
         symbols: Collection<String>,
     ): Map<String, TdQuote> {
         return tdService.getQuote(apiKey, symbols.joinToString(","))
+    }
+
+    suspend fun getOptionQuote(
+        apiKey: String,
+        symbols: Collection<String>,
+    ): Map<String, TdOptionQuote> {
+        return tdService.getOptionQuote(apiKey, symbols.joinToString(","))
     }
 }

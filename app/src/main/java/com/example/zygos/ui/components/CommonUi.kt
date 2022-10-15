@@ -44,12 +44,6 @@ fun formatDateInt(date: Int): String {
     val year = (date / 10000) % 100
     return "$month/$day/$year"
 }
-fun formatDateInt(date: Long): String {
-    val day = date % 100
-    val month = (date / 100) % 100
-    val year = (date / 10000) % 100
-    return "$month/$day/$year"
-}
 
 
 @Composable

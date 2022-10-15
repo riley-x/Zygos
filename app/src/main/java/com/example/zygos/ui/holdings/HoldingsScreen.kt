@@ -36,7 +36,6 @@ fun HoldingsScreen(
     longPositions: SnapshotStateList<PricedPosition>,
     shortPositions: SnapshotStateList<PricedPosition>,
     tickerColors: SnapshotStateMap<String, Color>,
-    quotes: SnapshotStateMap<String, TdQuote>,
     displayLongOption: HoldingsListOptions,
     displayShortOption: HoldingsListOptions,
     modifier: Modifier = Modifier,
@@ -169,7 +168,6 @@ fun PreviewHoldingsScreen() {
                 longPositions = viewModel.longPositions,
                 shortPositions = viewModel.shortPositions,
                 tickerColors = viewModel.tickerColors,
-                quotes = viewModel.quotes,
                 displayLongOption = HoldingsListOptions.RETURNS,
                 displayShortOption = HoldingsListOptions.RETURNS,
             )
