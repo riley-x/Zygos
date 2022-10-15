@@ -1,12 +1,6 @@
-package com.example.zygos.viewModel
+package com.example.zygos.data
 
 import androidx.compose.runtime.Immutable
-import com.example.zygos.data.Position
-import com.example.zygos.data.PositionType
-import com.example.zygos.data.toFloatDollar
-import com.example.zygos.data.toLongDollar
-import com.example.zygos.network.TdOptionQuote
-import com.example.zygos.network.TdQuote
 
 @Immutable
 data class PricedPosition (
@@ -50,23 +44,28 @@ data class PricedPosition (
             val unrealized = lot.unrealized(markPrices).toFloatDollar()
             return PricedPosition(
                 /** Identifiers **/
+                /** Identifiers **/
                 account = lot.account,
                 ticker = lot.ticker,
                 type = lot.type,
                 date = lot.date,
                 instrumentName = lot.instrumentName,
                 /** Per share **/
+                /** Per share **/
                 shares = lot.shares,
                 priceOpen = lot.priceOpen.toFloatDollar(),
+                /** Basis and returns **/
                 /** Basis and returns **/
                 costBasis = lot.costBasis.toFloatDollar(),
                 realizedOpen = realizedOpen,
                 realizedClosed = lot.realizedClosed.toFloatDollar(),
                 /** Options **/
+                /** Options **/
                 expiration = lot.expiration,
                 strike = lot.strike.toFloatDollar(),
                 collateral = lot.collateral.toFloatDollar(),
                 priceUnderlyingOpen = lot.priceUnderlyingOpen.toFloatDollar(),
+                /** Price-dependent **/
                 /** Price-dependent **/
                 unrealized = unrealized,
                 returnsOpen = realizedOpen + unrealized,
@@ -75,6 +74,7 @@ data class PricedPosition (
                 returnsToday = lot.returnsPeriod(closePrices, markPrices).toFloatDollar(),
                 returnsTodayPercent = percentChanges[lot.instrumentName.ifBlank { lot.ticker }] ?: 0f, // for aggregate positions, still show the % change of the ticker, if available
                 equity = lot.equity(markPrices).toFloatDollar(),
+                /** Sub-positions **/
                 /** Sub-positions **/
                 subPositions = lot.subPositions.map { PricedPosition(it, markPrices, closePrices, percentChanges) },
             )

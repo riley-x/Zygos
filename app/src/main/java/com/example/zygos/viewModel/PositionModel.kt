@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.Position
-import com.example.zygos.network.TdQuote
+import com.example.zygos.data.PricedPosition
 import com.example.zygos.ui.holdings.HoldingsListOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

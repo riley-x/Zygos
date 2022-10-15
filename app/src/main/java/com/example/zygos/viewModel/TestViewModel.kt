@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.example.zygos.data.LotPosition
 import com.example.zygos.data.PositionType
+import com.example.zygos.data.PricedPosition
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.data.toLongDollar

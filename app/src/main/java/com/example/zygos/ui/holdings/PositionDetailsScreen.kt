@@ -22,7 +22,7 @@ import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.formatDollar
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.PricedPosition
+import com.example.zygos.data.PricedPosition
 import com.example.zygos.viewModel.TestViewModel
 
 

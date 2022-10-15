@@ -2,6 +2,7 @@ package com.example.zygos.data
 
 import android.icu.text.NumberFormat
 import androidx.compose.runtime.Immutable
+import com.example.zygos.network.getTdOptionName
 
 
 enum class PositionType(val displayName: String, val isOption: Boolean = false, val isShort: Boolean = false, val isSpread: Boolean = false) {
@@ -90,29 +91,6 @@ interface Position {
             subPositions = subPositions.ifEmpty { listOf(this) } + b.subPositions.ifEmpty { listOf(b) }
         )
     }
-}
-
-
-fun getTdOptionName(ticker: String, type: PositionType, expiration: Int, strike: Long): String {
-    val format = NumberFormat.getNumberInstance()
-    format.isGroupingUsed = false
-    format.minimumFractionDigits = 0
-    format.minimumIntegerDigits = 2
-
-    val day = format.format(getDay(expiration))
-    val month = format.format(getMonth(expiration))
-    val year = format.format(getYear(expiration) % 100)
-    val formattedStrike = format.format(strike.toFloatDollar())
-
-    val typeLetter = when (type) {
-        PositionType.PUT_LONG -> "P"
-        PositionType.CASH_SECURED_PUT -> "P"
-        PositionType.CALL_LONG -> "C"
-        PositionType.COVERED_CALL -> "C"
-        else -> return ""
-    }
-
-    return "${ticker}_$month$day$year$typeLetter$formattedStrike"
 }
 
 

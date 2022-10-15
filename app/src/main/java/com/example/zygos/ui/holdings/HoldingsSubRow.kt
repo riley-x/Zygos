@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.PricedPosition
+import com.example.zygos.data.PricedPosition
 import com.example.zygos.viewModel.TestViewModel
 
 @Composable

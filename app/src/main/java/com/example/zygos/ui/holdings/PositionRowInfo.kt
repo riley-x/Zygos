@@ -5,21 +5,14 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.data.LotPosition
-import com.example.zygos.data.Position
 import com.example.zygos.data.PositionType
 import com.example.zygos.data.toFloatDollar
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.formatDollar
 import com.example.zygos.ui.components.formatDollarNoSymbol
 import com.example.zygos.ui.components.formatPercent
-import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.PricedPosition
-import com.example.zygos.viewModel.TestViewModel
+import com.example.zygos.data.PricedPosition
 
 /**
  * These are the composables that show TickerListRow info

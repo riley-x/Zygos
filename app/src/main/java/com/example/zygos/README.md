@@ -32,3 +32,24 @@ are navigated to by click events.
 ### ViewModel Layer
 
 This app uses a single view model of class `ZygosViewModel`. 
+
+### Network Layer
+
+
+### Data Layer
+
+User data is mostly all stored in a single Room database in `data/database/ZygosDatabase`. The other
+classes in that subpackage define the respective SQL tables (Room entities) and DAOs. These are then
+processed into holdings, equity, etc. Note that dates are stored as integers in YYYYMMDD format, and dollar values are stored as `Long` in 1/100ths of a cent.
+
+In general, the flow of data occurs as follows:
+1. `Transaction`: Created when the user inputs a new transaction
+2. `Lot`: Transactions create/update lots. The `lot` table is fully derived from the full list of transactions, and merely caches the computations. The main logic is implemented in `data/TransactionHandler.kt`. Note that each lot is opened by exactly one transaction (and each open transaction matches exactly one lot). However, close and dividend transactions can map to several lots. Thus this is a many-to-many relationship, and is implemented with `LotTransactionCrossRef`. Note that the `LotDao` can return all matching transactions with a lot. Lots are never deleted, even when fully closed.
+3. `Position`: Lots are collated to Positions, which represent the current holdings in an account. This is handled by `data/LotsToPositions.kt` Closed lots are simply aggregated by their realized returns. Open lots are combined together by ticker, and lots are combined into a unified position. Option spreads are also created here; in the transactions/lots, they are listed only as single legs. At this level, there is no current market info used. Instead, market-dependent variables like unrealized return are implemented as functions.
+4. `PricedPosition`: This is a wrapper around `Position` after snapshotting the market-dependent variables at a specific price. This is what is passed into the UI layer. 
+
+There are also some auxiliary tables stored in the database:
+- `ColorSettings`: This stores user settings for the color of a ticker.
+- `EquityHistory`: Equity history of each account.
+- `Accounts`: These are currently saved in a text file.
+- `Ohlc`: Local-cached historical price data?
