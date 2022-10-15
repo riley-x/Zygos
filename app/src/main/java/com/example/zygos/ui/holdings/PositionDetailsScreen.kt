@@ -61,11 +61,20 @@ private fun PositionDetails(
         }
         Row {
             TitleValue("Price Open", formatDollar(position.priceOpen), defaultMod())
-            TitleValue("Equity", formatDollar(position.equity), defaultMod())
+            if (position.type.isOption) {
+                TitleValue("Underlying Open", formatDollar(position.priceUnderlyingOpen), defaultMod())
+            } else {
+                TitleValue("Equity", formatDollar(position.equity), defaultMod())
+            }
         }
         Row {
-            TitleValue("Unrealized", formatDollar(position.unrealized), defaultMod())
-            TitleValue("Dividends", formatDollar(position.realizedOpen), defaultMod())
+            if (position.type.isOption) {
+                TitleValue("Equity", formatDollar(position.equity), defaultMod())
+                TitleValue("Unrealized", formatDollar(position.unrealized), defaultMod())
+            } else {
+                TitleValue("Unrealized", formatDollar(position.unrealized), defaultMod())
+                TitleValue("Dividends", formatDollar(position.realizedOpen), defaultMod())
+            }
         }
     }
 }

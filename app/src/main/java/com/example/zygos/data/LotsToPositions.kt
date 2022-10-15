@@ -146,6 +146,7 @@ fun makeSingleOptionPosition(shares: Long, lot: LotWithTransactions): LotPositio
         expiration = lot.openTransaction.expiration,
         strike = lot.openTransaction.strike,
         collateral = collateral,
+        priceUnderlyingOpen = lot.openTransaction.priceUnderlying,
     )
 }
 

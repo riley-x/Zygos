@@ -55,6 +55,7 @@ interface Position {
     val ticker: String
     val type: PositionType
     val date: Int
+    val instrumentName: String
     /** Per share **/
     val shares: Long
     val priceOpen: Long
@@ -71,7 +72,7 @@ interface Position {
     val expiration: Int
     val strike: Long
     val collateral: Long
-    val instrumentName: String
+    val priceUnderlyingOpen: Long
     /** Sub-positions **/
     val subPositions: List<Position>
 
@@ -136,6 +137,7 @@ data class LotPosition(
     override val expiration: Int = 0,
     override val strike: Long = 0,
     override val collateral: Long = 0,
+    override val priceUnderlyingOpen: Long = 0,
     override val instrumentName: String = if (type.isOption) getTdOptionName(ticker, type, expiration, strike) else ticker, // this is modified for spreads. always use subPositions for unrealized
 ) : Position {
     /** Derived values **/
@@ -207,6 +209,7 @@ data class AggregatePosition (
     override val expiration = subPositions.ifAllEqual(Position::expiration, 0)
     override val strike = subPositions.ifAllEqual(Position::strike, 0)
     override val collateral = subPositions.sumOf(Position::collateral)
+    override val priceUnderlyingOpen = subPositions.ifAllEqual(Position::priceUnderlyingOpen, 0)
 
     /** Functions **/
     override fun unrealized(prices: Map<String, Long>) = subPositions.sumOf { it.unrealized(prices) }

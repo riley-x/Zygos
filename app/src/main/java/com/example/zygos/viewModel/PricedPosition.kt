@@ -27,6 +27,7 @@ data class PricedPosition (
     val expiration: Int = 0,
     val strike: Float = 0f,
     val collateral: Float = 0f,
+    val priceUnderlyingOpen: Float = 0f,
     /** Price-dependent **/
     val unrealized: Float = 0f,
     val returnsOpen: Float = 0f,
@@ -65,13 +66,14 @@ data class PricedPosition (
                 expiration = lot.expiration,
                 strike = lot.strike.toFloatDollar(),
                 collateral = lot.collateral.toFloatDollar(),
+                priceUnderlyingOpen = lot.priceUnderlyingOpen.toFloatDollar(),
                 /** Price-dependent **/
                 unrealized = unrealized,
                 returnsOpen = realizedOpen + unrealized,
                 returnsPercent = lot.returnsPercent(markPrices),
                 returnsTotal = lot.returns(markPrices).toFloatDollar(),
                 returnsToday = lot.returnsPeriod(closePrices, markPrices).toFloatDollar(),
-                returnsTodayPercent = percentChanges[lot.instrumentName.ifBlank { lot.ticker }] ?: 0f,
+                returnsTodayPercent = percentChanges[lot.instrumentName.ifBlank { lot.ticker }] ?: 0f, // for aggregate positions, still show the % change of the ticker, if available
                 equity = lot.equity(markPrices).toFloatDollar(),
                 /** Sub-positions **/
                 subPositions = lot.subPositions.map { PricedPosition(it, markPrices, closePrices, percentChanges) },

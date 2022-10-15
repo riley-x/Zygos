@@ -8,6 +8,7 @@ import com.example.zygos.data.LotPosition
 import com.example.zygos.data.PositionType
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
+import com.example.zygos.data.toLongDollar
 import com.example.zygos.network.TdQuote
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.holdings.HoldingsListOptions
@@ -72,8 +73,9 @@ class TestViewModel: ViewModel() {
             regularMarketNetChange = 10f
         )
     )
-    val latestPrices = quotes.mapValues { it.value.mark }
-    val closePrices = quotes.mapValues { it.value.closePrice }
+    val markPrices = quotes.mapValues { it.value.mark.toLongDollar() }
+    val closePrices = quotes.mapValues { it.value.closePrice.toLongDollar() }
+    val percentChanges = quotes.mapValues { it.value.netPercentChangeInDouble }
     val lots = mutableListOf(
         LotPosition(
             account = "Robinhood",
@@ -112,9 +114,9 @@ class TestViewModel: ViewModel() {
         ),
     )
     val longPositions = mutableStateListOf(
-        PricedPosition(lot = lots[0] + lots[1], quotes = quotes),
-        PricedPosition(lot = lots[2], quotes = quotes),
-        PricedPosition(lot = lots[3], quotes = quotes),
+        PricedPosition(lot = lots[0] + lots[1], markPrices = markPrices, closePrices = closePrices, percentChanges = percentChanges),
+        PricedPosition(lot = lots[2], markPrices = markPrices, closePrices = closePrices, percentChanges = percentChanges),
+        PricedPosition(lot = lots[3], markPrices = markPrices, closePrices = closePrices, percentChanges = percentChanges),
     )
     val shortPositions = mutableStateListOf<PricedPosition>()
 
