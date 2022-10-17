@@ -26,6 +26,7 @@ import androidx.core.math.MathUtils.clamp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.HasName
+import com.example.zygos.viewModel.NamedValue
 import com.example.zygos.viewModel.TestViewModel
 import com.example.zygos.viewModel.TimeSeries
 import kotlin.math.roundToInt
@@ -52,7 +53,7 @@ typealias TimeSeriesGrapher<T> = (
  * has to be recomposed.
  *
  * @param ticksX            User x indices (0..n-1) of which values to use as the x ticks
- * @param ticksY            User y locations of where the y ticks shoud go
+ * @param ticksY            User y locations of where the y ticks should go, and label
  * @param minY              The lower y bound of the graph, in user coordinates
  * @param maxY              The upper y bound of the graph, in user coordinates
  * @param padX              The amount of padding at each left/right, as fraction of distance between points
@@ -61,7 +62,7 @@ typealias TimeSeriesGrapher<T> = (
 @Immutable
 data class TimeSeriesGraphState<T>(
     val values: List<T> = emptyList(),
-    val ticksY: List<Float> = emptyList(),
+    val ticksY: List<NamedValue> = emptyList(),
     val ticksX: List<Int> = emptyList(),
     val minY: Float = 0f,
     val maxY: Float = 100f,
@@ -118,12 +119,12 @@ fun <T: HasName> TimeSeriesGraph(
         val labelYWidth = if (state.value.ticksY.isEmpty()) 0 else {
             val textLayoutResult1: TextLayoutResult =
                 textMeasurer.measure( // Use the first and last y tick to estimate text extent
-                    text = AnnotatedString("${state.value.ticksY.last().roundToInt()}"),
+                    text = AnnotatedString(state.value.ticksY.last().name),
                     style = textStyle,
                 )
             val textLayoutResult2: TextLayoutResult = if (state.value.ticksY.size == 1) textLayoutResult1 else
                 textMeasurer.measure( // Use the last y tick (~widest value) to estimate text extent
-                    text = AnnotatedString("${state.value.ticksY.first().roundToInt()}"),
+                    text = AnnotatedString(state.value.ticksY.first().name),
                     style = textStyle,
                 )
             maxOf(textLayoutResult1.size.width, textLayoutResult2.size.width)
@@ -196,7 +197,7 @@ fun <T: HasName> TimeSeriesGraph(
         ) {
             /** Y Gridlines and Axis Labels **/
             for (tick in state.value.ticksY) {
-                val y = startY + deltaY * (tick - state.value.minY)
+                val y = startY + deltaY * (tick.value - state.value.minY)
                 drawLine(
                     start = Offset(x = 0f, y = y),
                     end = Offset(x = endX, y = y),
@@ -205,7 +206,7 @@ fun <T: HasName> TimeSeriesGraph(
                 )
                 val layoutResult: TextLayoutResult =
                     textMeasurer.measure(
-                        text = AnnotatedString("${tick.roundToInt()}"),
+                        text = AnnotatedString(tick.name),
                         style = textStyle,
                     )
                 drawText(

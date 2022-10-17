@@ -254,10 +254,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         equityHistory.initialContributions = lots.cashPosition?.shares ?: 0L
         equityHistory.loadLaunched(account)
 
-        loadPricedData()
+        loadPricedData() // dummy data assuming 0 unrealized gains
 
         // TODO place this into a timer
-        if (market.updatePrices(lots.tickerLots.keys, lots.optionNames())) loadPricedData()
+        if (market.updatePrices(lots.tickerLots.keys, lots.optionNames())) {
+            loadPricedData()
+        }
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale
