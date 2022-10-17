@@ -1,6 +1,7 @@
 package com.example.zygos.ui.components
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -20,6 +21,7 @@ fun ListTitleBar(
     text: String,
     modifier: Modifier = Modifier,
     onOptionsButtonClick: () -> Unit = { },
+    extraButtons: @Composable RowScope.() -> Unit = { },
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -28,8 +30,9 @@ fun ListTitleBar(
         Text(
             text = text,
             style = MaterialTheme.typography.h3,
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(10f),
         )
+        extraButtons()
         IconButton(onClick = { onOptionsButtonClick() }) {
             Icon(
                 imageVector = Icons.Sharp.MoreVert,

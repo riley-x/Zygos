@@ -1,10 +1,19 @@
 package com.example.zygos.ui.holdings
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.MoreVert
+import androidx.compose.material.icons.sharp.Percent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
@@ -27,6 +36,7 @@ import com.example.zygos.viewModel.TestViewModel
  * should be the last entry.
  * @param shortPositions appear as subwedges under the CASH wedge and in a separate watchlist.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HoldingsScreen(
     longPositionsAreLoading: Boolean,
@@ -44,6 +54,7 @@ fun HoldingsScreen(
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos/Compositions", "HoldingsScreen")
+    var showPercentages = rememberSaveable { mutableStateOf(false) }
 
     Column(modifier.padding(bottom = bottomPadding)) {
         accountSelectionBar()
@@ -95,11 +106,12 @@ fun HoldingsScreen(
             }
 
             if (longPositions.isNotEmpty()) { // TODO derivedStateOf?
-                item("long") {
-                    ListTitleBar(
+                stickyHeader("long") {
+                    HoldingsListTitle(
                         text = "Long Positions",
-                        modifier = Modifier.padding(start = tickerListHorizontalPadding),
+                        showPercentages = showPercentages.value,
                         onOptionsButtonClick = holdingsListLongOptionsCallback,
+                        onToggleShowPercentages = { showPercentages.value = !showPercentages.value },
                     )
                 }
             }
@@ -116,17 +128,20 @@ fun HoldingsScreen(
                         position = pos,
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
                         displayOption = displayLongOption,
+                        showPercentages = showPercentages,
                         onPositionClick = onPositionClick,
                     )
                 }
             }
 
             if (shortPositions.isNotEmpty()) { // TODO derivedStateOf?
-                item("short") {
-                    ListTitleBar(
+                stickyHeader("short") {
+                    HoldingsListTitle(
                         text = "Short Positions",
-                        modifier = Modifier.padding(start = tickerListHorizontalPadding, top = 20.dp),
+                        showPercentages = showPercentages.value,
                         onOptionsButtonClick = holdingsListShortOptionsCallback,
+                        onToggleShowPercentages = { showPercentages.value = !showPercentages.value },
+                        modifier = Modifier.padding(top = 20.dp)
                     )
                 }
             }
@@ -141,6 +156,7 @@ fun HoldingsScreen(
                         position = pos,
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
                         displayOption = displayShortOption,
+                        showPercentages = showPercentages,
                         onPositionClick = onPositionClick,
                     )
                 }

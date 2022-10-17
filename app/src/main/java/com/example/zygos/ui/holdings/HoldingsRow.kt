@@ -28,6 +28,7 @@ fun HoldingsRow(
     position: PricedPosition,
     color: Color,
     displayOption: HoldingsListDisplayOptions,
+    showPercentages: State<Boolean>,
     modifier: Modifier = Modifier,
     horizontalPadding: Dp = tickerListHorizontalPadding,
     onPositionClick: (PricedPosition) -> Unit = { },
@@ -55,7 +56,9 @@ fun HoldingsRow(
                 PositionRowSubInfo(position = position)
             }
             Spacer(Modifier.weight(10f))
-            PositionRowInfo(position = position, displayOption = displayOption)
+
+            // showPercentages must be passed as a state for this to donut-hole compose
+            PositionRowInfo(position = position, displayOption = displayOption, showPercentages = showPercentages)
         }
 
         if (hasSubpositions) {
@@ -70,6 +73,7 @@ fun HoldingsRow(
                             position = pos,
                             color = color,
                             displayOption = displayOption,
+                            showPercentages = showPercentages,
                             last = index == position.subPositions.lastIndex,
                             modifier = Modifier
                                 .clickable { onPositionClick(pos) }
@@ -89,12 +93,15 @@ fun HoldingsRow(
 @Composable
 fun HoldingsRowPreview() {
     val viewModel = viewModel<TestViewModel>()
+    val trueState = remember { mutableStateOf(true) }
+    val falseState = remember { mutableStateOf(false) }
     ZygosTheme {
         Surface() {
             Column() {
                 HoldingsRow(
                     position = viewModel.longPositions[0],
                     displayOption = HoldingsListDisplayOptions.RETURNS_TOTAL,
+                    showPercentages = trueState,
                     color = Color(0xff00a1f1),
                 )
 
@@ -103,6 +110,7 @@ fun HoldingsRowPreview() {
                 HoldingsRow(
                     position = viewModel.longPositions[1],
                     displayOption = HoldingsListDisplayOptions.RETURNS_TOTAL,
+                    showPercentages = falseState,
                     color = Color(0xff00a1f1),
                 )
             }

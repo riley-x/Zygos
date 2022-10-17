@@ -21,6 +21,7 @@ fun HoldingsSubRow(
     position: PricedPosition,
     color: Color,
     displayOption: HoldingsListDisplayOptions,
+    showPercentages: State<Boolean>,
     last: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -49,7 +50,7 @@ fun HoldingsSubRow(
                 .size(width = 22.dp, height = 60.dp)
         )
         PositionRowSubInfo(position = position, Modifier.weight(10f))
-        PositionRowInfo(position = position, displayOption = displayOption)
+        PositionRowInfo(position = position, displayOption = displayOption, showPercentages = showPercentages)
     }
 }
 
@@ -58,6 +59,8 @@ fun HoldingsSubRow(
 @Composable
 fun HoldingsSubRowPreview() {
     val viewModel = viewModel<TestViewModel>()
+    val trueState = remember { mutableStateOf(true) }
+    val falseState = remember { mutableStateOf(false) }
     ZygosTheme {
         Surface() {
             Column() {
@@ -66,12 +69,14 @@ fun HoldingsSubRowPreview() {
                     displayOption = HoldingsListDisplayOptions.RETURNS_TOTAL,
                     last = false,
                     color = Color(0xff00a1f1),
+                    showPercentages = trueState,
                 )
                 HoldingsSubRow(
                     position = viewModel.longPositions[0].subPositions[1],
                     displayOption = HoldingsListDisplayOptions.RETURNS_TOTAL,
                     last = true,
                     color = Color(0xff00a1f1),
+                    showPercentages = falseState,
                 )
             }
         }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,48 +20,76 @@ import com.example.zygos.data.PricedPosition
  * These are the composables that show TickerListRow info
  */
 
+@Composable
+private fun ValueOrPercent(
+    value: Float,
+    percent: Float,
+    showPercentages: State<Boolean>,
+    modifier: Modifier = Modifier,
+    isColor: Boolean = true,
+) {
+    val color =
+        if (!isColor) MaterialTheme.colors.onSurface
+        else if ((showPercentages.value && percent >= 0) || (!showPercentages.value && value >= 0)) MaterialTheme.colors.primary
+        else MaterialTheme.colors.error
+
+    Text(
+        text = if (showPercentages.value) formatPercent(percent) else formatDollar(value),
+        color = color,
+        modifier = modifier
+    )
+}
+
 
 @Composable
 private fun ValuePair(
     value: Float,
+    percent: Float,
+    showPercentages: State<Boolean>,
     subValue: Float,
     modifier: Modifier = Modifier,
-    isReturns: Boolean = true,
 ) {
-    val valueColor =
-        if (!isReturns) MaterialTheme.colors.onSurface
-        else if (value >= 0) MaterialTheme.colors.primary
-        else MaterialTheme.colors.error
-    val subValueColor = valueColor.copy(alpha = ContentAlpha.medium)
-
     Column(
         horizontalAlignment = Alignment.End,
         modifier = modifier
     ) {
+        ValueOrPercent(value, percent, showPercentages)
         Text(
-            text = formatDollar(value),
-            color = valueColor,
-        )
-        Text(
-            text = if (value.isNaN()) "" else if (isReturns) formatPercent(subValue) else formatDollarNoSymbol(subValue),
-            color = subValueColor,
+            text = if (value.isNaN()) "" else formatDollarNoSymbol(subValue),
+            color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium),
             style = MaterialTheme.typography.subtitle1
         )
     }
 }
 
 
-
 @Composable
 fun PositionRowInfo(
     position: PricedPosition,
     displayOption: HoldingsListDisplayOptions,
+    showPercentages: State<Boolean>,
     modifier: Modifier = Modifier,
 ) {
     when (displayOption) {
-        HoldingsListDisplayOptions.EQUITY -> ValuePair(position.equity, position.mark, modifier, isReturns = false)
-        HoldingsListDisplayOptions.RETURNS_TOTAL -> ValuePair(position.returnsTotal, position.returnsPercent, modifier)
-        HoldingsListDisplayOptions.RETURNS_TODAY -> ValuePair(position.returnsToday,position.returnsTodayPercent,  modifier)
+        HoldingsListDisplayOptions.EQUITY -> ValuePair(
+            value = position.equity,
+            percent = position.equity,
+            showPercentages = showPercentages,
+            subValue = position.mark,
+            modifier = modifier,
+        ) // TODO equity %
+        HoldingsListDisplayOptions.RETURNS_TOTAL -> ValueOrPercent(
+            value = position.returnsTotal,
+            percent = position.returnsPercent,
+            showPercentages = showPercentages,
+            modifier = modifier
+        )
+        HoldingsListDisplayOptions.RETURNS_TODAY -> ValueOrPercent(
+            value = position.returnsToday,
+            percent = position.returnsTodayPercent,
+            showPercentages = showPercentages,
+            modifier = modifier
+        )
     }
 }
 
