@@ -26,7 +26,7 @@ fun TickerListRow(
     Row(
         modifier = modifier
             .recomposeHighlighter()
-            .height(52.dp),
+            .height(60.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
@@ -35,7 +35,7 @@ fun TickerListRow(
         ) {
             Spacer(
                 Modifier
-                    .size(4.dp, 46.dp)
+                    .size(4.dp, 50.dp)
                     .background(color = color)
             )
             Text(
@@ -100,8 +100,7 @@ fun TickerListDivider(
     Divider(
         color = MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
         thickness = 1.dp,
-        modifier = modifier
-            .padding(start = 6.dp, top = 2.dp, bottom = 2.dp)
+        modifier = modifier,
     )
 }
 

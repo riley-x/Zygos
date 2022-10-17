@@ -109,14 +109,14 @@ fun HoldingsScreen(
             // expanded parameter will not be reset.
             itemsIndexed(longPositions, key = { _, pos -> pos.account + pos.ticker } ) { index, pos ->
                 Column {
-                    if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
+                    if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 22.dp))
 
                     HoldingsRow(
                         position = pos,
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
                         displayOption = displayLongOption,
                         onPositionClick = onPositionClick,
-                        modifier = Modifier
+                        horizontalPadding = 22.dp, // Must pass inside so clickable animation covers full width
                     )
                 }
             }
@@ -133,16 +133,14 @@ fun HoldingsScreen(
 
             itemsIndexed(shortPositions) { index, pos ->
                 Column {
-                    if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
+                    if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 18.dp))
 
                     HoldingsRow(
                         position = pos,
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
                         displayOption = displayShortOption,
-                        modifier = Modifier
-                            .clickable { onPositionClick(pos) }
-                            .padding(horizontal = 6.dp) // this needs to be second so that the clickable
-                                                        // animation covers the full width
+                        onPositionClick = onPositionClick,
+                        horizontalPadding = 18.dp, // Must pass inside so clickable animation covers full width
                     )
                 }
             }
@@ -162,7 +160,7 @@ fun PreviewHoldingsScreen() {
     ZygosTheme {
         Surface {
             HoldingsScreen(
-                longPositionsAreLoading = true,
+                longPositionsAreLoading = false,
                 shortPositionsAreLoading = false,
                 longPositions = viewModel.longPositions,
                 shortPositions = viewModel.shortPositions,

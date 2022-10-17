@@ -29,7 +29,7 @@ fun HoldingsSubRow(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .height(52.dp)
+            .height(60.dp)
             .drawBehind { // Can't use Divider because that adds a space between the ComponentIndicatorLines
                 val strokeWidth = 1.dp.value * density
                 val y = strokeWidth / 2
@@ -46,7 +46,7 @@ fun HoldingsSubRow(
             color = color.copy(alpha = 0.5f),
             modifier = Modifier
                 .padding(start = 26.dp, end = 4.dp)
-                .size(width = 20.dp, height = 52.dp)
+                .size(width = 22.dp, height = 60.dp)
         )
         PositionRowSubInfo(position = position, Modifier.weight(10f))
         PositionRowInfo(position = position, displayOption = displayOption)

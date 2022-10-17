@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.components.*
@@ -28,6 +29,7 @@ fun HoldingsRow(
     color: Color,
     displayOption: HoldingsListOptions,
     modifier: Modifier = Modifier,
+    horizontalPadding: Dp = 12.dp,
     onPositionClick: (PricedPosition) -> Unit = { },
     ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
@@ -41,8 +43,8 @@ fun HoldingsRow(
             color = color,
             modifier = Modifier
                 .clickable { onPositionClick(position) }
-                .padding(horizontal = 6.dp) // this needs to be here so that the clickable
-                                            // animation covers the full width
+                .padding(horizontal = horizontalPadding)
+            // padding needs to be here so that the clickable animation covers the full width
         ) {
             if (hasSubpositions) {
                 IconButton(onClick = { expanded = !expanded }) {
@@ -71,8 +73,8 @@ fun HoldingsRow(
                             last = index == position.subPositions.lastIndex,
                             modifier = Modifier
                                 .clickable { onPositionClick(pos) }
-                                .padding(horizontal = 6.dp) // this needs to be here so that the clickable
-                                                            // animation covers the full width
+                                .padding(horizontal = horizontalPadding)
+                            // padding needs to be here so that the clickable animation covers the full width
                         )
                     }
                 }
