@@ -16,9 +16,13 @@ import kotlin.math.roundToInt
 
 class EquityHistoryModel(private val parent: ZygosViewModel) {
 
+    var initialContributions = 0L
+
+    /** These are used by the performance screen **/
     var current by mutableStateOf(0L)
     var changeToday by mutableStateOf(0L)
     var changePercent by mutableStateOf(0f)
+
 
     fun setCurrent(positions: List<Position>, market: MarketModel) {
         current = positions.sumOf { it.equity(market.markPrices) }
@@ -52,6 +56,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         }
     }
 
+    /** Make sure initialContributions is set already **/
     internal fun loadLaunched(account: String) {
         parent.viewModelScope.launch {
             /** Get series from database **/
@@ -59,10 +64,10 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
                 if (account == allAccounts) parent.equityHistoryDao.getAllAccounts()
                 else parent.equityHistoryDao.getAccount(account)
             }
-            /** Upload to in-memory map **/
+            /** Upload to in-memory list **/
             series.clear()
             loadedSeries.mapTo(series) {
-                TimeSeries(it.returns.toFloatDollar(), it.date)
+                TimeSeries((initialContributions + it.returns).toFloatDollar(), it.date)
             }
             /** Update graph state **/
             if (series.isNotEmpty()) {
@@ -119,6 +124,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
             maxY = maxY,
             ticksX = ticksX,
             ticksY = ticksY,
+            xAxisLoc = initialContributions.toFloatDollar()
         )
     }
 }

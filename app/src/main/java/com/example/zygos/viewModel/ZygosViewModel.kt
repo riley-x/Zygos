@@ -248,9 +248,11 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         shortPositions.isLoading = true // they need to be here because the lots load blocks
 
         transactions.loadLaunched(account)
-        equityHistory.loadLaunched(account)
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
         colors.insertDefaults(lots.tickerLots.keys)
+
+        equityHistory.initialContributions = lots.cashPosition?.shares ?: 0L
+        equityHistory.loadLaunched(account)
 
         loadPricedData()
 
