@@ -32,7 +32,7 @@ fun HoldingsRow(
     horizontalPadding: Dp = 12.dp,
     onPositionClick: (PricedPosition) -> Unit = { },
     ) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
+    var expanded by rememberSaveable(position) { mutableStateOf(false) }
     val hasSubpositions by remember { derivedStateOf {
         position.subPositions.isNotEmpty() && position.instrumentName.isEmpty()
     } }

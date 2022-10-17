@@ -69,12 +69,12 @@ fun PositionRowSubInfo(
     modifier: Modifier = Modifier,
 ) {
     CompositionLocalProvider(
-        LocalContentAlpha provides 0.8f,
+        LocalContentAlpha provides ContentAlpha.medium,
         LocalTextStyle provides MaterialTheme.typography.subtitle1
     ) {
         if (position.type == PositionType.STOCK) {
             Column(modifier) {
-                Text("${position.shares} shares")
+                Text("x${position.shares}")
                 Text(formatDollar(position.priceOpen))
             }
         } else if (position.type.isSpread) {
@@ -92,10 +92,10 @@ fun PositionRowSubInfo(
             Row(modifier) {
                 Column(Modifier.width(100.dp)) {
                     Text(position.type.toString())
-                    Text("x${position.shares}")
+                    Text(formatDateInt(position.expiration))
                 }
                 Column {
-                    Text(formatDateInt(position.expiration))
+                    Text("x${position.shares}")
                     Text(formatDollarNoSymbol(position.strike))
                 }
             }
