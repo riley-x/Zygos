@@ -124,8 +124,8 @@ fun TransactionDetailsScreen(
     ) {
         Column(
             modifier = Modifier
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState()),
         ) {
             DropdownSelector(
                 currentValue = account.value,
