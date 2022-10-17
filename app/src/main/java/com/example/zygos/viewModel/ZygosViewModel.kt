@@ -231,8 +231,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         if (!lots.isLoading) {
             val long = if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions.toList()
             val short = lots.shortPositions.toList()
-            longPositions.loadLaunched(long, market.markPrices, market.closePrices, market.percentChanges)
-            shortPositions.loadLaunched(short, market.markPrices, market.closePrices, market.percentChanges)
+            val totalEquity = long.sumOf { it.equity(market.markPrices) } + short.sumOf { it.equity(market.markPrices) }
+            longPositions.loadLaunched(long, market.markPrices, market.closePrices, market.percentChanges, totalEquity)
+            shortPositions.loadLaunched(short, market.markPrices, market.closePrices, market.percentChanges, totalEquity)
         }
     }
 

@@ -119,6 +119,7 @@ class PositionModel(private val parent: ZygosViewModel) {
         markPrices: Map<String, Long>,
         closePrices: Map<String, Long>,
         percentChanges: Map<String, Float>,
+        totalEquity: Long,
     ) {
 
         if (positions.isEmpty()) {
@@ -137,7 +138,8 @@ class PositionModel(private val parent: ZygosViewModel) {
                             lot = it,
                             markPrices = markPrices,
                             closePrices = closePrices,
-                            percentChanges = percentChanges
+                            percentChanges = percentChanges,
+                            totalEquity = totalEquity,
                         )
                     )
                 }

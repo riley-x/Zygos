@@ -31,6 +31,7 @@ data class PricedPosition (
     val returnsToday: Float = 0f,
     val returnsTodayPercent: Float = 0f,
     val equity: Float = 0f,
+    val equityPercent: Float = 0f,
     /** Sub-positions **/
     val subPositions: List<PricedPosition> = emptyList(),
 ) {
@@ -40,6 +41,7 @@ data class PricedPosition (
             markPrices: Map<String, Long>,
             closePrices: Map<String, Long>,
             percentChanges: Map<String, Float>,
+            totalEquity: Long,
         ): PricedPosition {
             val realizedOpen = lot.realizedOpen.toFloatDollar()
             val unrealized = lot.unrealized(markPrices).toFloatDollar()
@@ -63,7 +65,7 @@ data class PricedPosition (
                 collateral = lot.collateral.toFloatDollar(),
                 priceUnderlyingOpen = lot.priceUnderlyingOpen.toFloatDollar(),
                 /** Price-dependent **/
-                mark = closePrices[lot.instrumentName.ifBlank { lot.ticker }]?.toFloatDollar() ?: 0f, // for aggregate positions, still show the % change of the ticker, if available
+                mark = markPrices[lot.instrumentName.ifBlank { lot.ticker }]?.toFloatDollar() ?: 0f, // for aggregate positions, still show the % change of the ticker, if available
                 unrealized = unrealized,
                 returnsOpen = realizedOpen + unrealized,
                 returnsPercent = lot.returnsPercent(markPrices),
@@ -71,8 +73,9 @@ data class PricedPosition (
                 returnsToday = lot.returnsPeriod(closePrices, markPrices).toFloatDollar(),
                 returnsTodayPercent = percentChanges[lot.instrumentName.ifBlank { lot.ticker }] ?: 0f, // for aggregate positions, still show the % change of the ticker, if available
                 equity = lot.equity(markPrices).toFloatDollar(),
+                equityPercent = if (totalEquity == 0L) 0f else lot.equity(markPrices).toFloat() / totalEquity,
                 /** Sub-positions **/
-                subPositions = lot.subPositions.map { PricedPosition(it, markPrices, closePrices, percentChanges) },
+                subPositions = lot.subPositions.map { PricedPosition(it, markPrices, closePrices, percentChanges, totalEquity) },
             )
         }
     }

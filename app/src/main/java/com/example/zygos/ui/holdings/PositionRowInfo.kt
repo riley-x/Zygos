@@ -53,7 +53,7 @@ private fun ValuePair(
         horizontalAlignment = Alignment.End,
         modifier = modifier
     ) {
-        ValueOrPercent(value, percent, showPercentages)
+        ValueOrPercent(value = value, percent = percent, showPercentages = showPercentages, isColor = false)
         Text(
             text = if (value.isNaN()) "" else formatDollarNoSymbol(subValue),
             color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium),
@@ -73,7 +73,7 @@ fun PositionRowInfo(
     when (displayOption) {
         HoldingsListDisplayOptions.EQUITY -> ValuePair(
             value = position.equity,
-            percent = position.equity,
+            percent = position.equityPercent,
             showPercentages = showPercentages,
             subValue = position.mark,
             modifier = modifier,

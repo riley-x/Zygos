@@ -114,10 +114,11 @@ class TestViewModel: ViewModel() {
             realizedClosed = 670900,
         ),
     )
+    val totalEquity = lots.sumOf { it.equity(markPrices) }
     val longPositions = mutableStateListOf(
-        PricedPosition(lot = lots[0] + lots[1], markPrices = markPrices, closePrices = closePrices, percentChanges = percentChanges),
-        PricedPosition(lot = lots[2], markPrices = markPrices, closePrices = closePrices, percentChanges = percentChanges),
-        PricedPosition(lot = lots[3], markPrices = markPrices, closePrices = closePrices, percentChanges = percentChanges),
+        PricedPosition(lot = lots[0] + lots[1], markPrices = markPrices, closePrices = closePrices, percentChanges = percentChanges, totalEquity),
+        PricedPosition(lot = lots[2], markPrices = markPrices, closePrices = closePrices, percentChanges = percentChanges, totalEquity),
+        PricedPosition(lot = lots[3], markPrices = markPrices, closePrices = closePrices, percentChanges = percentChanges, totalEquity),
     )
     val shortPositions = mutableStateListOf<PricedPosition>()
 
