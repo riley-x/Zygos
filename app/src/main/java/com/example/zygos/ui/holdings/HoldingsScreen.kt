@@ -1,19 +1,16 @@
 package com.example.zygos.ui.holdings
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.MoreVert
-import androidx.compose.material.icons.sharp.Percent
+import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
@@ -23,10 +20,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.ui.components.*
+import com.example.zygos.data.PricedPosition
+import com.example.zygos.ui.components.LogCompositions
+import com.example.zygos.ui.components.TickerListDivider
+import com.example.zygos.ui.components.tickerListHorizontalPadding
 import com.example.zygos.ui.graphing.PieChart
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.data.PricedPosition
 import com.example.zygos.viewModel.TestViewModel
 
 /**
@@ -54,7 +53,7 @@ fun HoldingsScreen(
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos/Compositions", "HoldingsScreen")
-    var showPercentages = rememberSaveable { mutableStateOf(false) }
+    val showPercentages = rememberSaveable { mutableStateOf(false) }
 
     Column(modifier.padding(bottom = bottomPadding)) {
         accountSelectionBar()

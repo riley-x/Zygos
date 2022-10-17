@@ -223,7 +223,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
 
-    private fun loadPricedPositions() {
+    private fun loadPricedData() {
         /** This check, the load launch, and the reset happen on the main thread, so there's no
          * way they can conflict. However, need to copy the lists since both the loads below and
          * the loads in lotModel happen on dispatched threads
@@ -231,9 +231,11 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         if (!lots.isLoading) {
             val long = if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions.toList()
             val short = lots.shortPositions.toList()
-            val totalEquity = long.sumOf { it.equity(market.markPrices) } + short.sumOf { it.equity(market.markPrices) }
-            longPositions.loadLaunched(long, market.markPrices, market.closePrices, market.percentChanges, totalEquity)
-            shortPositions.loadLaunched(short, market.markPrices, market.closePrices, market.percentChanges, totalEquity)
+
+            equityHistory.setCurrent(long + short, market)
+
+            longPositions.loadLaunched(long, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
+            shortPositions.loadLaunched(short, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
         }
     }
 
@@ -250,10 +252,10 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
         colors.insertDefaults(lots.tickerLots.keys)
 
-        loadPricedPositions()
+        loadPricedData()
 
         // TODO place this into a timer
-        if (market.updatePrices(lots.tickerLots.keys, lots.optionNames())) loadPricedPositions()
+        if (market.updatePrices(lots.tickerLots.keys, lots.optionNames())) loadPricedData()
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale
@@ -265,7 +267,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 //        jobs.joinAll()
     }
 
-    suspend fun sortList(whichList: String) {
+    fun sortList(whichList: String) {
         when(whichList) {
             "watchlist" -> sortWatchlist()
         }

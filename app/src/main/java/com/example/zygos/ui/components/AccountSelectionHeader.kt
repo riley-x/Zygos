@@ -12,7 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.theme.ZygosTheme
 
-
+val accountHeaderHorizontalPadding = 6.dp
 const val noAccountMessage = "No Accounts"
 const val allAccounts = "All Accounts"
 
@@ -35,7 +35,9 @@ fun AccountSelectionHeader(
     }
 
     Surface(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .padding(horizontal = accountHeaderHorizontalPadding, vertical = 4.dp)
+            .fillMaxWidth()
     ) {
         Row (
             verticalAlignment = Alignment.CenterVertically

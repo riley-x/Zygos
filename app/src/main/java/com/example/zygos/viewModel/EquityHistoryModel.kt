@@ -1,10 +1,11 @@
 package com.example.zygos.viewModel
 
 import android.icu.util.Calendar
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import com.example.zygos.data.toFloatDollar
-import com.example.zygos.data.toIntDate
+import com.example.zygos.data.*
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
@@ -14,6 +15,18 @@ import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
 class EquityHistoryModel(private val parent: ZygosViewModel) {
+
+    var current by mutableStateOf(0L)
+    var changeToday by mutableStateOf(0L)
+    var changePercent by mutableStateOf(0f)
+
+    fun setCurrent(positions: List<Position>, market: MarketModel) {
+        current = positions.sumOf { it.equity(market.markPrices) }
+        changeToday = positions.sumOf { it.returnsPeriod(market.closePrices, market.markPrices) }
+        changePercent = changeToday.toFloat() / (current - changeToday)
+    }
+
+
     val timeRange = mutableStateOf(accountPerformanceRangeOptions.items.last()) // must be state to pass down to button group derivedStateOf
     val graphState = mutableStateOf(TimeSeriesGraphState<TimeSeries>())
 

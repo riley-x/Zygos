@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.zygos.data.toFloatDollar
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.graphing.TimeSeriesGraph
 import com.example.zygos.ui.graphing.TimeSeriesGraphSelector
@@ -23,6 +24,9 @@ import com.example.zygos.viewModel.*
 
 @Composable
 fun PerformanceScreen(
+    currentEquity: Long,
+    currentChange: Long,
+    currentChangePercent: Float,
     accountPerformanceState: State<TimeSeriesGraphState<TimeSeries>>,
     accountPerformanceTimeRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     watchlist: SnapshotStateList<Quote>,
@@ -55,10 +59,41 @@ fun PerformanceScreen(
                 hoverX = ""
                 hoverY = ""
             }
-            //hoverY = if (isHover && y > 0f && y < 25f) formatDollar(y) else ""
         }
 
         LazyColumn {
+
+            item("equity_title") {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = accountHeaderHorizontalPadding)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = formatDollar(currentEquity.toFloatDollar()),
+                        style = MaterialTheme.typography.h2,
+                        color = MaterialTheme.colors.onSurface, // this is necessary for some reason
+                        modifier = Modifier.weight(10f),
+                    )
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        val isPositive by remember { derivedStateOf { currentChange >= 0 } }
+                        val color = if (isPositive) MaterialTheme.colors.primary
+                        else MaterialTheme.colors.error
+                        Text(
+                            text = formatDollar(currentChange.toFloatDollar()),
+                            color = color
+                        )
+                        Text(
+                            text = formatPercent(currentChangePercent),
+                            color = color
+                        )
+                    }
+                }
+            }
+
             item("graph_hover") {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -170,6 +205,9 @@ fun PreviewPerformanceScreen() {
     ZygosTheme {
         Surface {
             PerformanceScreen(
+                1000000,
+                100000,
+                .1f,
                 accountPerformanceState = viewModel.accountPerformanceState,
                 accountPerformanceTimeRange = viewModel.accountPerformanceTimeRange,
                 watchlist = viewModel.watchlist,

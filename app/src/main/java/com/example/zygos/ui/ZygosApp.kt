@@ -223,7 +223,6 @@ fun ZygosApp(
             currentAccount = viewModel.currentAccount,
             onAccountSelected = viewModel::setAccount,
             onAddAccount = ::onAddAccountClick,
-            modifier = Modifier.topBar(),
         ) }
 
 
@@ -262,6 +261,9 @@ fun ZygosApp(
                     composable(route = PerformanceTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Performance.route")
                         PerformanceScreen(
+                            currentEquity = viewModel.equityHistory.current,
+                            currentChange = viewModel.equityHistory.changeToday,
+                            currentChangePercent = viewModel.equityHistory.changePercent,
                             accountPerformanceState = viewModel.equityHistory.graphState,
                             accountPerformanceTimeRange = viewModel.equityHistory.timeRange,
                             watchlist = viewModel.watchlist,
@@ -439,11 +441,6 @@ fun ZygosApp(
     }
 }
 
-
-
-fun Modifier.topBar(): Modifier {
-    return this.padding(horizontal = 8.dp, vertical = 6.dp)
-}
 
 fun NavHostController.navigateSingleTopTo(route: String, shouldSaveState: Boolean = true) {
     val wasColor = currentDestination?.route?.equals(ColorSelectorDestination.routeWithArgs) == true
