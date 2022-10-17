@@ -131,8 +131,8 @@ fun ZygosApp(
         }
         fun onHoldingsListLongOptionsDialogClose(
             isCancel: Boolean,
-            newDisplay: HoldingsListOptions,
-            newSort: HoldingsListOptions,
+            newDisplay: HoldingsListDisplayOptions,
+            newSort: HoldingsListSortOptions,
             newIsAscending: Boolean
         ) {
             openHoldingsListLongOptionsDialog = false
@@ -142,8 +142,8 @@ fun ZygosApp(
         }
         fun onHoldingsListShortOptionsDialogClose(
             isCancel: Boolean,
-            newDisplay: HoldingsListOptions,
-            newSort: HoldingsListOptions,
+            newDisplay: HoldingsListDisplayOptions,
+            newSort: HoldingsListSortOptions,
             newIsAscending: Boolean
         ) {
             openHoldingsListShortOptionsDialog = false

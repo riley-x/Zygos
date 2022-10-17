@@ -1,6 +1,5 @@
 package com.example.zygos.ui.holdings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -35,8 +34,8 @@ fun HoldingsScreen(
     longPositions: SnapshotStateList<PricedPosition>,
     shortPositions: SnapshotStateList<PricedPosition>,
     tickerColors: SnapshotStateMap<String, Color>,
-    displayLongOption: HoldingsListOptions,
-    displayShortOption: HoldingsListOptions,
+    displayLongOption: HoldingsListDisplayOptions,
+    displayShortOption: HoldingsListDisplayOptions,
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
     onPositionClick: (PricedPosition) -> Unit = { },
@@ -167,8 +166,8 @@ fun PreviewHoldingsScreen() {
                 longPositions = viewModel.longPositions,
                 shortPositions = viewModel.shortPositions,
                 tickerColors = viewModel.tickerColors,
-                displayLongOption = HoldingsListOptions.RETURNS,
-                displayShortOption = HoldingsListOptions.RETURNS,
+                displayLongOption = HoldingsListDisplayOptions.RETURNS_TOTAL,
+                displayShortOption = HoldingsListDisplayOptions.RETURNS_TOTAL,
             )
         }
     }

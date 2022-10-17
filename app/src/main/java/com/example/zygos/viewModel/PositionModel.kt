@@ -7,7 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.Position
 import com.example.zygos.data.PricedPosition
-import com.example.zygos.ui.holdings.HoldingsListOptions
+import com.example.zygos.ui.holdings.HoldingsListDisplayOptions
+import com.example.zygos.ui.holdings.HoldingsListSortOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -18,14 +19,14 @@ class PositionModel(private val parent: ZygosViewModel) {
     val list = mutableStateListOf<PricedPosition>()
 
     var isLoading by mutableStateOf(false)
-    var displayOption by mutableStateOf(HoldingsListOptions.EQUITY)
-    var sortOption by mutableStateOf(HoldingsListOptions.EQUITY)
+    var displayOption by mutableStateOf(HoldingsListDisplayOptions.EQUITY)
+    var sortOption by mutableStateOf(HoldingsListSortOptions.EQUITY)
     var sortIsAscending by mutableStateOf(false)
 
     // Called from composable onClick callbacks
     fun setSortAndDisplay(
-        newDisplay: HoldingsListOptions,
-        newSort: HoldingsListOptions,
+        newDisplay: HoldingsListDisplayOptions,
+        newSort: HoldingsListSortOptions,
         newIsAscending: Boolean
     ) {
         parent.viewModelScope.launch {
@@ -36,7 +37,7 @@ class PositionModel(private val parent: ZygosViewModel) {
 
     private fun getSortedList(
         oldList: List<PricedPosition>,
-        option: HoldingsListOptions,
+        option: HoldingsListSortOptions,
         ascending: Boolean
     ): MutableList<PricedPosition> {
         if (oldList.isEmpty()) return mutableListOf()
@@ -54,12 +55,12 @@ class PositionModel(private val parent: ZygosViewModel) {
             else newList.sortByDescending(fn)
         }
         when (option) {
-            HoldingsListOptions.TICKER -> sortBy(PricedPosition::ticker)
-            HoldingsListOptions.EQUITY -> sortBy(PricedPosition::equity)
-            HoldingsListOptions.RETURNS -> sortBy(PricedPosition::returnsOpen)
-            HoldingsListOptions.RETURNS_PERCENT -> sortBy(PricedPosition::returnsPercent)
-            HoldingsListOptions.RETURNS_TODAY -> sortBy(PricedPosition::returnsToday)
-            HoldingsListOptions.RETURNS_PERCENT_TODAY -> sortBy(PricedPosition::returnsTodayPercent)
+            HoldingsListSortOptions.TICKER -> sortBy(PricedPosition::ticker)
+            HoldingsListSortOptions.EQUITY -> sortBy(PricedPosition::equity)
+            HoldingsListSortOptions.RETURNS -> sortBy(PricedPosition::returnsOpen)
+            HoldingsListSortOptions.RETURNS_PERCENT -> sortBy(PricedPosition::returnsPercent)
+            HoldingsListSortOptions.RETURNS_TODAY -> sortBy(PricedPosition::returnsToday)
+            HoldingsListSortOptions.RETURNS_PERCENT_TODAY -> sortBy(PricedPosition::returnsTodayPercent)
             else -> Unit
         }
 
@@ -87,7 +88,7 @@ class PositionModel(private val parent: ZygosViewModel) {
 
 
     suspend fun sort(
-        newSortOption: HoldingsListOptions,
+        newSortOption: HoldingsListSortOptions,
         newSortIsAscending: Boolean,
         force: Boolean = false
     ) {

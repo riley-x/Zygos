@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.zygos.data.PositionType
@@ -20,46 +21,46 @@ import com.example.zygos.data.PricedPosition
 
 
 @Composable
-fun ColoredDollar(
+private fun ValuePair(
     value: Float,
+    subValue: Float,
     modifier: Modifier = Modifier,
+    isReturns: Boolean = true,
 ) {
-    Text(
-        text = formatDollar(value),
-        color = if (value >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error,
-        modifier = modifier
-    )
-}
+    val valueColor =
+        if (!isReturns) MaterialTheme.colors.onSurface
+        else if (value >= 0) MaterialTheme.colors.primary
+        else MaterialTheme.colors.error
+    val subValueColor = valueColor.copy(alpha = ContentAlpha.medium)
 
-@Composable
-fun ColoredPercent(
-    value: Float,
-    modifier: Modifier = Modifier,
-) {
-    if (!value.isNaN()) {
+    Column(
+        horizontalAlignment = Alignment.End,
+        modifier = modifier
+    ) {
         Text(
-            text = formatPercent(value),
-            color = if (value >= 0) MaterialTheme.colors.primary else MaterialTheme.colors.error,
-            modifier = modifier
+            text = formatDollar(value),
+            color = valueColor,
+        )
+        Text(
+            text = if (value.isNaN()) "" else if (isReturns) formatPercent(subValue) else formatDollarNoSymbol(subValue),
+            color = subValueColor,
+            style = MaterialTheme.typography.subtitle1
         )
     }
 }
 
 
+
 @Composable
 fun PositionRowInfo(
     position: PricedPosition,
-    displayOption: HoldingsListOptions,
+    displayOption: HoldingsListDisplayOptions,
     modifier: Modifier = Modifier,
 ) {
     when (displayOption) {
-        HoldingsListOptions.EQUITY -> Text(formatDollar(position.equity), modifier)
-        HoldingsListOptions.RETURNS -> ColoredDollar(position.returnsTotal, modifier)
-        HoldingsListOptions.RETURNS_PERCENT -> ColoredPercent(position.returnsPercent, modifier)
-        HoldingsListOptions.RETURNS_TODAY -> ColoredDollar(position.returnsToday, modifier)
-        HoldingsListOptions.RETURNS_PERCENT_TODAY -> ColoredPercent(position.returnsTodayPercent, modifier)
-        HoldingsListOptions.MARK -> Text(formatDollar(position.mark), modifier)
-        else -> Unit
+        HoldingsListDisplayOptions.EQUITY -> ValuePair(position.equity, position.mark, modifier, isReturns = false)
+        HoldingsListDisplayOptions.RETURNS_TOTAL -> ValuePair(position.returnsTotal, position.returnsPercent, modifier)
+        HoldingsListDisplayOptions.RETURNS_TODAY -> ValuePair(position.returnsToday,position.returnsTodayPercent,  modifier)
     }
 }
 
@@ -90,15 +91,9 @@ fun PositionRowSubInfo(
                 }
             }
         } else if (position.type.isOption) {
-            Row(modifier) {
-                Column(Modifier.width(100.dp)) {
-                    Text(position.type.toString())
-                    Text(formatDateInt(position.expiration))
-                }
-                Column {
-                    Text("x${position.shares}")
-                    Text(formatDollarNoSymbol(position.strike))
-                }
+            Column(modifier) {
+                Text("${position.type.displayName} x${position.shares}")
+                Text("${formatDateInt(position.expiration)} - ${formatDollarNoSymbol(position.strike)}")
             }
         } else if (position.type == PositionType.CASH) {
             Column(modifier) {

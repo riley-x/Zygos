@@ -12,7 +12,7 @@ import com.example.zygos.data.database.TransactionType
 import com.example.zygos.data.toLongDollar
 import com.example.zygos.network.TdQuote
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
-import com.example.zygos.ui.holdings.HoldingsListOptions
+import com.example.zygos.ui.holdings.HoldingsListSortOptions
 import com.example.zygos.ui.theme.defaultTickerColors
 
 class TestViewModel: ViewModel() {
@@ -124,11 +124,11 @@ class TestViewModel: ViewModel() {
     // These variables are merely the ui state of the options selection menu
     // The actual sorting is called in sortHoldingsList() via a callback when
     // the menu is hidden.
-    var holdingsSortOption by mutableStateOf(HoldingsListOptions.EQUITY)
+    var holdingsSortOption by mutableStateOf(HoldingsListSortOptions.EQUITY)
         private set
     var holdingsSortIsAscending by mutableStateOf(true)
         private set
-    var holdingsDisplayOption by mutableStateOf(HoldingsListOptions.EQUITY)
+    var holdingsDisplayOption by mutableStateOf(HoldingsListSortOptions.EQUITY)
 
 
     /** ChartScreen **/

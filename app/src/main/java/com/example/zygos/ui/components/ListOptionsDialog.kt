@@ -21,14 +21,14 @@ interface HasDisplayName {
 }
 
 @Composable
-fun <T: HasDisplayName> ListOptionsDialog(
-    currentDisplayOption: T,
-    currentSortOption: T,
+fun <TDisplay: HasDisplayName, TSort: HasDisplayName> ListOptionsDialog(
+    currentDisplayOption: TDisplay,
+    currentSortOption: TSort,
     currentSortIsAscending: Boolean,
-    allDisplayOptions: ImmutableList<T>,
-    allSortOptions: ImmutableList<T>,
+    allDisplayOptions: ImmutableList<TDisplay>,
+    allSortOptions: ImmutableList<TSort>,
     modifier: Modifier = Modifier,
-    onDismiss: (isCancel: Boolean, displayOption: T, sortOption: T, sortIsAscending: Boolean) -> Unit = { _, _, _, _ -> },
+    onDismiss: (isCancel: Boolean, displayOption: TDisplay, sortOption: TSort, sortIsAscending: Boolean) -> Unit = { _, _, _, _ -> },
 ) {
     var displayOption by remember { mutableStateOf(currentDisplayOption) }
     var sortOption by remember { mutableStateOf(currentSortOption) }

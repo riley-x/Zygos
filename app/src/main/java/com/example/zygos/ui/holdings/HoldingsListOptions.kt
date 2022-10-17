@@ -3,30 +3,20 @@ package com.example.zygos.ui.holdings
 import com.example.zygos.ui.components.HasDisplayName
 import com.example.zygos.ui.components.ImmutableList
 
-enum class HoldingsListOptions(override val displayName: String) : HasDisplayName {
+enum class HoldingsListSortOptions(override val displayName: String) : HasDisplayName {
     TICKER("Ticker"),
     EQUITY("Equity"),
     RETURNS("Returns"),
     RETURNS_TODAY("Returns Today"),
     RETURNS_PERCENT("% Returns"),
     RETURNS_PERCENT_TODAY("% Change"),
-    MARK("Mark"),
 }
 
-val holdingsListSortOptions = ImmutableList(listOf(
-    HoldingsListOptions.TICKER,
-    HoldingsListOptions.EQUITY,
-    HoldingsListOptions.RETURNS,
-    HoldingsListOptions.RETURNS_PERCENT,
-    HoldingsListOptions.RETURNS_TODAY,
-    HoldingsListOptions.RETURNS_PERCENT_TODAY,
-))
+enum class HoldingsListDisplayOptions(override val displayName: String) : HasDisplayName {
+    EQUITY("Equity/Mark"),
+    RETURNS_TOTAL("Returns Total"),
+    RETURNS_TODAY("Returns Today"),
+}
 
-val holdingsListDisplayOptions = ImmutableList(listOf(
-    HoldingsListOptions.MARK,
-    HoldingsListOptions.EQUITY,
-    HoldingsListOptions.RETURNS,
-    HoldingsListOptions.RETURNS_PERCENT,
-    HoldingsListOptions.RETURNS_TODAY,
-    HoldingsListOptions.RETURNS_PERCENT_TODAY,
-))
+val holdingsListSortOptions = ImmutableList(HoldingsListSortOptions.values().toList())
+val holdingsListDisplayOptions = ImmutableList(HoldingsListDisplayOptions.values().toList())

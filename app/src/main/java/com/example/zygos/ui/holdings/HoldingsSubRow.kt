@@ -20,7 +20,7 @@ import com.example.zygos.viewModel.TestViewModel
 fun HoldingsSubRow(
     position: PricedPosition,
     color: Color,
-    displayOption: HoldingsListOptions,
+    displayOption: HoldingsListDisplayOptions,
     last: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -63,13 +63,13 @@ fun HoldingsSubRowPreview() {
             Column() {
                 HoldingsSubRow(
                     position = viewModel.longPositions[0].subPositions[0],
-                    displayOption = HoldingsListOptions.RETURNS,
+                    displayOption = HoldingsListDisplayOptions.RETURNS_TOTAL,
                     last = false,
                     color = Color(0xff00a1f1),
                 )
                 HoldingsSubRow(
                     position = viewModel.longPositions[0].subPositions[1],
-                    displayOption = HoldingsListOptions.RETURNS_PERCENT,
+                    displayOption = HoldingsListDisplayOptions.RETURNS_TOTAL,
                     last = true,
                     color = Color(0xff00a1f1),
                 )
