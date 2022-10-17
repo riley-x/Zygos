@@ -99,7 +99,7 @@ fun HoldingsScreen(
                 item("long") {
                     ListTitleBar(
                         text = "Long Positions",
-                        modifier = Modifier.padding(start = 22.dp),
+                        modifier = Modifier.padding(start = tickerListHorizontalPadding),
                         onOptionsButtonClick = holdingsListLongOptionsCallback,
                     )
                 }
@@ -109,14 +109,15 @@ fun HoldingsScreen(
             // expanded parameter will not be reset.
             itemsIndexed(longPositions, key = { _, pos -> pos.account + pos.ticker } ) { index, pos ->
                 Column {
-                    if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 22.dp))
+                    if (index > 0) TickerListDivider(
+                        modifier = Modifier.padding(horizontal = tickerListHorizontalPadding)
+                    )
 
                     HoldingsRow(
                         position = pos,
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
                         displayOption = displayLongOption,
                         onPositionClick = onPositionClick,
-                        horizontalPadding = 22.dp, // Must pass inside so clickable animation covers full width
                     )
                 }
             }
@@ -125,7 +126,7 @@ fun HoldingsScreen(
                 item("short") {
                     ListTitleBar(
                         text = "Short Positions",
-                        modifier = Modifier.padding(start = 22.dp, top = 20.dp),
+                        modifier = Modifier.padding(start = tickerListHorizontalPadding, top = 20.dp),
                         onOptionsButtonClick = holdingsListShortOptionsCallback,
                     )
                 }
@@ -133,14 +134,15 @@ fun HoldingsScreen(
 
             itemsIndexed(shortPositions) { index, pos ->
                 Column {
-                    if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 18.dp))
+                    if (index > 0) TickerListDivider(
+                        modifier = Modifier.padding(horizontal = tickerListHorizontalPadding)
+                    )
 
                     HoldingsRow(
                         position = pos,
                         color = tickerColors.getOrDefault(pos.ticker, Color.Black),
                         displayOption = displayShortOption,
                         onPositionClick = onPositionClick,
-                        horizontalPadding = 18.dp, // Must pass inside so clickable animation covers full width
                     )
                 }
             }

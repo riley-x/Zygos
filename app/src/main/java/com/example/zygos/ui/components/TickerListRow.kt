@@ -12,6 +12,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.theme.ZygosTheme
 
+/** Default padding for ticker lists. Can't apply below because padding should be set after clickable
+ * so that the ripple covers the whole screen width
+ */
+val tickerListHorizontalPadding = 20.dp
+val tickerListHeight = 60.dp
+
 /**
  * Base composable of any list of tickers and prices.
  * Flush horizontal, height fixed
@@ -26,7 +32,7 @@ fun TickerListRow(
     Row(
         modifier = modifier
             .recomposeHighlighter()
-            .height(60.dp),
+            .height(tickerListHeight),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(

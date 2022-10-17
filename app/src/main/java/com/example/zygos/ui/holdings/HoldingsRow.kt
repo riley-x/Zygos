@@ -29,7 +29,7 @@ fun HoldingsRow(
     color: Color,
     displayOption: HoldingsListOptions,
     modifier: Modifier = Modifier,
-    horizontalPadding: Dp = 12.dp,
+    horizontalPadding: Dp = tickerListHorizontalPadding,
     onPositionClick: (PricedPosition) -> Unit = { },
     ) {
     var expanded by rememberSaveable(position) { mutableStateOf(false) }

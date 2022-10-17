@@ -60,6 +60,7 @@ class PositionModel(private val parent: ZygosViewModel) {
             HoldingsListOptions.RETURNS_PERCENT -> sortBy(PricedPosition::returnsPercent)
             HoldingsListOptions.RETURNS_TODAY -> sortBy(PricedPosition::returnsToday)
             HoldingsListOptions.RETURNS_PERCENT_TODAY -> sortBy(PricedPosition::returnsTodayPercent)
+            else -> Unit
         }
 
         /** Add back cash **/

@@ -29,7 +29,7 @@ fun HoldingsSubRow(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .height(60.dp)
+            .height(tickerListHeight)
             .drawBehind { // Can't use Divider because that adds a space between the ComponentIndicatorLines
                 val strokeWidth = 1.dp.value * density
                 val y = strokeWidth / 2

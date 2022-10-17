@@ -7,14 +7,23 @@ enum class HoldingsListOptions(override val displayName: String) : HasDisplayNam
     TICKER("Ticker"),
     EQUITY("Equity"),
     RETURNS("Returns"),
-    RETURNS_PERCENT("% Returns"),
     RETURNS_TODAY("Returns Today"),
-    RETURNS_PERCENT_TODAY("% Returns Today")
+    RETURNS_PERCENT("% Returns"),
+    RETURNS_PERCENT_TODAY("% Change"),
+    MARK("Mark"),
 }
 
-val holdingsListSortOptions = ImmutableList(HoldingsListOptions.values().toList())
+val holdingsListSortOptions = ImmutableList(listOf(
+    HoldingsListOptions.TICKER,
+    HoldingsListOptions.EQUITY,
+    HoldingsListOptions.RETURNS,
+    HoldingsListOptions.RETURNS_PERCENT,
+    HoldingsListOptions.RETURNS_TODAY,
+    HoldingsListOptions.RETURNS_PERCENT_TODAY,
+))
 
 val holdingsListDisplayOptions = ImmutableList(listOf(
+    HoldingsListOptions.MARK,
     HoldingsListOptions.EQUITY,
     HoldingsListOptions.RETURNS,
     HoldingsListOptions.RETURNS_PERCENT,
