@@ -17,14 +17,12 @@ val tdService = ApiService(
     url = "https://api.tdameritrade.com",
 )
 
-private val moshi = Moshi.Builder()
-    .add(KotlinJsonAdapterFactory())
-    .build()
 
 private val retrofit = Retrofit.Builder()
     .addConverterFactory(MoshiConverterFactory.create(moshi))
     .baseUrl(tdService.url)
     .build()
+
 
 interface TdService {
     @GET("v1/marketdata/quotes") // this is the http endpoint!
@@ -82,3 +80,4 @@ fun getTdOptionName(ticker: String, type: PositionType, expiration: Int, strike:
 
     return "${ticker}_$month$day$year$typeLetter$formattedStrike"
 }
+

@@ -1,12 +1,14 @@
 package com.example.zygos.viewModel
 
 import android.icu.util.Calendar
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.*
 import com.example.zygos.data.database.EquityHistory
+import com.example.zygos.network.*
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import kotlinx.coroutines.Dispatchers
@@ -129,4 +131,36 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
             xAxisLoc = initialContributions.toFloatDollar()
         )
     }
+
+    internal suspend fun updateEquityHistory(stockQuotes: Map<String, TdQuote>, optionQuotes: Map<String, TdOptionQuote>) {
+        if (stockQuotes.isEmpty()) return
+
+        val key = parent.apiKeys[alphaVantageService.name]
+        if (key.isNullOrBlank()) return
+
+        val alphaQuote: AlphaVantageRawQuote
+
+        try {
+            val globalQuote = AlphaVantageApi.alphaVantageService.getQuote(key, "MSFT")
+            alphaQuote = globalQuote.rawQuote
+            Log.w("Zygos/ASDF", "$alphaQuote")
+        } catch (e: Exception) {
+            Log.w("Zygos/EquityHistoryModel/updateEquityHistory", "Failure: ${e.message}")
+        }
+
+
+
+//        val tickers = stockQuotes.keys
+//        val quote = stockQuotes[tickers.first()]!!
+//
+//        val lastDate = history.last().date
+//
+//        val regularTime = quote.regularMarketTradeTimeInLong
+//        val tradeTime = quote.tradeTimeInLong
+
+//        val newDay =
+//        val marketClosed =
+    }
+
+
 }

@@ -11,8 +11,10 @@ data class TdQuote(
     val highPrice: Float,
     val lowPrice: Float,
     val closePrice: Float, // this seems to always be the previous day's close? Even at 12:47 am.
+    val tradeTimeInLong: Long,
     val netPercentChangeInDouble: Float, // this seems to include after hours
     val netChange: Float, // this seems to include after hours
+    val regularMarketTradeTimeInLong: Long,
     val regularMarketPercentChangeInDouble: Float, // this doesn't
     val regularMarketNetChange: Float, // this doesn't
 )

@@ -259,7 +259,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         // TODO place this into a timer
         if (market.updatePrices(lots.tickerLots.keys, lots.optionNames())) {
             loadPricedData()
+
+            /** Update equity history **/
+            equityHistory.updateEquityHistory(market.stockQuotes, market.optionQuotes)
         }
+
+
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale
