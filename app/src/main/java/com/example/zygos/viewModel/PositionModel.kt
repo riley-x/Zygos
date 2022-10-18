@@ -114,6 +114,29 @@ class PositionModel(private val parent: ZygosViewModel) {
         isLoading = false
     }
 
+
+    fun makePricedPositions(
+        positions: List<Position>,
+        markPrices: Map<String, Long>,
+        closePrices: Map<String, Long>,
+        percentChanges: Map<String, Float>,
+        totalEquity: Long,
+    ): MutableList<PricedPosition> {
+        val newList = mutableListOf<PricedPosition>()
+        positions.forEach {
+            newList.add(
+                PricedPosition(
+                    lot = it,
+                    markPrices = markPrices,
+                    closePrices = closePrices,
+                    percentChanges = percentChanges,
+                    totalEquity = totalEquity,
+                )
+            )
+        }
+        return newList
+    }
+
     fun loadLaunched(
         positions: List<Position>,
         markPrices: Map<String, Long>,
@@ -131,18 +154,7 @@ class PositionModel(private val parent: ZygosViewModel) {
         isLoading = true // this can be called earlier too
         parent.viewModelScope.launch {
             val newList = withContext(Dispatchers.IO) {
-                val newList = mutableListOf<PricedPosition>()
-                positions.forEach {
-                    newList.add(
-                        PricedPosition(
-                            lot = it,
-                            markPrices = markPrices,
-                            closePrices = closePrices,
-                            percentChanges = percentChanges,
-                            totalEquity = totalEquity,
-                        )
-                    )
-                }
+                val newList = makePricedPositions(positions, markPrices, closePrices, percentChanges, totalEquity)
                 getSortedList(newList, sortOption, sortIsAscending)
             }
 

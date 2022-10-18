@@ -2,9 +2,12 @@ package com.example.zygos.viewModel
 
 import android.text.Html
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.*
 import com.example.zygos.data.database.LotWithTransactions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class LotModel(private val parent: ZygosViewModel) {
@@ -25,6 +28,15 @@ class LotModel(private val parent: ZygosViewModel) {
             createLotPositions(account, tickerLots)
         }
         isLoading = false
+    }
+    fun loadLaunched(account: String): Job {
+        isLoading = true
+        val job = parent.viewModelScope.launch(Dispatchers.IO) {
+            tickerLots = parent.lotDao.getOpenAndRealized(account)
+            createLotPositions(account, tickerLots)
+            isLoading = false
+        }
+        return job
     }
 
     private fun createLotPositions(

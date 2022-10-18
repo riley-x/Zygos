@@ -14,9 +14,7 @@ import com.example.zygos.network.apiServices
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 
 const val performanceGraphYPad = 0.1f // fractional padding for each top/bottom
@@ -137,7 +135,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
     /** Lots **/
-    val lots = LotModel(this)
+    internal val lots = mutableMapOf<String, LotModel>()
     /** Prices **/
     val market = MarketModel(this)
     /** Performance Screen **/
@@ -179,6 +177,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         if (accs.isEmpty()) {
             return // Initial values are set for empty data already
         }
+        accounts.clear()
+        accounts.addAll(accs)
+        accounts.add(allAccounts)
 
         apiServices.forEach {
             val key = preferences?.getString(it.preferenceKey, "") ?: ""
@@ -189,13 +190,18 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         colors.loadLaunched()
 
-        accounts.clear()
-        accounts.addAll(accs)
-        accounts.add(allAccounts)
 
-        Log.i("Zygos/ZygosViewModel/startup", application.getDatabasePath("app_database").absolutePath)
+        val jobs = mutableListOf<Job>()
+        for (acc in accs) {
+            val model = lots.getOrPut(acc) { LotModel(this) }
+            jobs.add(model.loadLaunched(acc))
+        }
+
+
+//        Log.i("Zygos/ZygosViewModel/startup", application.getDatabasePath("app_database").absolutePath)
         // /data/user/0/com.example.zygos/databases/app_database
 
+        jobs.joinAll() // need to block here before setAccount, which doesn't reload lots
         setAccount(allAccounts)
     }
 
@@ -221,73 +227,62 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         currentAccount = account
 
         viewModelScope.launch {
-            loadAccount(account)
+            loadAccount(account, reloadLots = false)
         }
     }
 
 
-    private suspend fun loadPricedData(account: String, tickers: Set<String>, isDummy: Boolean = false) {
+    private fun loadPricedData(lotModel: LotModel, isDummy: Boolean = false) {
         /** This check, the load launch, and the reset happen on the main thread, so there's no
          * way they can conflict. However, need to copy the lists since both the loads below and
          * the loads in lotModel happen on dispatched threads
          */
-        if (!lots.isLoading) {
-            val long = if (lots.cashPosition != null) lots.longPositions + listOf(lots.cashPosition!!) else lots.longPositions.toList()
-            val short = lots.shortPositions.toList()
+        if (!lotModel.isLoading) {
+            val long = if (lotModel.cashPosition != null) lotModel.longPositions + listOf(lotModel.cashPosition!!) else lotModel.longPositions.toList()
+            val short = lotModel.shortPositions.toList()
 
             equityHistory.setCurrent(long + short, market)
 
             longPositions.loadLaunched(long, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
             shortPositions.loadLaunched(short, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
 
-            /** Update equity history **/
-            if (!isDummy) {
-                try {
-                    equityHistory.updateEquityHistory(
-                        account = account,
-                        tickers = tickers,
-                        positions = long + short,
-                        market.stockQuotes, market.optionQuotes
-                    )
-                } catch (e: Exception) {
-                    Log.w("Zygos/ZygosViewModel/loadAccount", "Failure: ${e::class} ${e.message}")
-                }
-            }
+            if (!isDummy) updateHistory()
         }
     }
 
 
     /** Sets the current account to display, loading the data elements into the ui state variables.
      * This should be run on the main thread, but in a coroutine. **/
-    internal suspend fun loadAccount(account: String) {
+    internal suspend fun loadAccount(account: String, reloadLots: Boolean = true) {
         /** Guards **/
         longPositions.isLoading = true // these are reset by the respective loads
         shortPositions.isLoading = true // they need to be here because the lots load blocks
 
         transactions.loadLaunched(account)
-        lots.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
-        colors.insertDefaults(lots.tickerLots.keys)
+        val lotModel = lots.getOrPut(account) { LotModel(this) }
+        if (reloadLots) {
+            lotModel.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
+        }
+        colors.insertDefaults(lotModel.tickerLots.keys)
 
-        val tickers = lots.tickerLots.keys
+        val tickers = lotModel.tickerLots.keys // TODO replace with all tickers
         tickers.remove(CASH_TICKER)
 
-        equityHistory.initialContributions = lots.cashPosition?.shares ?: 0L
+        equityHistory.initialContributions = lotModel.cashPosition?.shares ?: 0L
         equityHistory.loadLaunched(account)
 
-        loadPricedData(account, tickers, isDummy = true) // dummy data assuming 0 unrealized gains
+        loadPricedData(lotModel, true) // dummy data assuming 0 unrealized gains
 
         // TODO place this into a timer
-        if (market.updatePrices(tickers, lots.optionNames())) {
-            loadPricedData(account, tickers)
+        if (market.updatePrices(tickers, lotModel.optionNames())) {
+            loadPricedData(lotModel)
         }
 
-
-
         /** Logs **/
-        Log.i("Zygos/ZygosViewModel/loadAccount", "possibly stale transactions: ${transactions.all.size}") // since the transactions are launched, this could be stale
-        Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lots.tickerLots.size}")
-        Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lots.longPositions.size}")
-        lots.logPositions()
+        Log.i("Zygos/ZygosViewModel/loadAccount", "transactions (possibly stale): ${transactions.all.size}") // since the transactions are launched, this could be stale
+//        Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lotModel.tickerLots.size}")
+//        Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lotModel.longPositions.size}")
+//        lotModel.logPositions()
 
         // Don't actually need to block, the state list update is scheduled in a coroutine already
 //        jobs.joinAll()
@@ -308,6 +303,25 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
                 recalculateAll(transactionDao, lotDao)
             }
             loadAccount(currentAccount)
+        }
+    }
+
+
+    fun updateHistory() {
+        viewModelScope.launch {
+            try {
+                val positions = lots.mapValues { (_, lotModel) ->
+                    lotModel.longPositions + lotModel.shortPositions +
+                            (lotModel.cashPosition?.let { listOf(it) } ?: emptyList())
+                }
+                equityHistory.updateEquityHistory(
+                    positions = positions,
+                    stockQuotes = market.stockQuotes,
+                    optionQuotes = market.optionQuotes,
+                )
+            } catch (e: Exception) {
+                Log.w("Zygos/ZygosViewModel", "Failure: ${e::class} ${e.message}")
+            }
         }
     }
 }

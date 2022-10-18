@@ -18,6 +18,7 @@ data class EquityHistory(
 )
 
 
+
 @Dao
 interface EquityHistoryDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -35,6 +36,12 @@ interface EquityHistoryDao {
     // Still need to select account here or else Room complains, way around?
     @Query("SELECT account, date, SUM(returns) as returns FROM equity_history GROUP BY date")
     fun getAllAccounts(): List<EquityHistory>
+
+
+    @MapInfo(keyColumn = "account", valueColumn = "date")
+    @Query("SELECT account, MAX(date) as date FROM equity_history GROUP BY account")
+    fun getLastEntries(): Map<String, Int>
+
 
     @Query("SELECT COUNT(*) FROM equity_history")
     fun count(): Int
