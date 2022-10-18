@@ -1,6 +1,9 @@
 package com.example.zygos.network
 
+import android.util.Log
 import androidx.compose.runtime.Immutable
+import com.example.zygos.data.getIntDate
+import com.example.zygos.data.toLongDollar
 import com.squareup.moshi.Json
 
 
@@ -34,5 +37,30 @@ data class AlphaVantageQuote(
     val change: Long,
     val changePercent: Float
 ) {
+    companion object Factory {
+        operator fun invoke(rawQuote: AlphaVantageRawQuote): AlphaVantageQuote {
+            return AlphaVantageQuote(
+                symbol = rawQuote.symbol,
+                open = (rawQuote.open.toFloat()).toLongDollar(),
+                high = (rawQuote.high.toFloat()).toLongDollar(),
+                low = rawQuote.low.toFloat().toLongDollar(),
+                price = rawQuote.price.toFloat().toLongDollar(),
+                volume = rawQuote.volume.toLong(),
+                latestTradingDay = parseAlphaDate(rawQuote.latestTradingDay),
+                previousClose = rawQuote.previousClose.toFloat().toLongDollar(),
+                change = rawQuote.change.toFloat().toLongDollar(),
+                changePercent = rawQuote.changePercent.dropLast(1).toFloat() / 100f, // Trailing '%' sign
+            )
+        }
+    }
+}
 
+private fun parseAlphaDate(string: String): Int {
+    val split = string.split("-")
+    if (split.size != 3) throw RuntimeException("parseAlphaDate() couldn't parse: $string")
+
+    val year = split[0].toInt()
+    val month = split[1].toInt()
+    val day = split[2].toInt()
+    return getIntDate(year, month, day)
 }

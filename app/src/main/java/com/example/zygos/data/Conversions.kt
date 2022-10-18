@@ -4,12 +4,18 @@ import android.icu.util.Calendar
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
+fun getIntDate(year: Int, month: Int, day: Int): Int {
+    return year * 10000 + month * 100 + day
+}
+
+
 fun Calendar.toIntDate() : Int {
     val year: Int = get(Calendar.YEAR)
     val month: Int = get(Calendar.MONTH) + 1 // months are 0-indexed????? https://stackoverflow.com/questions/344380/why-is-january-month-0-in-java-calendar
     val day: Int = get(Calendar.DAY_OF_MONTH)
-    return year * 10000 + month * 100 + day
+    return getIntDate(year, month, day)
 }
+
 
 fun getDay(date: Int) = date % 100
 fun getMonth(date: Int) = (date / 100) % 100

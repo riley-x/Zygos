@@ -138,15 +138,13 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         val key = parent.apiKeys[alphaVantageService.name]
         if (key.isNullOrBlank()) return
 
-        val alphaQuote: AlphaVantageRawQuote
-
-        try {
-            val globalQuote = AlphaVantageApi.alphaVantageService.getQuote(key, "MSFT")
-            alphaQuote = globalQuote.rawQuote
-            Log.w("Zygos/ASDF", "$alphaQuote")
+        val alphaQuote = try {
+            AlphaVantageApi.getQuote(key, "MSFT")
         } catch (e: Exception) {
-            Log.w("Zygos/EquityHistoryModel/updateEquityHistory", "Failure: ${e.message}")
+            Log.w("Zygos/EquityHistoryModel/updateEquityHistory", "Failure: ${e::class} ${e.message}")
+            return
         }
+        Log.d("Zygos/EquityHistoryModel/updateEquityHistory", "$alphaQuote")
 
 
 

@@ -28,13 +28,18 @@ interface AlphaVantageService {
     @GET("query?function=GLOBAL_QUOTE")
     suspend fun getQuote(
         @Query("apikey") apiKey: String,
-        @Query("symbol") symbols: String,
+        @Query("symbol") symbol: String,
     ): AlphaVantageGlobalQuote
 }
 
 object AlphaVantageApi {
     val alphaVantageService : AlphaVantageService by lazy {
         retrofit.create(AlphaVantageService::class.java)
+    }
+
+    suspend fun getQuote(apiKey: String, symbol: String): AlphaVantageQuote {
+        val globalQuote = alphaVantageService.getQuote(apiKey, symbol)
+        return AlphaVantageQuote(globalQuote.rawQuote)
     }
 }
 
