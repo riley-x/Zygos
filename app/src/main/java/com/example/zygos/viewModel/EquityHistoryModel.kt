@@ -10,6 +10,7 @@ import com.example.zygos.data.*
 import com.example.zygos.data.database.EquityHistory
 import com.example.zygos.network.*
 import com.example.zygos.ui.components.allAccounts
+import com.example.zygos.ui.components.noAccountMessage
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -132,11 +133,26 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         )
     }
 
-    internal suspend fun updateEquityHistory(stockQuotes: Map<String, TdQuote>, optionQuotes: Map<String, TdOptionQuote>) {
-        if (stockQuotes.isEmpty()) return
 
-        val tickers = stockQuotes.keys
-        val quote = stockQuotes[tickers.first()]!!
+    private suspend fun getLastCloseDate(): Int? {
+        val alphaKey = parent.apiKeys[alphaVantageService.name]
+        if (alphaKey.isNullOrBlank()) return null
+        return try {
+            AlphaVantageApi.getQuote(alphaKey, "MSFT").lastCloseDate
+        } catch (e: Exception) {
+            Log.w("Zygos/EquityHistoryModel/updateEquityHistory", "Failure: ${e::class} ${e.message}")
+            null
+        }
+    }
+
+    internal suspend fun updateEquityHistory(account: String, tickers: Set<String>, positions: List<Position>, stockQuotes: Map<String, TdQuote>, optionQuotes: Map<String, TdOptionQuote>) {
+
+        if (account == allAccounts || account == noAccountMessage || account.isBlank()) return
+
+//        if (stockQuotes.isEmpty()) return // TODO not right, what if cash?
+
+
+        val lastDate = updateEquityFromOhlc(account, tickers.toMutableSet(), positions)
 
 //        val regularTime = Calendar.getInstance()
 //        regularTime.timeInMillis = quote.regularMarketTradeTimeInLong
@@ -146,39 +162,72 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
 //        val marketClosedToday = (regularTime < tradeTime && regularTime.toIntDate() == tradeTime.toIntDate())
 
 
-        val alphaKey = parent.apiKeys[alphaVantageService.name]
+//        val lastCloseDate = getLastCloseDate() ?: return
+
+
+
+        /** Update stored ohlc history using current day quote **/
+//        if (lastCloseDate == lastDate) {
+//            // TODO
+//        }
+//
+//        if (lastCloseDate <= history.last().date) return
+//        if (stockQuotes.isEmpty()) return
+    }
+
+    private suspend fun updateEquityFromOhlc(account: String, tickers: MutableSet<String>, positions: List<Position>): Int? {
+
+        if (positions.isEmpty()) return null
+        val cashPosition = positions.find { it.type == PositionType.CASH } ?: return null
+
         val tdKey = parent.apiKeys[tdService.name]
-        if (alphaKey.isNullOrBlank() || tdKey.isNullOrBlank()) return
+        if (tdKey.isNullOrBlank()) return null
 
-        val alphaQuote = try {
-            AlphaVantageApi.getQuote(alphaKey, "MSFT")
-        } catch (e: Exception) {
-            Log.w("Zygos/EquityHistoryModel/updateEquityHistory", "Failure: ${e::class} ${e.message}")
-            return
-        }
-        Log.d("Zygos/EquityHistoryModel/updateEquityHistory", "$alphaQuote")
+        val oldLastDate = if (history.isEmpty()) cashPosition.date - 1 else history.last().date
+        val currentDate = Calendar.getInstance().toIntDate()
 
-        if (alphaQuote.lastCloseDate <= history.last().date) return
+        /** Use the OHLC from one random ticker to check when market was open **/
+        val keyTicker = if (tickers.isEmpty()) "MSFT" else tickers.first()
+        val ohlc = TdApi.getOhlc(
+            symbol = keyTicker,
+            apiKey = tdKey,
+            startDate = oldLastDate,
+            endDate = currentDate,
+        )
+        Log.w("Zygos/EquityHistoryModel", "$ohlc")
+        if (ohlc.isEmpty() || ohlc.last().date <= oldLastDate) return oldLastDate // no new info
 
-        val ohlc = try {
-            TdApi.getOhlc(
-                symbol = quote.symbol,
+        /** Get ohlc for every ticker, transpose to time series **/
+        val prices = mutableMapOf<Int, MutableMap<String, Long>>() // The returned map preserves the entry iteration order.
+        tickers.add(keyTicker)
+        tickers.forEach {
+            val tickerOhlc = if (it == keyTicker) ohlc else TdApi.getOhlc(
+                symbol = it,
                 apiKey = tdKey,
-                startDate = history.last().date,
-                endDate = Calendar.getInstance().toIntDate(),
+                startDate = oldLastDate,
+                endDate = currentDate,
             )
-        } catch (e: Exception) {
-            Log.w("Zygos/EquityHistoryModel/updateEquityHistory", "Failure: ${e::class} ${e.message}")
-            return
+            for (candle in tickerOhlc) {
+                if (candle.date <= oldLastDate) continue
+                prices.getOrPut(candle.date) { mutableMapOf() }[it] = candle.close
+            }
         }
 
-        Log.d("Zygos/EquityHistoryModel/updateEquityHistory", "$ohlc")
-
-
-        if (alphaQuote.lastCloseDate == Calendar.getInstance().toIntDate()) {
-            /** Use last regular hour price from quotes **/
+        /** Get new history and update **/
+        val newHistory = mutableListOf<EquityHistory>()
+        for (datePrices in prices) {
+            newHistory.add(
+                EquityHistory(
+                    account = account,
+                    date = datePrices.key,
+                    returns = positions.sumOf { it.equity(datePrices.value) } - initialContributions,
+                )
+            )
         }
+        Log.w("Zygos/EquityHistoryModel", "$newHistory")
+        // TODO update here
 
+        return ohlc.last().date
     }
 
 

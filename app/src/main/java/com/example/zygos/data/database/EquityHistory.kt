@@ -12,7 +12,7 @@ import androidx.room.*
     primaryKeys = ["account", "date"],
 )
 data class EquityHistory(
-    @NonNull val account: String, // can be "All Accounts"
+    @NonNull val account: String,
     val date: Int,
     val returns: Long,
 )

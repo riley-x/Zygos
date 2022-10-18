@@ -2,6 +2,7 @@ package com.example.zygos.network
 
 import android.icu.text.NumberFormat
 import com.example.zygos.data.*
+import com.example.zygos.data.database.Ohlc
 import com.example.zygos.viewModel.PREFERENCE_TD_API_KEY_KEY
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -68,13 +69,23 @@ object TdApi {
         symbol: String,
         startDate: Int, // IntDate
         endDate: Int, // IntDate
-    ): List<TdOhlc> {
+    ): List<Ohlc> {
         return tdService.getOhlc(
             symbol = symbol,
             apiKey = apiKey,
             startDate = getTimestamp(startDate),
             endDate = getTimestamp(endDate)
-        ).candles
+        ).candles.map {
+            Ohlc(
+                ticker = symbol,
+                date = fromTimestamp(it.datetime),
+                open = it.open.toLongDollar(),
+                high = it.open.toLongDollar(),
+                low = it.open.toLongDollar(),
+                close = it.open.toLongDollar(),
+                volume = it.volume,
+            )
+        }
     }
 }
 

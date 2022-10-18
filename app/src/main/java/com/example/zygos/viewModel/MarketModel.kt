@@ -21,7 +21,6 @@ class MarketModel(private val parent: ZygosViewModel) {
         if (key.isNullOrBlank()) return false
 
         try {
-            stocks.remove("CASH")
             val newQuotes = if (stocks.isNotEmpty()) TdApi.getQuote(key, stocks) else emptyMap()
             val newOptionQuotes = if (options.isNotEmpty()) TdApi.getOptionQuote(key, options) else emptyMap()
 
