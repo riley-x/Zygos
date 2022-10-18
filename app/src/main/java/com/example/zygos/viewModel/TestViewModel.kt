@@ -30,7 +30,7 @@ class TestViewModel: ViewModel() {
         values = List(20) {
             TimeSeries(it * if (it % 2 == 0) 1.2f else 0.8f, it)
         },
-        ticksY = listOf(5f, 10f, 15f, 20f),
+        ticksY = listOf(5f, 10f, 15f, 20f).map { NamedValue(it, it.toString()) },
         ticksX = listOf(5, 10, 15),
         minY = 0f,
         maxY = 25f,
@@ -68,8 +68,12 @@ class TestViewModel: ViewModel() {
             highPrice = 120f,
             lowPrice = 120f,
             closePrice = 120f,
+            totalVolume = 1000000,
             netPercentChangeInDouble = 2f,
             netChange = 10f,
+            tradeTimeInLong = 0,
+            regularMarketLastPrice = 120f,
+            regularMarketTradeTimeInLong = 0,
             regularMarketPercentChangeInDouble = 2f,
             regularMarketNetChange = 10f
         )
@@ -138,7 +142,7 @@ class TestViewModel: ViewModel() {
         values = List(21) {
             OhlcNamed(it.toFloat(), it * 2f, 0.5f * it,it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
         }.drop(1),
-        ticksY = listOf(5f, 10f, 15f, 20f),
+        ticksY = listOf(5f, 10f, 15f, 20f).map { NamedValue(it, it.toString()) },
         ticksX = listOf(5, 10, 15),
         padX = 1f,
         minY = 0f,

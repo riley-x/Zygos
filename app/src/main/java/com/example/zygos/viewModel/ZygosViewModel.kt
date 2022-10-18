@@ -192,11 +192,10 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
 
         val jobs = mutableListOf<Job>()
-        for (acc in accs) {
+        for (acc in accounts) {
             val model = lots.getOrPut(acc) { LotModel(this) }
             jobs.add(model.loadLaunched(acc))
         }
-
 
 //        Log.i("Zygos/ZygosViewModel/startup", application.getDatabasePath("app_database").absolutePath)
         // /data/user/0/com.example.zygos/databases/app_database
@@ -227,7 +226,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         currentAccount = account
 
         viewModelScope.launch {
-            loadAccount(account, reloadLots = false)
+            loadAccount(account)
         }
     }
 
@@ -238,6 +237,10 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
          * the loads in lotModel happen on dispatched threads
          */
         if (!lotModel.isLoading) {
+            Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lotModel.tickerLots.size}")
+            Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lotModel.longPositions.size}")
+            lotModel.logPositions()
+
             val long = if (lotModel.cashPosition != null) lotModel.longPositions + listOf(lotModel.cashPosition!!) else lotModel.longPositions.toList()
             val short = lotModel.shortPositions.toList()
 
@@ -253,16 +256,13 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
     /** Sets the current account to display, loading the data elements into the ui state variables.
      * This should be run on the main thread, but in a coroutine. **/
-    internal suspend fun loadAccount(account: String, reloadLots: Boolean = true) {
+    internal suspend fun loadAccount(account: String) {
         /** Guards **/
         longPositions.isLoading = true // these are reset by the respective loads
         shortPositions.isLoading = true // they need to be here because the lots load blocks
 
         transactions.loadLaunched(account)
         val lotModel = lots.getOrPut(account) { LotModel(this) }
-        if (reloadLots) {
-            lotModel.loadBlocking(account) // this needs to block so we can use the results to calculate the positions
-        }
         colors.insertDefaults(lotModel.tickerLots.keys)
 
         val tickers = lotModel.tickerLots.keys // TODO replace with all tickers
@@ -280,9 +280,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         /** Logs **/
         Log.i("Zygos/ZygosViewModel/loadAccount", "transactions (possibly stale): ${transactions.all.size}") // since the transactions are launched, this could be stale
-//        Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lotModel.tickerLots.size}")
-//        Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lotModel.longPositions.size}")
-//        lotModel.logPositions()
+
 
         // Don't actually need to block, the state list update is scheduled in a coroutine already
 //        jobs.joinAll()
@@ -302,8 +300,19 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             withContext(Dispatchers.IO) {
                 recalculateAll(transactionDao, lotDao)
             }
+            reloadLots(allAccounts)
             loadAccount(currentAccount)
         }
+    }
+
+    suspend fun reloadLots(account: String) {
+        val jobs = mutableListOf<Job>()
+        lots.forEach { (acc, lotModel) ->
+            if (acc == allAccounts || account == allAccounts || acc == account) {
+                jobs.add(lotModel.loadLaunched(acc))
+            }
+        }
+        jobs.joinAll()
     }
 
 

@@ -67,6 +67,7 @@ class TransactionModel(private val parent: ZygosViewModel) {
                 addToDatabase(t)
             }
             // Need to refresh everything, including transaction state lists and holdings
+            parent.reloadLots(t.account)
             parent.loadAccount(parent.currentAccount)
         }
     }

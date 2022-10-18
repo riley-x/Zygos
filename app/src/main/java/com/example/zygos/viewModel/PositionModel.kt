@@ -144,7 +144,6 @@ class PositionModel(private val parent: ZygosViewModel) {
         percentChanges: Map<String, Float>,
         totalEquity: Long,
     ) {
-
         if (positions.isEmpty()) {
             list.clear()
             isLoading = false // this could be set from some other source

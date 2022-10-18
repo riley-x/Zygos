@@ -80,9 +80,9 @@ object TdApi {
                 ticker = symbol,
                 date = fromTimestamp(it.datetime),
                 open = it.open.toLongDollar(),
-                high = it.open.toLongDollar(),
-                low = it.open.toLongDollar(),
-                close = it.open.toLongDollar(),
+                high = it.high.toLongDollar(),
+                low = it.low.toLongDollar(),
+                close = it.close.toLongDollar(),
                 volume = it.volume,
             )
         }
