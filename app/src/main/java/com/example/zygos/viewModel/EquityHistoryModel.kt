@@ -188,6 +188,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         val lastHistoryDates = withContext(Dispatchers.IO) {
             getLastHistoryDates(positions)
         }
+        Log.d("Zygos/EquityHistoryModel", "lastHistoryDates $lastHistoryDates")
         val earliestLastHistoryDate = lastHistoryDates.minOf { it.value }
         Log.d("Zygos/EquityHistoryModel", "earliestLastHistoryDate: $earliestLastHistoryDate")
         if (lastCloseDate <= earliestLastHistoryDate) return

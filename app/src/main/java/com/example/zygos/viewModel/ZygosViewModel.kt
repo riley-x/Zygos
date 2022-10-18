@@ -238,8 +238,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
 
-
-
     suspend fun sortList(whichList: String) {
         when(whichList) {
             "watchlist" -> watchlist.sort()
@@ -273,8 +271,10 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     private fun updateHistory() {
         viewModelScope.launch {
             try {
-                val positions = lots.mapValues { (_, lotModel) ->
-                    lotModel.longPositions + lotModel.shortPositions +
+                val positions = mutableMapOf<String, List<Position>>()
+                for ((account, lotModel) in lots) {
+                    if (account == allAccounts || account == noAccountMessage) continue
+                    positions[account] = lotModel.longPositions + lotModel.shortPositions +
                             (lotModel.cashPosition?.let { listOf(it) } ?: emptyList())
                 }
                 equityHistory.updateEquityHistory(
