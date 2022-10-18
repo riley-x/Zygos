@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.math.MathUtils.clamp
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.*
 import com.example.zygos.data.database.EquityHistory
@@ -110,14 +111,14 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         }
         var minY = (minReturns + initialContributions).toFloatDollar()
         var maxY = (maxReturns + initialContributions).toFloatDollar()
-        val pad = (maxY - minY) * performanceGraphYPad
+        val pad = (if (maxY == minY) maxY else (maxY - minY)) * performanceGraphYPad
         maxY += pad
         minY -= pad
 
         /** Get the axis positions **/
-        val stepX = (history.lastIndex - startIndex).toFloat() / performanceGraphTickDivisionsX
+        val stepX = ((history.lastIndex - startIndex).toFloat() / performanceGraphTickDivisionsX).roundToInt()
         val ticksX =
-            IntRange(1, performanceGraphTickDivisionsX - 1).map { (stepX * it).roundToInt() }
+            IntRange(1, performanceGraphTickDivisionsX - 1).map { clamp(stepX * it, 0, history.lastIndex) }
         val ticksY = autoYTicks(
             minY,
             maxY,
@@ -199,8 +200,9 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
             startTime = getTimestamp(earliestLastHistoryDate),
             endTime = getTimestamp(lastCloseDate),
         )
-        val lastOhlcDate = if (ohlc.isEmpty()) earliestLastHistoryDate else ohlc.last().date
-        Log.d("Zygos/EquityHistoryModel", "lastOhlcDate: $lastOhlcDate")
+        if (ohlc.isEmpty()) return
+        val marketDates = ohlc.map { it.date }
+        Log.d("Zygos/EquityHistoryModel", "lastOhlcDate: ${marketDates.last()}")
 
         /** Cache ohlc fetches here, also save/load option ohlc **/
         val tickerOhlcs = mutableMapOf(keyTicker to ohlc)
@@ -214,9 +216,9 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         for ((account, accountPositions) in positions) {
             if (accountPositions.isEmpty()) continue
             val lastHistoryDate = lastHistoryDates[account] ?: throw RuntimeException("lastHistoryDates missing account")
-            if (lastHistoryDate < lastOhlcDate) {
+            if (lastHistoryDate < marketDates.last()) {
                 parent.viewModelScope.launch {
-                    val newEquity = updateEquityFromOhlc(tdKey, account, accountPositions, tickerOhlcs, lastHistoryDate, lastCloseDate)
+                    val newEquity = updateEquityFromOhlc(tdKey, account, accountPositions, tickerOhlcs, lastHistoryDate, marketDates)
                     if (parent.currentAccount == account) {
                         history.addAll(newEquity)
                         setTimeRange(timeRange.value)
@@ -260,7 +262,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         positions: List<Position>,
         tickerOhlcs: MutableMap<String, List<Ohlc>>,
         lastHistoryDate: Int,
-        lastCloseDate: Int,
+        marketDates: List<Int>,
     ) : List<EquityHistory> {
 
         val startTime = getTimestamp(lastHistoryDate)
@@ -268,7 +270,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
             ?: throw RuntimeException("Account $account has no cash lot")
 
         /** Get ohlc for every ticker, transpose to time series **/
-        val prices = mutableMapOf<Int, MutableMap<String, Long>>() // The returned map preserves the entry iteration order.
+        val prices = marketDates.associateBy({ it }, { mutableMapOf<String, Long>() }).toMutableMap()
         positions.forEach {
             if (it.type == PositionType.STOCK) { // options are done above using today's quotes
                 /** First check for ohlc in memory. If none, try to load from database, then from internet **/
@@ -277,7 +279,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
                         ticker = it.ticker,
                         apiKey = apiKey,
                         startTime = startTime,
-                        endDate = lastCloseDate,
+                        endDate = marketDates.last(),
                     )
                 }
                 Log.d("Zygos/EquityHistoryModel", "tickerOhlc: ${it.ticker} $ohlc")
