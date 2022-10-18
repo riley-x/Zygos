@@ -125,6 +125,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
             performanceGraphTickDivisionsY,
             performanceGraphTickDivisionsY - 1
         )
+        val xAxisLoc = initialContributions.toFloatDollar()
 
         return TimeSeriesGraphState(
             values = history.slice(startIndex..history.lastIndex).map { TimeSeries((it.returns + initialContributions).toFloatDollar(), it.date) },
@@ -132,7 +133,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
             maxY = maxY,
             ticksX = ticksX,
             ticksY = ticksY,
-            xAxisLoc = initialContributions.toFloatDollar()
+            xAxisLoc = if (xAxisLoc > minY && xAxisLoc < maxY) xAxisLoc else null
         )
     }
 
@@ -218,15 +219,11 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
             if (accountPositions.isEmpty()) continue
             val lastHistoryDate = lastHistoryDates[account] ?: throw RuntimeException("lastHistoryDates missing account")
             if (lastHistoryDate < marketDates.last()) {
-                parent.viewModelScope.launch {
-                    val newEquity = updateEquityFromOhlc(tdKey, account, accountPositions, tickerOhlcs, lastHistoryDate, marketDates)
-                    if (parent.currentAccount == account) {
-                        history.addAll(newEquity)
-                        setTimeRange(timeRange.value)
-                    }
-                }
+                updateEquityFromOhlc(tdKey, account, accountPositions, tickerOhlcs, lastHistoryDate, marketDates)
             }
         }
+
+        loadLaunched(parent.currentAccount)
     }
 
 
@@ -346,7 +343,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
     private suspend fun getOrUpdateOptionOhlc(symbol: String, date: Int, quote: TdOptionQuote): MutableList<Ohlc> {
         return withContext(Dispatchers.IO) {
             val savedOhlc = parent.ohlcDao.getTicker(symbol).toMutableList()
-            if (savedOhlc.last().date >= date) savedOhlc
+            if (savedOhlc.isNotEmpty() && savedOhlc.last().date >= date) savedOhlc
             else {
                 val ohlc = Ohlc(
                     ticker = symbol,

@@ -81,11 +81,13 @@ class LotModel(private val parent: ZygosViewModel) {
     }
 
     internal fun logPositions() {
-        val n = "<br>"
-        Log.i("Zygos/LotModel/createLotPositions", "cash $cashPosition")
-        longPositions.forEach { Log.i("Zygos/LotModel/createLotPositions", "$n long $it") }
-        shortPositions.forEach { Log.i("Zygos/LotModel/createLotPositions", "short $it") }
-        exitedPositions.forEach { Log.i("Zygos/LotModel/createLotPositions", "exited $it") }
+        val n = "${10.toChar()}${9.toChar()}" // this must be preceded by text
+        var msg = "Positions:$n"
+        msg += "$cashPosition$n"
+        longPositions.forEach { msg += "$it$n" }
+        shortPositions.forEach { msg += "$it$n" }
+        exitedPositions.forEach { msg += "$it$n" }
+        Log.i("Zygos/LotModel", msg)
     }
 
 

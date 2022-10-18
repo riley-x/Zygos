@@ -283,7 +283,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
                     optionQuotes = market.optionQuotes,
                 )
             } catch (e: Exception) {
-                Log.w("Zygos/ZygosViewModel", "Failure: ${e::class} ${e.message}")
+                Log.w("Zygos/ZygosViewModel", e.stackTraceToString())
             }
         }
     }
