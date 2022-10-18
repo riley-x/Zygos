@@ -14,10 +14,14 @@ fun Calendar.toIntDate() : Int {
     return getIntDate(year, month, day)
 }
 
+fun Calendar.setIntDate(date: Int) {
+    set(getYear(date), getMonth(date) - 1, getDay(date)) // months are 0-indexed
+}
+
 fun getTimestamp(date: Int): Long {
     val cal = Calendar.getInstance()
-    cal.set(getYear(date), getMonth(date) - 1, getDay(date)) // months are 0-indexed
-    return cal.time.time
+    cal.setIntDate(date)
+    return cal.timeInMillis
 }
 
 fun fromTimestamp(timestamp: Long): Int {

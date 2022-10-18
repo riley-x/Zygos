@@ -11,22 +11,26 @@ data class TdQuote(
     val highPrice: Float,
     val lowPrice: Float,
     val closePrice: Float, // this seems to always be the previous day's close? Even at 12:47 am.
+    val totalVolume: Long,
     val tradeTimeInLong: Long,
     val netPercentChangeInDouble: Float, // this seems to include after hours
     val netChange: Float, // this seems to include after hours
+    val regularMarketLastPrice: Float,
+    val regularMarketNetChange: Float, // this doesn't
     val regularMarketTradeTimeInLong: Long,
     val regularMarketPercentChangeInDouble: Float, // this doesn't
-    val regularMarketNetChange: Float, // this doesn't
 )
 
 @Immutable
 data class TdOptionQuote(
     val symbol: String,
     val mark: Float,
+//    val lastPrice: Float, // don't use this, since options have low liquidity
     val openPrice: Float,
     val highPrice: Float,
     val lowPrice: Float,
     val closePrice: Float,
+    val totalVolume: Long,
     val delta: Float,
     val gamma: Float,
     val theta: Float,

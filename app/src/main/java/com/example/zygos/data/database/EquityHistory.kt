@@ -20,8 +20,11 @@ data class EquityHistory(
 
 @Dao
 interface EquityHistoryDao {
-    @Insert
-    fun addEntry(equityHistory: EquityHistory)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun add(equityHistory: EquityHistory)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun add(equityHistory: List<EquityHistory>)
 
     @Query("SELECT * FROM equity_history ORDER BY date DESC")
     fun getAll(): List<EquityHistory>

@@ -1,10 +1,8 @@
 package com.example.zygos.data.database
 
 import androidx.annotation.NonNull
-import androidx.room.Dao
-import androidx.room.Entity
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
+import androidx.room.Transaction
 
 /**
  * This stores the returns at end of day of each trading day. It does not include starting capital.
@@ -26,8 +24,11 @@ data class Ohlc(
 
 @Dao
 interface OhlcDao {
-    @Insert
-    fun addEntry(ohlc: Ohlc)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun add(ohlc: Ohlc)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun add(ohlc: List<Ohlc>)
 
     @Query("SELECT * FROM ohlc")
     fun getAll(): List<Ohlc>

@@ -67,14 +67,14 @@ object TdApi {
     suspend fun getOhlc(
         apiKey: String,
         symbol: String,
-        startDate: Int, // IntDate
-        endDate: Int, // IntDate
+        startDate: Long,
+        endDate: Long,
     ): List<Ohlc> {
         return tdService.getOhlc(
             symbol = symbol,
             apiKey = apiKey,
-            startDate = getTimestamp(startDate),
-            endDate = getTimestamp(endDate)
+            startDate = startDate,
+            endDate = endDate,
         ).candles.map {
             Ohlc(
                 ticker = symbol,

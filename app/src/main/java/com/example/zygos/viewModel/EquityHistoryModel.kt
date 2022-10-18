@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.*
 import com.example.zygos.data.database.EquityHistory
+import com.example.zygos.data.database.Ohlc
 import com.example.zygos.network.*
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
@@ -134,6 +135,37 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
     }
 
 
+    internal suspend fun updateEquityHistory(
+        account: String,
+        tickers: Set<String>,
+        positions: List<Position>,
+        stockQuotes: Map<String, TdQuote>,
+        optionQuotes: Map<String, TdOptionQuote>
+    ) {
+        if (account == allAccounts || account == noAccountMessage || account.isBlank()) return
+
+        val currentHistory = history.toList()
+
+        /** First update history from ohlc. This checks the ohlc endpoint at least once.
+         * At this point the equity history will be up-to-date with everything except the current
+         * day (TD ohlc endpoint seems to update at midnight) **/
+        val (lastOhlcDate, newEquityHistory) = withContext(Dispatchers.Default) {
+            updateEquityFromOhlc(account, tickers.toMutableSet(), positions, currentHistory)
+        } ?: return
+        history.addAll(newEquityHistory)
+
+        /** Now check current market data from quotes and update both history and ohlc if market has
+         * closed **/
+        if (stockQuotes.isEmpty()) return
+        val (marketClosedToday, lastMarketDate) = isMarketClosed(stockQuotes.values.first())
+        if (marketClosedToday && lastMarketDate > lastOhlcDate) {
+            updateEquityWithQuotes(account, positions, stockQuotes, optionQuotes, lastMarketDate)
+            saveOhlc(stockQuotes, optionQuotes, lastMarketDate)
+        }
+    }
+
+
+    /** Replaced with isMarketClosed() below **/
     private suspend fun getLastCloseDate(): Int? {
         val alphaKey = parent.apiKeys[alphaVantageService.name]
         if (alphaKey.isNullOrBlank()) return null
@@ -145,37 +177,79 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         }
     }
 
-    internal suspend fun updateEquityHistory(account: String, tickers: Set<String>, positions: List<Position>, stockQuotes: Map<String, TdQuote>, optionQuotes: Map<String, TdOptionQuote>) {
-
-        if (account == allAccounts || account == noAccountMessage || account.isBlank()) return
-
-//        if (stockQuotes.isEmpty()) return // TODO not right, what if cash?
-
-
-        val lastDate = updateEquityFromOhlc(account, tickers.toMutableSet(), positions)
-
-//        val regularTime = Calendar.getInstance()
-//        regularTime.timeInMillis = quote.regularMarketTradeTimeInLong
-//        val tradeTime = Calendar.getInstance()
-//        tradeTime.timeInMillis = quote.tradeTimeInLong
-//
-//        val marketClosedToday = (regularTime < tradeTime && regularTime.toIntDate() == tradeTime.toIntDate())
-
-
-//        val lastCloseDate = getLastCloseDate() ?: return
-
-
-
-        /** Update stored ohlc history using current day quote **/
-//        if (lastCloseDate == lastDate) {
-//            // TODO
-//        }
-//
-//        if (lastCloseDate <= history.last().date) return
-//        if (stockQuotes.isEmpty()) return
+    private fun isMarketClosed(quote: TdQuote): Pair<Boolean, Int> {
+        val regularTime = Calendar.getInstance()
+        regularTime.timeInMillis = quote.regularMarketTradeTimeInLong
+        val tradeTime = Calendar.getInstance()
+        tradeTime.timeInMillis = quote.tradeTimeInLong
+        return Pair(regularTime < tradeTime && regularTime.toIntDate() == tradeTime.toIntDate(), regularTime.toIntDate())
     }
 
-    private suspend fun updateEquityFromOhlc(account: String, tickers: MutableSet<String>, positions: List<Position>): Int? {
+
+    private fun updateEquityWithQuotes(
+        account: String,
+        positions: List<Position>,
+        stockQuotes: Map<String, TdQuote>,
+        optionQuotes: Map<String, TdOptionQuote>,
+        lastMarketDate: Int,
+    ) {
+        val prices = mutableMapOf<String, Long>()
+        stockQuotes.mapValuesTo(prices) { it.value.regularMarketLastPrice.toLongDollar() }
+        optionQuotes.mapValuesTo(prices) { it.value.mark.toLongDollar() }
+
+        val closeReturns = positions.sumOf { it.equity(prices) } - initialContributions
+        val equityHistory = EquityHistory(account = account, date = lastMarketDate, returns = closeReturns)
+        history.add(equityHistory)
+
+        parent.viewModelScope.launch(Dispatchers.IO) {
+            parent.equityHistoryDao.add(equityHistory)
+        }
+    }
+
+    private fun saveOhlc(
+        stockQuotes: Map<String, TdQuote>,
+        optionQuotes: Map<String, TdOptionQuote>,
+        lastMarketDate: Int,
+    ) {
+        stockQuotes.forEach { (ticker, quote) ->
+            parent.viewModelScope.launch(Dispatchers.IO) {
+                parent.ohlcDao.add(Ohlc(
+                    ticker = ticker,
+                    date = lastMarketDate,
+                    open = quote.openPrice.toLongDollar(),
+                    high = quote.highPrice.toLongDollar(),
+                    low = quote.lowPrice.toLongDollar(),
+                    close = quote.closePrice.toLongDollar(),
+                    volume = quote.totalVolume,
+                ))
+            }
+        }
+        optionQuotes.forEach { (ticker, quote) ->
+            parent.viewModelScope.launch(Dispatchers.IO) {
+                parent.ohlcDao.add(Ohlc(
+                    ticker = ticker,
+                    date = lastMarketDate,
+                    open = quote.openPrice.toLongDollar(),
+                    high = quote.highPrice.toLongDollar(),
+                    low = quote.lowPrice.toLongDollar(),
+                    close = quote.closePrice.toLongDollar(),
+                    volume = quote.totalVolume,
+                ))
+            }
+        }
+    }
+
+
+
+    /** This checks and updates the equity history from the ohlc endpoint on TD. It assumes that
+     * the positions do not change during this time (TODO).
+     */
+    private suspend fun updateEquityFromOhlc(
+        account: String,
+        tickers: MutableSet<String>,
+        positions: List<Position>,
+        currentHistory: List<EquityHistory>)
+    : Pair<Int, List<EquityHistory>>? {
 
         if (positions.isEmpty()) return null
         val cashPosition = positions.find { it.type == PositionType.CASH } ?: return null
@@ -183,29 +257,44 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         val tdKey = parent.apiKeys[tdService.name]
         if (tdKey.isNullOrBlank()) return null
 
-        val oldLastDate = if (history.isEmpty()) cashPosition.date - 1 else history.last().date
-        val currentDate = Calendar.getInstance().toIntDate()
+        /** Get timestamps and dates **/
+        val cal = Calendar.getInstance()
+        val currentTime = cal.timeInMillis
+
+        if (currentHistory.isEmpty()) {
+            cal.setIntDate(cashPosition.date)
+            cal.add(Calendar.DATE, -1)
+        }
+        else {
+            cal.setIntDate(currentHistory.last().date)
+            cal.add(Calendar.DATE, 1)
+        }
+        val oldLastTime = cal.timeInMillis
+        val oldLastDate = cal.toIntDate()
 
         /** Use the OHLC from one random ticker to check when market was open **/
         val keyTicker = if (tickers.isEmpty()) "MSFT" else tickers.first()
-        val ohlc = TdApi.getOhlc(
-            symbol = keyTicker,
+        val ohlc = updateOhlc(
+            ticker = keyTicker,
             apiKey = tdKey,
-            startDate = oldLastDate,
-            endDate = currentDate,
+            startTime = oldLastTime,
+            endTime = currentTime,
         )
-        Log.w("Zygos/EquityHistoryModel", "$ohlc")
-        if (ohlc.isEmpty() || ohlc.last().date <= oldLastDate) return oldLastDate // no new info
+        Log.d("Zygos/EquityHistoryModel", "ohlc: $ohlc")
+
+        /** Check if there's any new data from last update **/
+        val lastOhlcDate = ohlc.last().date
+        if (ohlc.isEmpty() || lastOhlcDate <= oldLastDate) return Pair(oldLastDate, emptyList())
 
         /** Get ohlc for every ticker, transpose to time series **/
-        val prices = mutableMapOf<Int, MutableMap<String, Long>>() // The returned map preserves the entry iteration order.
+        val prices = mutableMapOf<Int, MutableMap<String, Long>>() // The returned map preserves the entry iteration order. TODO option prices
         tickers.add(keyTicker)
         tickers.forEach {
-            val tickerOhlc = if (it == keyTicker) ohlc else TdApi.getOhlc(
-                symbol = it,
+            val tickerOhlc = if (it == keyTicker) ohlc else getOrUpdateOhlc(
+                ticker = it,
                 apiKey = tdKey,
-                startDate = oldLastDate,
-                endDate = currentDate,
+                startTime = oldLastTime,
+                endDate = lastOhlcDate,
             )
             for (candle in tickerOhlc) {
                 if (candle.date <= oldLastDate) continue
@@ -224,11 +313,47 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
                 )
             )
         }
-        Log.w("Zygos/EquityHistoryModel", "$newHistory")
-        // TODO update here
+        Log.d("Zygos/EquityHistoryModel", "newHistory: $newHistory")
+        parent.viewModelScope.launch(Dispatchers.IO) {
+            parent.equityHistoryDao.add(newHistory)
+        }
 
-        return ohlc.last().date
+        return Pair(ohlc.last().date, newHistory)
     }
+
+
+    private suspend fun updateOhlc(ticker: String, apiKey: String, startTime: Long, endTime: Long): List<Ohlc> {
+
+        val ohlc = withContext(Dispatchers.IO) {
+            TdApi.getOhlc(
+                symbol = ticker,
+                apiKey = apiKey,
+                startDate = startTime,
+                endDate = endTime,
+            )
+        }
+
+        parent.viewModelScope.launch(Dispatchers.IO) {
+            parent.ohlcDao.add(ohlc)
+        }
+
+        return ohlc
+    }
+
+
+    private suspend fun getOrUpdateOhlc(ticker: String, apiKey: String, startTime: Long, endDate: Int): List<Ohlc> {
+        return withContext(Dispatchers.IO) {
+            val savedOhlc = parent.ohlcDao.getTicker(ticker)
+            if (savedOhlc.last().date >= endDate) savedOhlc
+            else updateOhlc(
+                ticker = ticker,
+                apiKey = apiKey,
+                startTime = startTime,
+                endTime = getTimestamp(endDate),
+            )
+        }
+    }
+
 
 
 }
