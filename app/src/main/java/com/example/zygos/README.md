@@ -31,7 +31,9 @@ are navigated to by click events.
 
 ### ViewModel Layer
 
-This app uses a single view model of class `ZygosViewModel`. 
+This app uses a single view model of class `ZygosViewModel`.
+
+
 
 ### Network Layer
 

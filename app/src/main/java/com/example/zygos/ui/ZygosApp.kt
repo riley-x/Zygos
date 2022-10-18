@@ -266,8 +266,8 @@ fun ZygosApp(
                             currentChangePercent = viewModel.equityHistory.changePercent,
                             accountPerformanceState = viewModel.equityHistory.graphState,
                             accountPerformanceTimeRange = viewModel.equityHistory.timeRange,
-                            watchlist = viewModel.watchlist,
-                            watchlistDisplayOption = viewModel.watchlistDisplayOption,
+                            watchlist = viewModel.watchlist.watchlist,
+                            watchlistDisplayOption = viewModel.watchlist.displayOption,
                             onTickerSelected = ::onTickerSelected,
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
                             onAccountPerformanceRangeSelected = viewModel.equityHistory::updateTimeRange,
@@ -480,13 +480,13 @@ fun bottomSheetContent(
 ): (@Composable ColumnScope.() -> Unit) {
     return when (version) {
         else -> listOptionsSheet(
-            currentSortOption = viewModel.watchlistSortOption,
-            currentDisplayOption = viewModel.watchlistDisplayOption,
-            isSortedAscending = viewModel.watchlistSortIsAscending,
+            currentSortOption = viewModel.watchlist.sortOption,
+            currentDisplayOption = viewModel.watchlist.displayOption,
+            isSortedAscending = viewModel.watchlist.sortIsAscending,
             displayOptions = watchlistDisplayOptions,
             sortOptions = watchlistSortOptions,
-            onDisplayOptionSelected = viewModel::watchlistDisplayOption::set,
-            onSortOptionSelected = viewModel::setWatchlistSortMethod,
+            onDisplayOptionSelected = viewModel.watchlist::displayOption::set,
+            onSortOptionSelected = viewModel.watchlist::setSortMethod,
         )
     }
 }

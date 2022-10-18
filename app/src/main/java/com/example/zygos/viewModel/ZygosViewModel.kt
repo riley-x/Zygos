@@ -79,60 +79,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     /** Account Performance **/
 
     /** Watchlist **/
-    // TODO move into subclass
-    val watchlist = mutableStateListOf(
-        Quote("t1", Color.Blue,  123.23f,  21.20f, 0.123f),
-        Quote("t2", Color.Black, 1263.23f, 3.02f,  -0.123f),
-        Quote("t3", Color.Green, 1923.23f, 120.69f,0.263f),
-        Quote("t4", Color.Cyan,  1423.23f, 0.59f,  1.23f),
-        Quote("t5", Color.Blue,  123.23f,  21.20f, 0.123f),
-        Quote("t6", Color.Black, 1263.23f, 3.02f,  -0.123f),
-        Quote("t7", Color.Green, 1923.23f, 120.69f,0.263f),
-        Quote("t8", Color.Cyan,  1423.23f, 0.59f,  1.23f),
-    )
 
-    // These variables are merely the ui state of the options selection menu
-    // The actual sorting is called in sortWatchlist() via a callback when
-    // the menu is hidden.
-    var watchlistSortOption by mutableStateOf(watchlistSortOptions.items[0])
-        private set
-    var watchlistSortIsAscending by mutableStateOf(true)
-        private set
-    var watchlistDisplayOption by mutableStateOf(watchlistDisplayOptions.items[0])
-
-    // Cached sort options to not re-sort if nothing was changed
-    private var watchlistLastSortOption = ""
-    private var watchlistLastSortIsAscending = true
-
-    // Called from composable onClick callbacks
-    fun setWatchlistSortMethod(opt: String) {
-        if (watchlistSortOption == opt) watchlistSortIsAscending = !watchlistSortIsAscending
-        else watchlistSortOption = opt
-    }
-
-    // This happens asynchronously! Make sure that all other state is ok with the positions list being modified
-    fun sortWatchlist() {
-        Log.i("ZygosViewModel/sortWatchlist", "$watchlistSortOption $watchlistSortIsAscending, last: $watchlistLastSortOption $watchlistLastSortIsAscending")
-        if (watchlistLastSortOption == watchlistSortOption) {
-            if (watchlistLastSortIsAscending != watchlistSortIsAscending) {
-                watchlist.reverse()
-            }
-        } else {
-            if (watchlistSortIsAscending) {
-                when (watchlistSortOption) {
-                    "Ticker" -> watchlist.sortBy(Quote::ticker)
-                    else -> watchlist.sortBy(Quote::percentChange)
-                }
-            } else {
-                when (watchlistSortOption) {
-                    "Ticker" -> watchlist.sortByDescending(Quote::ticker)
-                    else -> watchlist.sortByDescending(Quote::percentChange)
-                }
-            }
-        }
-        watchlistLastSortIsAscending = watchlistSortIsAscending
-        watchlistLastSortOption = watchlistSortOption
-    }
 
     /** Lots **/
     internal val lots = mutableMapOf<String, LotModel>()
@@ -140,6 +87,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     val market = MarketModel(this)
     /** Performance Screen **/
     val equityHistory = EquityHistoryModel(this)
+    val watchlist = WatchlistModel(this)
     /** Priced Positions **/
     val longPositions = PositionModel(this)
     val shortPositions = PositionModel(this)
@@ -172,15 +120,16 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         val localFileDir = application.filesDir ?: return
         Log.d("Zygos/ZygosViewModel/startup", localFileDir.absolutePath)
 
-        // TODO place into a async?
-        val accs = readAccounts(localFileDir)
-        if (accs.isEmpty()) {
-            return // Initial values are set for empty data already
+        /** Load accounts **/
+        val accs = withContext(Dispatchers.IO) {
+            readAccounts(localFileDir)
         }
+        if (accs.isEmpty()) return // Initial values are set for empty data already
         accounts.clear()
         accounts.addAll(accs)
         accounts.add(allAccounts)
 
+        /** Load API keys **/
         apiServices.forEach {
             val key = preferences?.getString(it.preferenceKey, "") ?: ""
             if (key.isNotBlank()) {
@@ -188,36 +137,39 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             }
         }
 
+        /** Load colors **/
         colors.loadLaunched()
 
-
+        /** Load lots **/
         val jobs = mutableListOf<Job>()
         for (acc in accounts) {
             val model = lots.getOrPut(acc) { LotModel(this) }
             jobs.add(model.loadLaunched(acc))
         }
-
-//        Log.i("Zygos/ZygosViewModel/startup", application.getDatabasePath("app_database").absolutePath)
-        // /data/user/0/com.example.zygos/databases/app_database
-
         jobs.joinAll() // need to block here before setAccount, which doesn't reload lots
+
+        /** Set UI state **/
         setAccount(allAccounts)
     }
+
 
     fun addAccount(account: String) {
         val localFileDir = application.filesDir ?: return
         if (accounts.last() == allAccounts) {
-            accounts.add(accounts.lastIndex, account)
-            writeAccounts(localFileDir, accounts.dropLast(1))
+            accounts.removeAt(accounts.lastIndex)
+            accounts.add(account)
         }
         else if (accounts[0] == noAccountMessage || accounts.isEmpty()) {
             accounts.clear()
             accounts.add(account)
-            writeAccounts(localFileDir, accounts)
-            accounts.add(allAccounts)
         } else {
             throw RuntimeException("Accounts wack: $accounts")
         }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            writeAccounts(localFileDir, accounts)
+        }
+        accounts.add(allAccounts)
         setAccount(account)
     }
 
@@ -227,29 +179,6 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         viewModelScope.launch {
             loadAccount(account)
-        }
-    }
-
-
-    private fun loadPricedData(lotModel: LotModel, isDummy: Boolean = false) {
-        /** This check, the load launch, and the reset happen on the main thread, so there's no
-         * way they can conflict. However, need to copy the lists since both the loads below and
-         * the loads in lotModel happen on dispatched threads
-         */
-        if (!lotModel.isLoading) {
-            Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lotModel.tickerLots.size}")
-            Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lotModel.longPositions.size}")
-            lotModel.logPositions()
-
-            val long = if (lotModel.cashPosition != null) lotModel.longPositions + listOf(lotModel.cashPosition!!) else lotModel.longPositions.toList()
-            val short = lotModel.shortPositions.toList()
-
-            equityHistory.setCurrent(long + short, market)
-
-            longPositions.loadLaunched(long, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
-            shortPositions.loadLaunched(short, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
-
-            if (!isDummy) updateHistory()
         }
     }
 
@@ -286,9 +215,34 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 //        jobs.joinAll()
     }
 
-    fun sortList(whichList: String) {
+    private fun loadPricedData(lotModel: LotModel, isDummy: Boolean = false) {
+        /** This check, the load launch, and the reset happen on the main thread, so there's no
+         * way they can conflict. However, need to copy the lists since both the loads below and
+         * the loads in lotModel happen on dispatched threads
+         */
+        if (!lotModel.isLoading) {
+            Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lotModel.tickerLots.size}")
+            Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lotModel.longPositions.size}")
+            lotModel.logPositions()
+
+            val long = if (lotModel.cashPosition != null) lotModel.longPositions + listOf(lotModel.cashPosition!!) else lotModel.longPositions.toList()
+            val short = lotModel.shortPositions.toList()
+
+            equityHistory.setCurrent(long + short, market)
+
+            longPositions.loadLaunched(long, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
+            shortPositions.loadLaunched(short, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
+
+            if (!isDummy) updateHistory()
+        }
+    }
+
+
+
+
+    suspend fun sortList(whichList: String) {
         when(whichList) {
-            "watchlist" -> sortWatchlist()
+            "watchlist" -> watchlist.sort()
         }
     }
 
@@ -316,7 +270,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
 
-    fun updateHistory() {
+    private fun updateHistory() {
         viewModelScope.launch {
             try {
                 val positions = lots.mapValues { (_, lotModel) ->
