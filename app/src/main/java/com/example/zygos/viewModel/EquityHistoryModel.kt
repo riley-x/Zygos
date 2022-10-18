@@ -135,29 +135,50 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
     internal suspend fun updateEquityHistory(stockQuotes: Map<String, TdQuote>, optionQuotes: Map<String, TdOptionQuote>) {
         if (stockQuotes.isEmpty()) return
 
-        val key = parent.apiKeys[alphaVantageService.name]
-        if (key.isNullOrBlank()) return
+        val tickers = stockQuotes.keys
+        val quote = stockQuotes[tickers.first()]!!
+
+//        val regularTime = Calendar.getInstance()
+//        regularTime.timeInMillis = quote.regularMarketTradeTimeInLong
+//        val tradeTime = Calendar.getInstance()
+//        tradeTime.timeInMillis = quote.tradeTimeInLong
+//
+//        val marketClosedToday = (regularTime < tradeTime && regularTime.toIntDate() == tradeTime.toIntDate())
+
+
+        val alphaKey = parent.apiKeys[alphaVantageService.name]
+        val tdKey = parent.apiKeys[tdService.name]
+        if (alphaKey.isNullOrBlank() || tdKey.isNullOrBlank()) return
 
         val alphaQuote = try {
-            AlphaVantageApi.getQuote(key, "MSFT")
+            AlphaVantageApi.getQuote(alphaKey, "MSFT")
         } catch (e: Exception) {
             Log.w("Zygos/EquityHistoryModel/updateEquityHistory", "Failure: ${e::class} ${e.message}")
             return
         }
         Log.d("Zygos/EquityHistoryModel/updateEquityHistory", "$alphaQuote")
 
+        if (alphaQuote.lastCloseDate <= history.last().date) return
+
+        val ohlc = try {
+            TdApi.getOhlc(
+                symbol = quote.symbol,
+                apiKey = tdKey,
+                startDate = history.last().date,
+                endDate = Calendar.getInstance().toIntDate(),
+            )
+        } catch (e: Exception) {
+            Log.w("Zygos/EquityHistoryModel/updateEquityHistory", "Failure: ${e::class} ${e.message}")
+            return
+        }
+
+        Log.d("Zygos/EquityHistoryModel/updateEquityHistory", "$ohlc")
 
 
-//        val tickers = stockQuotes.keys
-//        val quote = stockQuotes[tickers.first()]!!
-//
-//        val lastDate = history.last().date
-//
-//        val regularTime = quote.regularMarketTradeTimeInLong
-//        val tradeTime = quote.tradeTimeInLong
+        if (alphaQuote.lastCloseDate == Calendar.getInstance().toIntDate()) {
+            /** Use last regular hour price from quotes **/
+        }
 
-//        val newDay =
-//        val marketClosed =
     }
 
 

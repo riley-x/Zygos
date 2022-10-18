@@ -3,8 +3,6 @@ package com.example.zygos.network
 import android.icu.text.NumberFormat
 import com.example.zygos.data.*
 import com.example.zygos.viewModel.PREFERENCE_TD_API_KEY_KEY
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
@@ -36,6 +34,14 @@ interface TdService {
         @Query("apikey") apiKey: String,
         @Query("symbol") symbols: String, // Comma separated
     ): Map<String, TdOptionQuote>
+
+    @GET("v1/marketdata/{symbol}/pricehistory?periodType=month&frequencyType=daily") // this is the http endpoint!
+    suspend fun getOhlc(
+        @Path("symbol") symbol: String,
+        @Query("apikey") apiKey: String,
+        @Query("startDate") startDate: Long, // in millis
+        @Query("endDate") endDate: Long, // in millis
+    ): TdPriceHistory
 }
 
 object TdApi {
@@ -56,6 +62,20 @@ object TdApi {
     ): Map<String, TdOptionQuote> {
         return tdService.getOptionQuote(apiKey, symbols.joinToString(","))
     }
+
+    suspend fun getOhlc(
+        apiKey: String,
+        symbol: String,
+        startDate: Int, // IntDate
+        endDate: Int, // IntDate
+    ): List<TdOhlc> {
+        return tdService.getOhlc(
+            symbol = symbol,
+            apiKey = apiKey,
+            startDate = getTimestamp(startDate),
+            endDate = getTimestamp(endDate)
+        ).candles
+    }
 }
 
 
@@ -67,7 +87,7 @@ fun getTdOptionName(ticker: String, type: PositionType, expiration: Int, strike:
 
     val day = format.format(getDay(expiration))
     val month = format.format(getMonth(expiration))
-    val year = format.format(getYear(expiration) % 100)
+    val year = format.format(getYearShort(expiration) % 100)
     val formattedStrike = format.format(strike.toFloatDollar())
 
     val typeLetter = when (type) {

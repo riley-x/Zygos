@@ -1,6 +1,5 @@
 package com.example.zygos.network
 
-import android.util.Log
 import androidx.compose.runtime.Immutable
 import com.example.zygos.data.getIntDate
 import com.example.zygos.data.toLongDollar
@@ -18,7 +17,7 @@ data class AlphaVantageRawQuote(
     @Json(name = "04. low") val low: String,
     @Json(name = "05. price") val price: String,
     @Json(name = "06. volume") val volume: String,
-    @Json(name = "07. latest trading day") val latestTradingDay: String,
+    @Json(name = "07. latest trading day") val latestTradingDay: String, // this is the date of the last close. Seems to update around ~4:30
     @Json(name = "08. previous close") val previousClose: String,
     @Json(name = "09. change") val change: String,
     @Json(name = "10. change percent") val changePercent: String,
@@ -32,7 +31,7 @@ data class AlphaVantageQuote(
     val low: Long,
     val price: Long,
     val volume: Long,
-    val latestTradingDay: Int,
+    val lastCloseDate: Int,
     val previousClose: Long,
     val change: Long,
     val changePercent: Float
@@ -46,7 +45,7 @@ data class AlphaVantageQuote(
                 low = rawQuote.low.toFloat().toLongDollar(),
                 price = rawQuote.price.toFloat().toLongDollar(),
                 volume = rawQuote.volume.toLong(),
-                latestTradingDay = parseAlphaDate(rawQuote.latestTradingDay),
+                lastCloseDate = parseAlphaDate(rawQuote.latestTradingDay),
                 previousClose = rawQuote.previousClose.toFloat().toLongDollar(),
                 change = rawQuote.change.toFloat().toLongDollar(),
                 changePercent = rawQuote.changePercent.dropLast(1).toFloat() / 100f, // Trailing '%' sign

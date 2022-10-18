@@ -1,13 +1,11 @@
 package com.example.zygos.data
 
 import android.icu.util.Calendar
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 fun getIntDate(year: Int, month: Int, day: Int): Int {
     return year * 10000 + month * 100 + day
 }
-
 
 fun Calendar.toIntDate() : Int {
     val year: Int = get(Calendar.YEAR)
@@ -16,10 +14,17 @@ fun Calendar.toIntDate() : Int {
     return getIntDate(year, month, day)
 }
 
+fun getTimestamp(date: Int): Long {
+    val cal = Calendar.getInstance()
+    cal.set(getYear(date), getMonth(date) - 1, getDay(date)) // months are 0-indexed
+    return cal.time.time
+}
+
 
 fun getDay(date: Int) = date % 100
 fun getMonth(date: Int) = (date / 100) % 100
-fun getYear(date: Int) = (date / 10000) % 100
+fun getYear(date: Int) = (date / 10000)
+fun getYearShort(date: Int) = (date / 10000) % 100
 
 
 fun floatToLongDollar(x: Float) : Long {
