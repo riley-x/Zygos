@@ -44,6 +44,10 @@ data class OhlcNamed(
 
 @Immutable
 data class Quote (
+    /** This is required since the ticker rows in the watchlist remember the swipeable state. If you
+     * use the ticker as the key, and delete a row then add it back, it'll remember the swipe state
+     * to be deleted still **/
+    val lazyKey: Int,
     val ticker: String,
     val color: Color,
     val price: Float,

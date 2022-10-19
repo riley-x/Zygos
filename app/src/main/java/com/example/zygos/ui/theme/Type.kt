@@ -57,12 +57,10 @@ val Typography = Typography(
         fontSize = 22.sp,
         fontFamily = Roboto,
     ),
-    h6 = TextStyle(
-        fontWeight = FontWeight.Normal,
-        fontSize = 18.sp,
-        lineHeight = 20.sp,
-        fontFamily = EczarFontFamily,
-        letterSpacing = 3.sp
+    h6 = TextStyle( // "Remove" text
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        fontFamily = Roboto,
     ),
     subtitle1 = TextStyle( // Subtitle in ticker rows
         fontWeight = FontWeight.Light,

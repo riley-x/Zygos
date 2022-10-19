@@ -2,6 +2,7 @@ package com.example.zygos.ui.performance
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -163,10 +164,13 @@ fun PerformanceScreen(
                 )
             }
 
-            stickyHeader("watchlist_title") {
+            item("watchlist_title") {
                 ListTitleBar(
                     text = "Watchlist",
                     onOptionsButtonClick = onWatchlistOptionsClick,
+                    modifier = Modifier
+                        .padding(horizontal = tickerListHorizontalPadding)
+                        .background(MaterialTheme.colors.surface)
                 )
             }
 
@@ -191,13 +195,14 @@ fun PerformanceScreen(
                 }
             }
 
-            itemsIndexed(watchlist, key = { _, ticker -> ticker.ticker }) { index, ticker ->
+            itemsIndexed(watchlist, key = { _, ticker -> ticker.lazyKey }) { index, ticker ->
                 Column {
                     if (index > 0) TickerListDivider()
 
                     WatchlistRow(
                         quote = ticker,
                         displayOption = watchlistDisplayOption,
+                        onDelete = onWatchlistDelete,
                         modifier = Modifier
                             .clickable { onTickerSelected(ticker.ticker) }
                             // this needs to be here so that the clickable animation covers the full width

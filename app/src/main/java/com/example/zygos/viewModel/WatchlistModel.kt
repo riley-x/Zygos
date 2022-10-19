@@ -17,6 +17,12 @@ import kotlinx.coroutines.withContext
 class WatchlistModel(private val parent: ZygosViewModel) {
     val watchlist = mutableStateListOf<Quote>()
 
+    /** This is required since the ticker rows in the watchlist remember the swipeable state. If you
+     * use the ticker as the key, and delete a row then add it back, it'll remember the swipe state
+     * to be deleted still. This var will survive with the viewModel scope, which should be the same
+     * as rememberSaveable **/
+    var lastQuoteLazyKey = 0
+
     /** These variables are merely the ui state of the options selection menu. The actual sorting is
      * called in sortWatchlist() via a callback when the menu is hidden.
      */
@@ -85,8 +91,10 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         lastSortOption = sortOption
     }
 
+    @MainThread
     private fun getQuote(ticker: String, tdQuote: TdQuote?, color: Color): Quote {
         return Quote(
+            lazyKey = lastQuoteLazyKey++,
             ticker = ticker,
             color = color,
             price = tdQuote?.lastPrice ?: 0f,
@@ -143,6 +151,14 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         }
         parent.viewModelScope.launch(Dispatchers.IO) {
             parent.namesDao.add(tickers.map { Names("watchlist", it) })
+        }
+    }
+
+    @MainThread
+    fun delete(ticker: String) {
+        watchlist.removeIf { it.ticker == ticker }
+        parent.viewModelScope.launch(Dispatchers.IO) {
+            parent.namesDao.remove(Names("watchlist", ticker))
         }
     }
 }

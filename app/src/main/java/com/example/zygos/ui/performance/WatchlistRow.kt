@@ -30,9 +30,10 @@ fun WatchlistRow(
     var sizePx by remember { mutableStateOf(100) }
     val anchors = mapOf(0f to 0, sizePx.toFloat() to 1)
 
-//    LaunchedEffect(swipeableState) {
-//
-//    }
+    LaunchedEffect(swipeableState.currentValue) {
+        if (swipeableState.currentValue == 1)
+            onDelete(quote.ticker)
+    }
 
     Box(
         modifier = modifier
@@ -43,6 +44,8 @@ fun WatchlistRow(
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal,
                 reverseDirection = true,
+//                resistance = ResistanceConfig(100f, 0f, 0f), // disable
+                velocityThreshold = 5000.dp, // default is 125
             )
     ) {
         Row(
@@ -56,7 +59,8 @@ fun WatchlistRow(
             Text(
                 text = "Remove",
                 modifier = Modifier.padding(end = tickerListHorizontalPadding),
-                color = MaterialTheme.colors.onError
+                color = MaterialTheme.colors.onSurface,
+                style = MaterialTheme.typography.h6,
             )
         }
 
@@ -99,7 +103,27 @@ fun PreviewWatchlistRow() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
         Surface {
-            WatchlistRow(quote = viewModel.watchlist[0], displayOption = "Change")
+            Column {
+                WatchlistRow(quote = viewModel.watchlist[0], displayOption = "Change")
+
+                Spacer(Modifier.height(30.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier
+                        .height(tickerListHeight)
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colors.error)
+                ) {
+                    Text(
+                        text = "Remove",
+                        modifier = Modifier.padding(end = tickerListHorizontalPadding),
+                        color = MaterialTheme.colors.onSurface,
+                        style = MaterialTheme.typography.h6,
+                    )
+                }
+            }
         }
     }
 }
