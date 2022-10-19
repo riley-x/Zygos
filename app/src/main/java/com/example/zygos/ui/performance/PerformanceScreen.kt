@@ -40,11 +40,11 @@ fun PerformanceScreen(
     onTickerSelected: (String) -> Unit = { },
     onAccountPerformanceRangeSelected: (String) -> Unit = { },
     onWatchlistOptionsClick: () -> Unit = { },
+    onWatchlistDelete: (String) -> Unit = { },
     onAddAllHoldingsToWatchlist: () -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos", "PerformanceScreen")
-    val showPercentages = rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -164,11 +164,9 @@ fun PerformanceScreen(
             }
 
             stickyHeader("watchlist_title") {
-                ListTitleBarPercent(
+                ListTitleBar(
                     text = "Watchlist",
-                    showPercentages = showPercentages.value,
                     onOptionsButtonClick = onWatchlistOptionsClick,
-                    onToggleShowPercentages = { showPercentages.value = !showPercentages.value },
                 )
             }
 
@@ -203,7 +201,7 @@ fun PerformanceScreen(
                         modifier = Modifier
                             .clickable { onTickerSelected(ticker.ticker) }
                             // this needs to be here so that the clickable animation covers the full width
-                            .padding(horizontal = tickerListHorizontalPadding)
+
                     )
                 }
             }

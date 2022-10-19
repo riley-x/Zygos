@@ -247,6 +247,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         val closedToday = regularTime < tradeTime && regularTime.toIntDate() == tradeTime.toIntDate()
         if (!closedToday) regularTime.add(Calendar.DATE, -1)
 
+        Log.d("Zygos/EquityHistoryModel", "closedToday: $closedToday ${regularTime.toIntDate()} ${tradeTime.toIntDate()} quote: $quote")
         return Pair(closedToday, regularTime.toIntDate())
     }
 

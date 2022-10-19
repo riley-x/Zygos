@@ -20,6 +20,9 @@ interface NamesDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun add(names: Collection<Names>)
 
+    @Delete
+    fun remove(name: Names)
+
     @Query("SELECT * FROM names WHERE type = 'watchlist' ORDER BY name ASC")
     fun getWatchlist(): List<Names>
 }

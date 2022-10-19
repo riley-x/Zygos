@@ -1,50 +1,94 @@
 package com.example.zygos.ui.performance
 
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.zygos.ui.components.TickerListRow
-import com.example.zygos.ui.components.formatDollar
-import com.example.zygos.ui.components.formatPercent
+import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.Quote
 import com.example.zygos.viewModel.TestViewModel
+import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun WatchlistRow(
     quote: Quote,
     displayOption: String,
     modifier: Modifier = Modifier,
+    onDelete: (String) -> Unit = { },
 ) {
-    TickerListRow(
-        ticker = quote.ticker,
-        color = quote.color,
-        modifier = modifier
-    ) {
-        Spacer(Modifier.weight(10f))
-        val color = if (quote.change > 0) MaterialTheme.colors.primary
-        else if (quote.change == 0f) MaterialTheme.colors.onSurface
-        else MaterialTheme.colors.error
+    val swipeableState = rememberSwipeableState(0)
+    var sizePx by remember { mutableStateOf(100) }
+    val anchors = mapOf(0f to 0, sizePx.toFloat() to 1)
 
-        when (displayOption) {
-            "Change" -> Text(
-                formatDollar(quote.change),
-                color = color
+//    LaunchedEffect(swipeableState) {
+//
+//    }
+
+    Box(
+        modifier = modifier
+            .onGloballyPositioned { sizePx = it.size.width }
+            .swipeable(
+                state = swipeableState,
+                anchors = anchors,
+                thresholds = { _, _ -> FractionalThreshold(0.5f) },
+                orientation = Orientation.Horizontal,
+                reverseDirection = true,
             )
-            "% Change" -> Text(
-                formatPercent(quote.percentChange),
-                color = color
-            )
-            else -> Text(
-                formatDollar(quote.price),
-                color = color
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier
+                .height(tickerListHeight)
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.error)
+        ) {
+            Text(
+                text = "Remove",
+                modifier = Modifier.padding(end = tickerListHorizontalPadding),
+                color = MaterialTheme.colors.onError
             )
         }
+
+        TickerListRow(
+            ticker = quote.ticker,
+            color = quote.color,
+            modifier = Modifier
+                .offset { IntOffset(-swipeableState.offset.value.roundToInt(), 0) }
+                .background(MaterialTheme.colors.surface)
+                .padding(horizontal = tickerListHorizontalPadding)
+        ) {
+            Spacer(Modifier.weight(10f))
+            val color = if (quote.change > 0) MaterialTheme.colors.primary
+            else if (quote.change == 0f) MaterialTheme.colors.onSurface
+            else MaterialTheme.colors.error
+
+            when (displayOption) {
+                "Change" -> Text(
+                    formatDollar(quote.change),
+                    color = color
+                )
+                "% Change" -> Text(
+                    formatPercent(quote.percentChange),
+                    color = color
+                )
+                else -> Text(
+                    formatDollar(quote.price),
+                    color = color
+                )
+            }
+        }
+
     }
 }
 
