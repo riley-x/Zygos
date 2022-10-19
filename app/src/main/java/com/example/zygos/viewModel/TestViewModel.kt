@@ -33,7 +33,7 @@ class TestViewModel: ViewModel() {
             TimeSeries(it * if (it % 2 == 0) 1.2f else 0.8f, it)
         },
         ticksY = listOf(5f, 10f, 15f, 20f).map { NamedValue(it, it.toString()) },
-        ticksX = listOf(5, 10, 15),
+        ticksX = listOf(5f, 10f, 15f).map { NamedValue(it, it.toString()) },
         minY = 0f,
         maxY = 25f,
     ))
@@ -152,7 +152,7 @@ class TestViewModel: ViewModel() {
                 )
             }.drop(1),
             ticksY = listOf(5f, 10f, 15f, 20f).map { NamedValue(it, it.toString()) },
-            ticksX = listOf(5, 10, 15),
+            ticksX = listOf(5f, 10f, 15f).map { NamedValue(it, it.toString()) },
             padX = 1f,
             minY = 0f,
             maxY = 25f,

@@ -25,10 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.math.MathUtils.clamp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.theme.ZygosTheme
-import com.example.zygos.viewModel.HasName
-import com.example.zygos.viewModel.NamedValue
-import com.example.zygos.viewModel.TestViewModel
-import com.example.zygos.viewModel.TimeSeries
+import com.example.zygos.viewModel.*
 import kotlin.math.roundToInt
 
 
@@ -63,7 +60,7 @@ typealias TimeSeriesGrapher<T> = (
 data class TimeSeriesGraphState<T>(
     val values: List<T> = emptyList(),
     val ticksY: List<NamedValue> = emptyList(),
-    val ticksX: List<Int> = emptyList(),
+    val ticksX: List<NamedValue> = emptyList(),
     val minY: Float = 0f,
     val maxY: Float = 100f,
     val padX: Float = 0f,
@@ -132,7 +129,7 @@ fun <T: HasName> TimeSeriesGraph(
         val labelXHeight = if (state.value.ticksX.isEmpty()) 0 else {
             val textLayoutResult: TextLayoutResult =
                 textMeasurer.measure( // Use the first x tick cause no better
-                    text = AnnotatedString(state.value.values[state.value.ticksX.first()].name),
+                    text = AnnotatedString(state.value.ticksX.first().name),
                     style = textStyle,
                 )
             textLayoutResult.size.height
@@ -221,7 +218,7 @@ fun <T: HasName> TimeSeriesGraph(
 
             /** X Gridlines and Axis Labels **/
             for (tick in state.value.ticksX) {
-                val x = (tick.toFloat() - minX) * deltaX
+                val x = (tick.value - minX) * deltaX
                 drawLine(
                     start = Offset(x = x, y = startY),
                     end = Offset(x = x, y = 0f),
@@ -230,7 +227,7 @@ fun <T: HasName> TimeSeriesGraph(
                 )
                 val layoutResult: TextLayoutResult =
                     textMeasurer.measure(
-                        text = AnnotatedString(state.value.values[tick].name),
+                        text = AnnotatedString(tick.name),
                         style = textStyle,
                     )
                 drawText(

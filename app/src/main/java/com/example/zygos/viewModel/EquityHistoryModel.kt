@@ -12,6 +12,7 @@ import com.example.zygos.data.database.EquityHistory
 import com.example.zygos.data.database.Ohlc
 import com.example.zygos.network.*
 import com.example.zygos.ui.components.allAccounts
+import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -117,8 +118,13 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
 
         /** Get the axis positions **/
         val stepX = ((history.lastIndex - startIndex).toFloat() / performanceGraphTickDivisionsX).roundToInt()
-        val ticksX =
-            IntRange(1, performanceGraphTickDivisionsX - 1).map { clamp(stepX * it, 0, history.lastIndex) }
+        val ticksX = IntRange(1, performanceGraphTickDivisionsX - 1).map {
+            val index = clamp(stepX * it, 0, history.lastIndex)
+            NamedValue(
+                value = index.toFloat(),
+                name = formatDateInt(history[index].date)
+            )
+        }
         val ticksY = autoYTicks(
             minY,
             maxY,

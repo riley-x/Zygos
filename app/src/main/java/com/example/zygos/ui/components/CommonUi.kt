@@ -72,7 +72,18 @@ fun formatDateNoDay(timestamp: Long): String {
 fun formatTimeDayOfWeek(timestamp: Long): String {
     return DateFormat.format("E h:mm", timestamp).toString()
 }
-
+@Stable
+fun formatDayOfWeekOnly(timestamp: Long): String {
+    return DateFormat.format("E", timestamp).toString()
+}
+@Stable
+fun formatMonthOnly(timestamp: Long): String {
+    return DateFormat.format("MMM", timestamp).toString()
+}
+@Stable
+fun formatYearOnly(timestamp: Long): String {
+    return DateFormat.format("yyyy", timestamp).toString()
+}
 
 @Composable
 fun TitleValue(

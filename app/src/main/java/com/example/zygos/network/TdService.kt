@@ -1,6 +1,9 @@
 package com.example.zygos.network
 
 import android.icu.text.NumberFormat
+import android.icu.util.Calendar
+import android.icu.util.TimeZone
+import android.util.Log
 import com.example.zygos.data.*
 import com.example.zygos.data.database.Ohlc
 import com.example.zygos.viewModel.PREFERENCE_TD_API_KEY_KEY
@@ -36,7 +39,9 @@ interface TdService {
         @Query("symbol") symbols: String, // Comma separated
     ): Map<String, TdOptionQuote>
 
-    @GET("v1/marketdata/{symbol}/pricehistory?periodType=month&frequencyType=daily")
+    /** For the below, must specify startDate and endDate instead of period to get current-day data **/
+
+    @GET("v1/marketdata/{symbol}/pricehistory?periodType=year&frequencyType=daily")
     suspend fun getOhlc(
         @Path("symbol") symbol: String,
         @Query("apikey") apiKey: String,
@@ -44,22 +49,21 @@ interface TdService {
         @Query("endDate") endDate: Long, // in millis
     ): TdPriceHistory
 
-    @GET("v1/marketdata/{symbol}/pricehistory?periodType=day&period=5&frequencyType=minute&frequency=30")
-    suspend fun getOhlc5Day(
+    @GET("v1/marketdata/{symbol}/pricehistory?periodType=day&frequencyType=minute&frequency=30")
+    suspend fun getOhlc30Min(
         @Path("symbol") symbol: String,
         @Query("apikey") apiKey: String,
+        @Query("startDate") startDate: Long, // in millis
+        @Query("endDate") endDate: Long, // in millis
     ): TdPriceHistory
 
-    @GET("v1/marketdata/{symbol}/pricehistory?periodType=year&frequencyType=daily")
-    suspend fun getOhlc1Year(
-        @Path("symbol") symbol: String,
-        @Query("apikey") apiKey: String,
-    ): TdPriceHistory
 
-    @GET("v1/marketdata/{symbol}/pricehistory?periodType=year&period=20&frequencyType=monthly")
-    suspend fun getOhlc20Year(
+    @GET("v1/marketdata/{symbol}/pricehistory?periodType=year&frequencyType=monthly")
+    suspend fun getOhlcMonthly(
         @Path("symbol") symbol: String,
         @Query("apikey") apiKey: String,
+        @Query("startDate") startDate: Long, // in millis
+        @Query("endDate") endDate: Long, // in millis
     ): TdPriceHistory
 }
 
@@ -104,6 +108,57 @@ object TdApi {
                 volume = it.volume,
             )
         }
+    }
+
+    suspend fun getOhlc5Day(
+        apiKey: String,
+        symbol: String,
+    ): List<TdOhlc> {
+        val cal = Calendar.getInstance().toNewYork()
+        val endDate = cal.timeInMillis
+        cal.toMidnight().add(Calendar.DATE, -7) // well it's really one week not 5 days
+        val startDate = cal.timeInMillis
+
+        return tdService.getOhlc30Min(
+            symbol = symbol,
+            apiKey = apiKey,
+            startDate = startDate,
+            endDate = endDate,
+        ).candles
+    }
+
+    suspend fun getOhlc1Year(
+        apiKey: String,
+        symbol: String,
+    ): List<TdOhlc> {
+        val cal = Calendar.getInstance().toNewYork()
+        val endDate = cal.timeInMillis
+        cal.toMidnight().add(Calendar.YEAR, -1)
+        val startDate = cal.timeInMillis
+
+        return tdService.getOhlc(
+            symbol = symbol,
+            apiKey = apiKey,
+            startDate = startDate,
+            endDate = endDate,
+        ).candles
+    }
+
+    suspend fun getOhlc20Year(
+        apiKey: String,
+        symbol: String,
+    ): List<TdOhlc> {
+        val cal = Calendar.getInstance().toNewYork()
+        val endDate = cal.timeInMillis
+        cal.toMidnight().add(Calendar.YEAR, -20)
+        val startDate = cal.timeInMillis
+
+        return tdService.getOhlcMonthly(
+            symbol = symbol,
+            apiKey = apiKey,
+            startDate = startDate,
+            endDate = endDate,
+        ).candles
     }
 }
 

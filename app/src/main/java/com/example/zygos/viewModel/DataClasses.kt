@@ -24,6 +24,7 @@ data class NamedValue(
     override val name: String,
 ): HasName, HasValue
 
+
 @Immutable
 data class TimeSeries(
     override val value: Float,

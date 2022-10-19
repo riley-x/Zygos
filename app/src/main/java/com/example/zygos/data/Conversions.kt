@@ -1,6 +1,7 @@
 package com.example.zygos.data
 
 import android.icu.util.Calendar
+import android.icu.util.TimeZone
 import kotlin.math.roundToLong
 
 fun getIntDate(year: Int, month: Int, day: Int): Int {
@@ -16,6 +17,19 @@ fun Calendar.toIntDate() : Int {
 
 fun Calendar.setIntDate(date: Int) {
     set(getYear(date), getMonth(date) - 1, getDay(date)) // months are 0-indexed
+}
+
+fun Calendar.toNewYork(): Calendar {
+    timeZone = TimeZone.getTimeZone("America/New_York")
+    return this
+}
+
+fun Calendar.toMidnight(): Calendar {
+    set(Calendar.HOUR_OF_DAY, 0)
+    set(Calendar.MINUTE, 0)
+    set(Calendar.SECOND, 0)
+    set(Calendar.MILLISECOND, 0)
+    return this
 }
 
 fun getTimestamp(date: Int): Long {
