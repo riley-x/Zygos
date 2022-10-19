@@ -483,11 +483,11 @@ fun bottomSheetContent(
     return when (version) {
         else -> listOptionsSheet(
             currentSortOption = viewModel.watchlist.sortOption,
-            currentDisplayOption = viewModel.watchlist.displayOption,
+            currentDisplayOption = viewModel.watchlist.displayOption.value,
             isSortedAscending = viewModel.watchlist.sortIsAscending,
             displayOptions = watchlistDisplayOptions,
             sortOptions = watchlistSortOptions,
-            onDisplayOptionSelected = viewModel.watchlist::displayOption::set,
+            onDisplayOptionSelected = viewModel.watchlist.displayOption::value::set,
             onSortOptionSelected = viewModel.watchlist::setSortMethod,
         )
     }

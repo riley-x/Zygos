@@ -30,7 +30,7 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         private set
     var sortIsAscending by mutableStateOf(true)
         private set
-    var displayOption by mutableStateOf(watchlistDisplayOptions.items[1])
+    val displayOption = mutableStateOf(watchlistDisplayOptions.items[1])
 
     /** Cached sort options to not re-sort if nothing was changed **/
     private var lastSortOption = ""

@@ -35,7 +35,7 @@ fun PerformanceScreen(
     accountPerformanceState: State<TimeSeriesGraphState<TimeSeries>>,
     accountPerformanceTimeRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     watchlist: SnapshotStateList<Quote>,
-    watchlistDisplayOption: String,
+    watchlistDisplayOption: State<String>,
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
     onTickerSelected: (String) -> Unit = { },
@@ -201,7 +201,7 @@ fun PerformanceScreen(
 
                     WatchlistRow(
                         quote = ticker,
-                        displayOption = watchlistDisplayOption,
+                        displayOption = watchlistDisplayOption.value,
                         onDelete = onWatchlistDelete,
                         modifier = Modifier
                             .clickable { onTickerSelected(ticker.ticker) }

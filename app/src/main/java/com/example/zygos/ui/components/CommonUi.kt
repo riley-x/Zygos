@@ -9,6 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 
 fun <E> List<E>.normalized(selector: (E) -> Float): List<Float> {
@@ -16,11 +17,13 @@ fun <E> List<E>.normalized(selector: (E) -> Float): List<Float> {
     return this.map { (selector(it) / total).toFloat() }
 }
 
+@Stable
 fun formatDollar(value: Float): String {
     val format: NumberFormat = NumberFormat.getCurrencyInstance()
     return format.format(value)
 }
 
+@Stable
 fun formatDollarNoSymbol(value: Float, length: Int = 0): String {
     val format = NumberFormat.getNumberInstance()
     format.minimumFractionDigits = 2
@@ -30,6 +33,7 @@ fun formatDollarNoSymbol(value: Float, length: Int = 0): String {
 }
 
 // NOTE: do not pre-multiply by 100!
+@Stable
 fun formatPercent(value: Float): String {
     val format = NumberFormat.getPercentInstance()
     format.minimumFractionDigits = 2
@@ -37,6 +41,7 @@ fun formatPercent(value: Float): String {
     return format.format(value)
 }
 
+@Stable
 fun formatDateInt(date: Int): String {
     if (date == 0) return ""
     val day = date % 100

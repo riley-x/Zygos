@@ -55,7 +55,7 @@ class TestViewModel: ViewModel() {
         private set
     var watchlistSortIsAscending by mutableStateOf(true)
         private set
-    var watchlistDisplayOption by mutableStateOf(watchlistDisplayOptions.items[0])
+    var watchlistDisplayOption = mutableStateOf(watchlistDisplayOptions.items[0])
 
     /** Holdings **/
 
