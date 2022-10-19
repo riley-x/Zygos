@@ -1,11 +1,14 @@
 package com.example.zygos.ui.performance
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +25,7 @@ import com.example.zygos.ui.graphing.lineGraph
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.*
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PerformanceScreen(
     currentEquity: Long,
@@ -36,9 +40,11 @@ fun PerformanceScreen(
     onTickerSelected: (String) -> Unit = { },
     onAccountPerformanceRangeSelected: (String) -> Unit = { },
     onWatchlistOptionsClick: () -> Unit = { },
+    onAddAllHoldingsToWatchlist: () -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos", "PerformanceScreen")
+    val showPercentages = rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -157,35 +163,47 @@ fun PerformanceScreen(
                 )
             }
 
-            item("watchlist_title") {
-                ListTitleBar(
+            stickyHeader("watchlist_title") {
+                ListTitleBarPercent(
                     text = "Watchlist",
+                    showPercentages = showPercentages.value,
                     onOptionsButtonClick = onWatchlistOptionsClick,
-                    modifier = Modifier
-                        .padding(start = 22.dp)
-                        .recomposeHighlighter()
+                    onToggleShowPercentages = { showPercentages.value = !showPercentages.value },
                 )
+            }
+
+            if (watchlist.isEmpty()) {
+                item("watchlist_add_all") {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        TextButton(
+                            onClick = onAddAllHoldingsToWatchlist,
+                            border = BorderStroke(2.dp, MaterialTheme.colors.error),
+                            colors = ButtonDefaults.textButtonColors(
+                                contentColor = MaterialTheme.colors.error
+                            ),
+                            modifier = Modifier
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Text("Add All Holdings")
+                        }
+                    }
+                }
             }
 
             itemsIndexed(watchlist, key = { _, ticker -> ticker.ticker }) { index, ticker ->
                 Column {
-                    if (index > 0) TickerListDivider(modifier = Modifier.padding(horizontal = 6.dp))
+                    if (index > 0) TickerListDivider()
 
-                    TickerListValueRow(
-                        ticker = ticker.ticker,
-                        color = ticker.color,
-                        value = ticker.price,
-                        subvalue = when (watchlistDisplayOption) {
-                            "% Change" -> ticker.percentChange
-                            else -> ticker.change
-                        },
-                        isSubvalueDollar = (watchlistDisplayOption != "% Change"),
+                    WatchlistRow(
+                        quote = ticker,
+                        displayOption = watchlistDisplayOption,
                         modifier = Modifier
-                            .clickable {
-                                onTickerSelected(ticker.ticker)
-                            }
+                            .clickable { onTickerSelected(ticker.ticker) }
                             // this needs to be here so that the clickable animation covers the full width
-                            .padding(horizontal = 6.dp)
+                            .padding(horizontal = tickerListHorizontalPadding)
                     )
                 }
             }

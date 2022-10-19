@@ -270,6 +270,7 @@ fun ZygosApp(
                             watchlistDisplayOption = viewModel.watchlist.displayOption,
                             onTickerSelected = ::onTickerSelected,
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
+                            onAddAllHoldingsToWatchlist = viewModel.watchlist::addAllFromHoldings,
                             onAccountPerformanceRangeSelected = viewModel.equityHistory::updateTimeRange,
                             accountSelectionBar = accountSelectionBar,
                             bottomPadding = bottomPadding,

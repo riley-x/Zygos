@@ -10,35 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.zygos.data.PositionType
 import com.example.zygos.data.toFloatDollar
-import com.example.zygos.ui.components.formatDateInt
-import com.example.zygos.ui.components.formatDollar
-import com.example.zygos.ui.components.formatDollarNoSymbol
-import com.example.zygos.ui.components.formatPercent
 import com.example.zygos.data.PricedPosition
-
-/**
- * These are the composables that show TickerListRow info
- */
-
-@Composable
-private fun ValueOrPercent(
-    value: Float,
-    percent: Float,
-    showPercentages: State<Boolean>,
-    modifier: Modifier = Modifier,
-    isColor: Boolean = true,
-) {
-    val color =
-        if (!isColor) MaterialTheme.colors.onSurface
-        else if ((showPercentages.value && percent >= 0) || (!showPercentages.value && value >= 0)) MaterialTheme.colors.primary
-        else MaterialTheme.colors.error
-
-    Text(
-        text = if (showPercentages.value) formatPercent(percent) else formatDollar(value),
-        color = color,
-        modifier = modifier
-    )
-}
+import com.example.zygos.ui.components.*
 
 
 @Composable

@@ -26,13 +26,11 @@ class ColorModel(private val parent: ZygosViewModel) {
         }
     }
 
-    fun loadLaunched() {
-        parent.viewModelScope.launch {
-            val colors = withContext(Dispatchers.IO) {
-                parent.colorDao.getMap()
-            }
-            colors.mapValuesTo(tickers) { Color(it.value) }
+    suspend fun load() {
+        val colors = withContext(Dispatchers.IO) {
+            parent.colorDao.getMap()
         }
+        colors.mapValuesTo(tickers) { Color(it.value) }
     }
 
     fun insertDefaults(vals: Set<String>) {

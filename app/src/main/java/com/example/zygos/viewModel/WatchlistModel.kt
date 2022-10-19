@@ -1,40 +1,37 @@
 package com.example.zygos.viewModel
 
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewModelScope
+import com.example.zygos.data.database.Names
+import com.example.zygos.network.TdQuote
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class WatchlistModel(private val parent: ZygosViewModel) {
-    val watchlist = mutableStateListOf(
-        Quote("t1", Color.Blue,  123.23f,  21.20f, 0.123f),
-        Quote("t2", Color.Black, 1263.23f, 3.02f,  -0.123f),
-        Quote("t3", Color.Green, 1923.23f, 120.69f,0.263f),
-        Quote("t4", Color.Cyan,  1423.23f, 0.59f,  1.23f),
-        Quote("t5", Color.Blue,  123.23f,  21.20f, 0.123f),
-        Quote("t6", Color.Black, 1263.23f, 3.02f,  -0.123f),
-        Quote("t7", Color.Green, 1923.23f, 120.69f,0.263f),
-        Quote("t8", Color.Cyan,  1423.23f, 0.59f,  1.23f),
-    )
+    val watchlist = mutableStateListOf<Quote>()
 
-    // These variables are merely the ui state of the options selection menu
-    // The actual sorting is called in sortWatchlist() via a callback when
-    // the menu is hidden.
+    /** These variables are merely the ui state of the options selection menu. The actual sorting is
+     * called in sortWatchlist() via a callback when the menu is hidden.
+     */
     var sortOption by mutableStateOf(watchlistSortOptions.items[0])
         private set
     var sortIsAscending by mutableStateOf(true)
         private set
     var displayOption by mutableStateOf(watchlistDisplayOptions.items[0])
 
-    // Cached sort options to not re-sort if nothing was changed
+    /** Cached sort options to not re-sort if nothing was changed **/
     private var lastSortOption = ""
     private var lastSortIsAscending = true
 
     /** Called from composable onClick callbacks. Sets UI state only **/
+    @MainThread
     fun setSortMethod(opt: String) {
         if (sortOption == opt) sortIsAscending = !sortIsAscending
         else sortOption = opt
@@ -49,7 +46,6 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         if (oldList.isEmpty()) return mutableListOf()
         val newList = oldList.toMutableList()
 
-        /** Do sort **/
         fun <T : Comparable<T>> sortBy(fn: Quote.() -> T) {
             if (ascending) newList.sortBy(fn)
             else newList.sortByDescending(fn)
@@ -62,6 +58,20 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         return newList
     }
 
+    @MainThread
+    private suspend fun doSort(
+        oldList: List<Quote>,
+        option: String = sortOption,
+        isAscending: Boolean = sortIsAscending
+    ) {
+        val newList = withContext(Dispatchers.Default) {
+            getSortedList(oldList, option, isAscending)
+        }
+        watchlist.clear()
+        watchlist.addAll(newList)
+    }
+
+    @MainThread
     suspend fun sort() {
         Log.d("Zygos/WatchlistModel/sort", "$sortOption $sortIsAscending, last: $lastSortOption $lastSortIsAscending")
         if (lastSortOption == sortOption) {
@@ -69,17 +79,66 @@ class WatchlistModel(private val parent: ZygosViewModel) {
                 watchlist.reverse()
             }
         } else {
-            /** Sort - this blocks this routine, but the main UI routine continues since sort() is called
-             * from a LaunchedEffect. **/
-            val newList = withContext(Dispatchers.Default) {
-                getSortedList(watchlist, sortOption, sortIsAscending)
-            }
-
-            /** Update. This happens in the main thread when called from LaunchedEffect with no dispatcher **/
-            watchlist.clear()
-            watchlist.addAll(newList)
+            doSort(watchlist)
         }
         lastSortIsAscending = sortIsAscending
         lastSortOption = sortOption
+    }
+
+    @MainThread
+    suspend fun load(quotes: Map<String, TdQuote>, colors: Map<String, Color>) {
+        val tickerList = withContext(Dispatchers.IO) {
+            parent.namesDao.getWatchlist()
+        }
+        val quoteList = tickerList.map {
+            val tdQuote = quotes[it.name]
+            Quote(
+                ticker = it.name,
+                color = colors.getOrDefault(it.name, Color.White),
+                price = tdQuote?.lastPrice ?: 0f,
+                change = tdQuote?.netChange ?: 0f,
+                percentChange = tdQuote?.netPercentChangeInDouble ?: 0f,
+            )
+        }
+        doSort(quoteList)
+    }
+
+    /** Called from composable callbacks **/
+    fun add(ticker: String) {
+        parent.viewModelScope.launch(Dispatchers.IO) {
+            parent.namesDao.add(Names(type = "watchlist", name = ticker))
+        }
+
+        val tdQuote = parent.market.stockQuotes[ticker]
+        val color = parent.colors.tickers.getOrDefault(ticker, Color.White)
+        val newList = watchlist.toMutableList()
+        newList.add(
+            Quote(
+                ticker = ticker,
+                color = color,
+                price = tdQuote?.lastPrice ?: 0f,
+                change = tdQuote?.netChange ?: 0f,
+                percentChange = tdQuote?.netPercentChangeInDouble ?: 0f,
+            )
+        )
+        parent.viewModelScope.launch {
+            doSort(newList)
+        }
+    }
+
+    fun addAllFromHoldings() {
+        val newList = parent.getAllTickers().map {
+            val tdQuote = parent.market.stockQuotes[it]
+            Quote(
+                ticker = it,
+                color = parent.colors.tickers.getOrDefault(it, Color.White),
+                price = tdQuote?.lastPrice ?: 0f,
+                change = tdQuote?.netChange ?: 0f,
+                percentChange = tdQuote?.netPercentChangeInDouble ?: 0f,
+            )
+        }
+        parent.viewModelScope.launch {
+            doSort(newList)
+        }
     }
 }

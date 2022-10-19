@@ -42,7 +42,6 @@ data class OhlcNamed(
 ): HasName
 
 
-// Deprecate
 @Immutable
 data class Quote (
     val ticker: String,

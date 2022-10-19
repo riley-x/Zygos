@@ -2,10 +2,12 @@ package com.example.zygos.data.database
 
 import android.content.Context
 import android.util.Log
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import java.io.File
+
 
 @Database(
     entities = [
@@ -14,8 +16,13 @@ import java.io.File
         Lot::class,
         LotTransactionCrossRef::class,
         Ohlc::class,
-        ColorSettings::class],
-    version = 7
+        ColorSettings::class,
+        Names::class,
+    ],
+    version = 8,
+    autoMigrations = [
+        AutoMigration (from = 7, to = 8)
+    ]
 )
 abstract class ZygosDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
@@ -23,6 +30,7 @@ abstract class ZygosDatabase : RoomDatabase() {
     abstract fun equityHistoryDao(): EquityHistoryDao
     abstract fun ohlcDao(): OhlcDao
     abstract fun colorDao(): ColorDao
+    abstract fun namesDao(): NamesDao
 
     companion object {
         @Volatile
@@ -53,3 +61,4 @@ abstract class ZygosDatabase : RoomDatabase() {
         }
     }
 }
+

@@ -18,16 +18,12 @@ class LotModel(private val parent: ZygosViewModel) {
     val exitedPositions = mutableListOf<Position>()
     var isLoading = false
 
+
     /** This function will block until the above lists are loaded. The actual loading is dispatched
      * though so the main thread (which runs the UI coroutine) isn't blocked too. Note everything
      * can run in a dispatched thread since these aren't state lists **/
     suspend fun loadBlocking(account: String) {
-        isLoading = true
-        withContext(Dispatchers.IO) {
-            tickerLots = parent.lotDao.getOpenAndRealized(account)
-            createLotPositions(account, tickerLots)
-        }
-        isLoading = false
+        loadLaunched(account).join()
     }
     fun loadLaunched(account: String): Job {
         isLoading = true

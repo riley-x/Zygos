@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.PricedPosition
+import com.example.zygos.ui.components.ListTitleBarPercent
 import com.example.zygos.ui.components.LogCompositions
 import com.example.zygos.ui.components.TickerListDivider
 import com.example.zygos.ui.components.tickerListHorizontalPadding
@@ -106,7 +107,7 @@ fun HoldingsScreen(
 
             if (longPositions.isNotEmpty()) { // TODO derivedStateOf?
                 stickyHeader("long") {
-                    HoldingsListTitle(
+                    ListTitleBarPercent(
                         text = "Long Positions",
                         showPercentages = showPercentages.value,
                         onOptionsButtonClick = holdingsListLongOptionsCallback,
@@ -119,9 +120,7 @@ fun HoldingsScreen(
             // expanded parameter will not be reset.
             itemsIndexed(longPositions, key = { _, pos -> pos.account + pos.ticker } ) { index, pos ->
                 Column {
-                    if (index > 0) TickerListDivider(
-                        modifier = Modifier.padding(horizontal = tickerListHorizontalPadding)
-                    )
+                    if (index > 0) TickerListDivider()
 
                     HoldingsRow(
                         position = pos,
@@ -135,7 +134,7 @@ fun HoldingsScreen(
 
             if (shortPositions.isNotEmpty()) { // TODO derivedStateOf?
                 stickyHeader("short") {
-                    HoldingsListTitle(
+                    ListTitleBarPercent(
                         text = "Short Positions",
                         showPercentages = showPercentages.value,
                         onOptionsButtonClick = holdingsListShortOptionsCallback,

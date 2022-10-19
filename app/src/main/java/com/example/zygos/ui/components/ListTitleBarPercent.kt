@@ -1,8 +1,7 @@
-package com.example.zygos.ui.holdings
+package com.example.zygos.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -10,13 +9,10 @@ import androidx.compose.material.icons.sharp.Percent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.example.zygos.ui.components.ListTitleBar
-import com.example.zygos.ui.components.tickerListHorizontalPadding
 import com.example.zygos.ui.theme.ZygosTheme
 
 @Composable
-fun HoldingsListTitle(
+fun ListTitleBarPercent(
     text: String,
     showPercentages: Boolean,
     modifier: Modifier = Modifier,
@@ -44,12 +40,12 @@ fun HoldingsListTitle(
 
 @Preview
 @Composable
-fun PreviewHoldingsListTitle() {
+fun PreviewListTitleBarPercent() {
     ZygosTheme {
         Surface {
             Column {
-                HoldingsListTitle(text = "Positions", showPercentages = true)
-                HoldingsListTitle(text = "Positions", showPercentages = false)
+                ListTitleBarPercent(text = "Positions", showPercentages = true)
+                ListTitleBarPercent(text = "Positions", showPercentages = false)
             }
         }
     }

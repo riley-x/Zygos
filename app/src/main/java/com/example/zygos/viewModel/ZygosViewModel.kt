@@ -68,19 +68,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     internal val lotDao = application.database.lotDao()
     internal val ohlcDao = application.database.ohlcDao()
     internal val colorDao = application.database.colorDao()
+    internal val namesDao = application.database.namesDao()
 
     /** Account state **/
     val accounts = mutableStateListOf(noAccountMessage)
-    //val accounts: List<String> = _accounts // Warning: these backing vals seem to ruin smart recomposition
-
     var currentAccount by mutableStateOf(accounts[0])
         private set
-
-    /** Account Performance **/
-
-    /** Watchlist **/
-
-
     /** Lots **/
     internal val lots = mutableMapOf<String, LotModel>()
     /** Prices **/
@@ -137,8 +130,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             }
         }
 
-        /** Load colors **/
-        colors.loadLaunched()
+        viewModelScope.launch {
+            /** Load colors **/
+            colors.load()
+            /** Load watchlist **/
+            watchlist.load(emptyMap(), colors.tickers)
+        }
 
         /** Load lots **/
         val jobs = mutableListOf<Job>()
@@ -216,6 +213,12 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
     private fun loadPricedData(lotModel: LotModel, isDummy: Boolean = false) {
+
+        /** Load watchlist **/
+        viewModelScope.launch {
+            watchlist.load(market.stockQuotes, colors.tickers)
+        }
+
         /** This check, the load launch, and the reset happen on the main thread, so there's no
          * way they can conflict. However, need to copy the lists since both the loads below and
          * the loads in lotModel happen on dispatched threads
@@ -286,5 +289,13 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
                 Log.w("Zygos/ZygosViewModel", e.stackTraceToString())
             }
         }
+    }
+
+    fun getAllTickers(): MutableSet<String> {
+        val tickers = mutableSetOf<String>()
+        lots.forEach {
+            tickers.addAll(it.value.tickerLots.keys)
+        }
+        return tickers
     }
 }
