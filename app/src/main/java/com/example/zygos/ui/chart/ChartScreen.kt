@@ -39,7 +39,8 @@ fun ChartScreen(
     onChangeColor: (String) -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
-    LogCompositions("Zygos", "ChartScreen")
+//    LogCompositions("Zygos", "ChartScreen")
+    // This recomposes everytime hover changes
 
     /** Keyboard focus controls. Clears focus from the TextField in the ticker selector when you
      * tap elsewhere
@@ -159,6 +160,7 @@ fun ChartScreen(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(vertical = 4.dp)
+                        .recomposeHighlighter()
                 ) {
                     Text("Change Color")
                 }

@@ -24,24 +24,42 @@ private val retrofit = Retrofit.Builder()
 
 
 interface TdService {
-    @GET("v1/marketdata/quotes") // this is the http endpoint!
+    @GET("v1/marketdata/quotes")
     suspend fun getQuote(
         @Query("apikey") apiKey: String,
         @Query("symbol") symbols: String, // Comma separated
     ): Map<String, TdQuote>
 
-    @GET("v1/marketdata/quotes") // this is the http endpoint!
+    @GET("v1/marketdata/quotes")
     suspend fun getOptionQuote(
         @Query("apikey") apiKey: String,
         @Query("symbol") symbols: String, // Comma separated
     ): Map<String, TdOptionQuote>
 
-    @GET("v1/marketdata/{symbol}/pricehistory?periodType=month&frequencyType=daily") // this is the http endpoint!
+    @GET("v1/marketdata/{symbol}/pricehistory?periodType=month&frequencyType=daily")
     suspend fun getOhlc(
         @Path("symbol") symbol: String,
         @Query("apikey") apiKey: String,
         @Query("startDate") startDate: Long, // in millis
         @Query("endDate") endDate: Long, // in millis
+    ): TdPriceHistory
+
+    @GET("v1/marketdata/{symbol}/pricehistory?periodType=day&period=5&frequencyType=minute&frequency=30")
+    suspend fun getOhlc5Day(
+        @Path("symbol") symbol: String,
+        @Query("apikey") apiKey: String,
+    ): TdPriceHistory
+
+    @GET("v1/marketdata/{symbol}/pricehistory?periodType=year&frequencyType=daily")
+    suspend fun getOhlc1Year(
+        @Path("symbol") symbol: String,
+        @Query("apikey") apiKey: String,
+    ): TdPriceHistory
+
+    @GET("v1/marketdata/{symbol}/pricehistory?periodType=year&period=20&frequencyType=monthly")
+    suspend fun getOhlc20Year(
+        @Path("symbol") symbol: String,
+        @Query("apikey") apiKey: String,
     ): TdPriceHistory
 }
 
