@@ -177,9 +177,12 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         val tickers = positions.getTickers()
 
         /** Get latest close date **/
-        val (marketClosedToday, lastCloseDate) = // note last close date might be a sunday, i.e.
-            if (stockQuotes.isEmpty()) Pair(false, getLastCloseDate() ?: return)
-            else isMarketClosed(stockQuotes.values.first())
+        // The below doesn't work because the ticker might be an EFT, i.e., and there the tradeTime = regularMarketTradeTime
+        // so the hacky logic in isMarketClosed doesn't work
+//        val (marketClosedToday, lastCloseDate) = // note last close date might be a sunday, i.e.
+//            if (stockQuotes.isEmpty()) Pair(false, getLastCloseDate() ?: return)
+//            else isMarketClosed(stockQuotes.values.first())
+        val lastCloseDate = getLastCloseDate() ?: return
         Log.d("Zygos/EquityHistoryModel", "lastCloseDate: $lastCloseDate")
         Log.d("Zygos/EquityHistoryModel", "lastUpdateAttemptDate: $lastUpdateAttemptDate")
         if (lastCloseDate <= lastUpdateAttemptDate) return
@@ -208,10 +211,9 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
 
         /** Cache ohlc fetches here, also save/load option ohlc **/
         val tickerOhlcs = mutableMapOf(keyTicker to ohlc)
-        if (marketClosedToday) {
-            optionQuotes.mapValuesTo(tickerOhlcs) {
-                getOrUpdateOptionOhlc(it.key, lastCloseDate, it.value)
-            }
+        for (optionQuote in optionQuotes) {
+           if (fromTimestamp(optionQuote.value.quoteTimeInLong) == lastCloseDate)
+               tickerOhlcs[optionQuote.key] = getOrUpdateOptionOhlc(optionQuote.key, lastCloseDate, optionQuote.value)
         }
 
         /** Update each account's history **/

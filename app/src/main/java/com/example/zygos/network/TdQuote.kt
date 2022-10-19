@@ -31,6 +31,7 @@ data class TdOptionQuote(
     val lowPrice: Float,
     val closePrice: Float,
     val totalVolume: Long,
+    val quoteTimeInLong: Long,
     val delta: Float,
     val gamma: Float,
     val theta: Float,
