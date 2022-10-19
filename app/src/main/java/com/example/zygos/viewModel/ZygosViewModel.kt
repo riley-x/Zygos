@@ -294,8 +294,11 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     fun getAllTickers(): MutableSet<String> {
         val tickers = mutableSetOf<String>()
         lots.forEach {
-            tickers.addAll(it.value.tickerLots.keys)
+            it.value.tickerLots.forEach { (ticker, realizedAndLots) ->
+                if (realizedAndLots.second.isNotEmpty()) tickers.add(ticker)
+            }
         }
+        tickers.remove(CASH_TICKER)
         return tickers
     }
 }

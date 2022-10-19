@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,7 +37,7 @@ fun TickerListRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            modifier = Modifier.width(75.dp),
+            modifier = Modifier.width(90.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(
@@ -47,6 +48,8 @@ fun TickerListRow(
             Text(
                 text = ticker,
                 style = MaterialTheme.typography.body1,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
                 modifier = Modifier.padding(horizontal = 12.dp)
             )
         }
@@ -119,7 +122,7 @@ fun TickerListRowPreview() {
         Surface() {
             Column {
                 TickerListRow(
-                    ticker = "MSFT",
+                    ticker = "CMCSA",
                     color = Color(0xff00a1f1),
                 )
 

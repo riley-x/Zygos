@@ -24,7 +24,7 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         private set
     var sortIsAscending by mutableStateOf(true)
         private set
-    var displayOption by mutableStateOf(watchlistDisplayOptions.items[0])
+    var displayOption by mutableStateOf(watchlistDisplayOptions.items[1])
 
     /** Cached sort options to not re-sort if nothing was changed **/
     private var lastSortOption = ""
@@ -85,19 +85,26 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         lastSortOption = sortOption
     }
 
+    private fun getQuote(ticker: String, tdQuote: TdQuote?, color: Color): Quote {
+        return Quote(
+            ticker = ticker,
+            color = color,
+            price = tdQuote?.lastPrice ?: 0f,
+            change = tdQuote?.netChange ?: 0f,
+            percentChange = tdQuote?.netPercentChangeInDouble?.div(100f) ?: 0f,
+        )
+    }
+
     @MainThread
     suspend fun load(quotes: Map<String, TdQuote>, colors: Map<String, Color>) {
         val tickerList = withContext(Dispatchers.IO) {
             parent.namesDao.getWatchlist()
         }
         val quoteList = tickerList.map {
-            val tdQuote = quotes[it.name]
-            Quote(
+            getQuote(
                 ticker = it.name,
-                color = colors.getOrDefault(it.name, Color.White),
-                price = tdQuote?.lastPrice ?: 0f,
-                change = tdQuote?.netChange ?: 0f,
-                percentChange = tdQuote?.netPercentChangeInDouble ?: 0f,
+                tdQuote = quotes[it.name],
+                color = colors.getOrDefault(it.name, Color.White)
             )
         }
         doSort(quoteList)
@@ -109,16 +116,12 @@ class WatchlistModel(private val parent: ZygosViewModel) {
             parent.namesDao.add(Names(type = "watchlist", name = ticker))
         }
 
-        val tdQuote = parent.market.stockQuotes[ticker]
-        val color = parent.colors.tickers.getOrDefault(ticker, Color.White)
         val newList = watchlist.toMutableList()
         newList.add(
-            Quote(
+            getQuote(
                 ticker = ticker,
-                color = color,
-                price = tdQuote?.lastPrice ?: 0f,
-                change = tdQuote?.netChange ?: 0f,
-                percentChange = tdQuote?.netPercentChangeInDouble ?: 0f,
+                tdQuote = parent.market.stockQuotes[ticker],
+                color = parent.colors.tickers.getOrDefault(ticker, Color.White)
             )
         )
         parent.viewModelScope.launch {
@@ -127,18 +130,19 @@ class WatchlistModel(private val parent: ZygosViewModel) {
     }
 
     fun addAllFromHoldings() {
-        val newList = parent.getAllTickers().map {
-            val tdQuote = parent.market.stockQuotes[it]
-            Quote(
+        val tickers = parent.getAllTickers()
+        val newList = tickers.map {
+            getQuote(
                 ticker = it,
-                color = parent.colors.tickers.getOrDefault(it, Color.White),
-                price = tdQuote?.lastPrice ?: 0f,
-                change = tdQuote?.netChange ?: 0f,
-                percentChange = tdQuote?.netPercentChangeInDouble ?: 0f,
+                tdQuote = parent.market.stockQuotes[it],
+                color = parent.colors.tickers.getOrDefault(it, Color.White)
             )
         }
         parent.viewModelScope.launch {
             doSort(newList)
+        }
+        parent.viewModelScope.launch(Dispatchers.IO) {
+            parent.namesDao.add(tickers.map { Names("watchlist", it) })
         }
     }
 }
