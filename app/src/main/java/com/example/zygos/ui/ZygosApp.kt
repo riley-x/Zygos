@@ -161,7 +161,7 @@ fun ZygosApp(
 
         /** Performance Screen Callbacks **/
         fun onTickerSelected(ticker: String) {
-            viewModel.setTicker(ticker)
+            viewModel.chart.setTicker(ticker)
             navController.navigateSingleTopTo(ChartTab.route)
         }
 
@@ -312,11 +312,11 @@ fun ZygosApp(
                     composable(route = ChartTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Chart.route")
                         ChartScreen(
-                            ticker = viewModel.chartTicker,
-                            chartState = viewModel.chartState,
-                            chartRange = viewModel.chartRange,
-                            onChartRangeSelected = viewModel::setChartRange,
-                            onTickerChanged = viewModel::setTicker,
+                            ticker = viewModel.chart.ticker,
+                            chartState = viewModel.chart.graphState,
+                            chartRange = viewModel.chart.range,
+                            onChartRangeSelected = viewModel.chart::setRange,
+                            onTickerChanged = viewModel.chart::setTicker,
                             onChangeColor = ::toColorSelectorChart,
                             accountSelectionBar = accountSelectionBar,
                             bottomPadding = bottomPadding,

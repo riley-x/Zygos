@@ -32,14 +32,13 @@ data class TimeSeries(
     override val name = formatDateInt(date)
 }
 
-@Immutable
-data class OhlcNamed(
-    val open: Float,
-    val high: Float,
-    val low: Float,
-    val close: Float,
-    override val name: String,
-): HasName
+interface OhlcNamed: HasName {
+    val open: Float
+    val high: Float
+    val low: Float
+    val close: Float
+    override val name: String
+}
 
 
 @Immutable

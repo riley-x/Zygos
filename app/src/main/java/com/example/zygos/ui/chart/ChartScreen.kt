@@ -20,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.graphing.TimeSeriesGraph
 import com.example.zygos.ui.graphing.TimeSeriesGraphSelector
+import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.graphing.candlestickGraph
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.*
@@ -29,7 +30,7 @@ import com.example.zygos.viewModel.*
 @Composable
 fun ChartScreen(
     ticker: State<String>,
-    chartState: State<ChartState>,
+    chartState: State<TimeSeriesGraphState<OhlcNamed>>,
     chartRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,

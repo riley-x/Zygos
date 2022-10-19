@@ -35,10 +35,6 @@ class ZygosViewModelFactory(
 }
 
 
-typealias ChartState = TimeSeriesGraphState<OhlcNamed>
-
-
-
 const val CASH_TICKER = "CASH" // TODO change to something not an actual ticker
 
 
@@ -85,24 +81,14 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     val longPositions = PositionModel(this)
     val shortPositions = PositionModel(this)
     val detailedPosition = mutableStateOf(PricedPosition()) // Position in focus after selecting from the holdings screen
+    /** ChartScreen **/
+    val chart = ChartModel(this)
     /** Color Selection Screen **/
     val colors = ColorModel(this)
     /** TransactionScreen **/
     val transactions = TransactionModel(this)
 
 
-    /** ChartScreen **/
-    // TODO move into subclass
-    val chartTicker = mutableStateOf("")
-    val chartState = mutableStateOf(ChartState())
-    val chartRange = mutableStateOf(chartRangeOptions.items.last())
-
-    fun setTicker(ticker: String) {
-        chartTicker.value = ticker
-    }
-    fun setChartRange(range: String) {
-        chartRange.value = range
-    }
 
 
     /** Main startup sequence that loads all data!

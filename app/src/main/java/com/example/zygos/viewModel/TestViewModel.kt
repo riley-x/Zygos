@@ -10,10 +10,12 @@ import com.example.zygos.data.PricedPosition
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.data.toLongDollar
+import com.example.zygos.network.TdOhlc
 import com.example.zygos.network.TdQuote
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import com.example.zygos.ui.holdings.HoldingsListSortOptions
 import com.example.zygos.ui.theme.defaultTickerColors
+import java.util.*
 
 class TestViewModel: ViewModel() {
     val accounts = mutableStateListOf<String>("Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts")
@@ -138,16 +140,25 @@ class TestViewModel: ViewModel() {
 
     /** ChartScreen **/
     val chartTicker = mutableStateOf("")
-    val chartState = mutableStateOf(ChartState(
-        values = List(21) {
-            OhlcNamed(it.toFloat(), it * 2f, 0.5f * it,it * if (it % 2 == 0) 1.2f else 0.8f, "$it/${it * 2}")
-        }.drop(1),
-        ticksY = listOf(5f, 10f, 15f, 20f).map { NamedValue(it, it.toString()) },
-        ticksX = listOf(5, 10, 15),
-        padX = 1f,
-        minY = 0f,
-        maxY = 25f,
-    ))
+    val chartState = mutableStateOf(
+        TimeSeriesGraphState<OhlcNamed>(
+            values = List(21) {
+                TdOhlc(
+                    it.toFloat(),
+                    it * 2f,
+                    0.5f * it,
+                    it * if (it % 2 == 0) 1.2f else 0.8f,
+                    100000,
+                    Calendar.getInstance().timeInMillis,
+                )
+            }.drop(1),
+            ticksY = listOf(5f, 10f, 15f, 20f).map { NamedValue(it, it.toString()) },
+            ticksX = listOf(5, 10, 15),
+            padX = 1f,
+            minY = 0f,
+            maxY = 25f,
+        )
+    )
     val chartRange = mutableStateOf(chartRangeOptions.items.last())
 
     /** TransactionScreen **/
