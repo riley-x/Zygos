@@ -3,6 +3,7 @@ package com.example.zygos.ui.components
 import android.icu.text.DecimalFormat
 import android.icu.text.DecimalFormatSymbols
 import android.icu.text.NumberFormat
+import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.MaterialTheme
@@ -11,6 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import com.example.zygos.data.getDay
+import com.example.zygos.data.getMonth
+import com.example.zygos.data.getYear
+import com.example.zygos.data.getYearShort
+import java.sql.Timestamp
 
 fun <E> List<E>.normalized(selector: (E) -> Float): List<Float> {
     val total = this.sumOf { selector(it).toDouble() }
@@ -44,10 +50,27 @@ fun formatPercent(value: Float): String {
 @Stable
 fun formatDateInt(date: Int): String {
     if (date == 0) return ""
-    val day = date % 100
-    val month = (date / 100) % 100
-    val year = (date / 10000) % 100
+    val day = getDay(date)
+    val month = getMonth(date)
+    val year = getYearShort(date).toString().padStart(2, '0')
     return "$month/$day/$year"
+}
+
+@Stable
+fun formatDateNoYear(timestamp: Long): String {
+    return DateFormat.format("M/d", timestamp).toString()
+}
+@Stable
+fun formatDate(timestamp: Long): String {
+    return DateFormat.format("M/d/yy", timestamp).toString()
+}
+@Stable
+fun formatDateNoDay(timestamp: Long): String {
+    return DateFormat.format("MMM yy", timestamp).toString()
+}
+@Stable
+fun formatTimeDayOfWeek(timestamp: Long): String {
+    return DateFormat.format("E h:mm", timestamp).toString()
 }
 
 

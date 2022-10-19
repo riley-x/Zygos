@@ -143,13 +143,12 @@ class TestViewModel: ViewModel() {
     val chartState = mutableStateOf(
         TimeSeriesGraphState<OhlcNamed>(
             values = List(21) {
-                TdOhlc(
+                OhlcNamed(
                     it.toFloat(),
                     it * 2f,
                     0.5f * it,
                     it * if (it % 2 == 0) 1.2f else 0.8f,
-                    100000,
-                    Calendar.getInstance().timeInMillis,
+                    it.toString(),
                 )
             }.drop(1),
             ticksY = listOf(5f, 10f, 15f, 20f).map { NamedValue(it, it.toString()) },

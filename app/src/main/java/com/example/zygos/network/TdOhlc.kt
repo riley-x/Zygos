@@ -12,12 +12,10 @@ data class TdPriceHistory(
 
 @Immutable
 data class TdOhlc (
-    override val open: Float,
-    override val high: Float,
-    override val low: Float,
-    override val close: Float,
+    val open: Float,
+    val high: Float,
+    val low: Float,
+    val close: Float,
     val volume: Long,
     val datetime: Long,
-) : OhlcNamed {
-    override val name = formatDateInt(fromTimestamp(datetime))
-}
+)

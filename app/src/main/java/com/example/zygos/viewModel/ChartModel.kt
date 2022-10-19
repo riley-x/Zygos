@@ -8,7 +8,11 @@ import com.example.zygos.data.fromTimestamp
 import com.example.zygos.data.toIntDate
 import com.example.zygos.network.TdApi
 import com.example.zygos.network.TdOhlc
+import com.example.zygos.network.TdQuote
 import com.example.zygos.network.tdService
+import com.example.zygos.ui.components.formatDateNoDay
+import com.example.zygos.ui.components.formatDateNoYear
+import com.example.zygos.ui.components.formatTimeDayOfWeek
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -87,6 +91,23 @@ class ChartModel(private val parent: ZygosViewModel) {
     }
 
 
+    private fun List<TdOhlc>.named(range: String): List<OhlcNamed> {
+        return map {
+            OhlcNamed(
+                open = it.open,
+                high = it.high,
+                low = it.low,
+                close = it.close,
+                name = when (range) {
+                    "5d" -> formatTimeDayOfWeek(it.datetime)
+                    "3m", "1y" -> formatDateNoYear(it.datetime)
+                    else -> formatDateNoDay(it.datetime)
+                }
+            )
+        }
+    }
+
+
     private suspend fun getGraphState(
         newRange: String = range.value
     ): TimeSeriesGraphState<OhlcNamed> {
@@ -96,7 +117,7 @@ class ChartModel(private val parent: ZygosViewModel) {
             "1y" -> ohlc1year
             "5y" -> ohlc20year.takeLast((ohlc20year.size + 3) / 4) // round up
             else -> ohlc20year
-        }
+        }.named(newRange)
         if (ohlc.isEmpty()) return TimeSeriesGraphState()
 
         return withContext(Dispatchers.Default) {
