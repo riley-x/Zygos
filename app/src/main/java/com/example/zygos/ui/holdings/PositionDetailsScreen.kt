@@ -90,12 +90,11 @@ fun PositionDetailsScreen(
     Column(
         modifier = Modifier
             .padding(bottom = bottomPadding, top = 20.dp)
-            .padding(horizontal = 20.dp)
             .fillMaxSize(),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 10.dp)
+            modifier = Modifier.padding(bottom = 10.dp).padding(horizontal = 20.dp)
         ) {
             Text(position.ticker, style = MaterialTheme.typography.h2, modifier = Modifier.weight(10f))
             Canvas(modifier = Modifier
@@ -106,7 +105,9 @@ fun PositionDetailsScreen(
             }
         }
 
-        LazyColumn {
+        LazyColumn(
+            contentPadding = PaddingValues(horizontal = 20.dp)
+        ) {
             if (position.subPositions.isNotEmpty()) {
                 itemsIndexed(position.subPositions) { i, pos ->
                     if (i > 0) {
