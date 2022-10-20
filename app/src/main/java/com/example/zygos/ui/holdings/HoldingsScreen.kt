@@ -180,7 +180,7 @@ fun PreviewHoldingsScreen() {
                 longPositions = viewModel.longPositions,
                 shortPositions = viewModel.shortPositions,
                 tickerColors = viewModel.tickerColors,
-                displayLongOption = HoldingsListDisplayOptions.RETURNS_TOTAL,
+                displayLongOption = HoldingsListDisplayOptions.EQUITY,
                 displayShortOption = HoldingsListDisplayOptions.RETURNS_TOTAL,
             )
         }

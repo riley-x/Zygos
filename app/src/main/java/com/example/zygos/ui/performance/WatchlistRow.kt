@@ -80,15 +80,18 @@ fun WatchlistRow(
             when (displayOption) {
                 "Change" -> Text(
                     formatDollar(quote.change),
-                    color = color
+                    color = color,
+                    style = MaterialTheme.typography.h4,
                 )
                 "% Change" -> Text(
                     formatPercent(quote.percentChange),
-                    color = color
+                    color = color,
+                    style = MaterialTheme.typography.h4,
                 )
                 else -> Text(
                     formatDollar(quote.price),
-                    color = color
+                    color = color,
+                    style = MaterialTheme.typography.h4,
                 )
             }
         }

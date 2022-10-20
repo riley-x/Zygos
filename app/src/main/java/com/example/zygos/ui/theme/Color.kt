@@ -14,12 +14,13 @@ val DarkBlue900 = Color(0xFF26282F)
 
 val CandleGreen = Color(0xFF2DBF78)
 val CandleRed = Color(0xFFEF4747)
+val Black90 = Color(0xFF1A1A1A)
 
 val DarkColorPalette = darkColors(
     primary = Green500,
-    surface = DarkBlue900,
+    surface = Black90,
     onSurface = Color.White,
-    background = DarkBlue900,
+    background = Black90,
     onBackground = Color.White,
     error = Color(0xFFEB5858),
 )

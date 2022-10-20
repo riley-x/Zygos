@@ -46,9 +46,11 @@ val Typography = Typography(
         fontSize = 22.sp,
         fontFamily = EczarFontFamily,
     ),
+    // Numbers in ticker rows
     h4 = TextStyle(
-        fontWeight = FontWeight.W700,
-        fontSize = 34.sp,
+        fontWeight = FontWeight.W500,
+        fontSize = 16.sp,
+        letterSpacing = 0.5.sp,
         fontFamily = Roboto,
     ),
     // Option menu title, add account
@@ -66,7 +68,7 @@ val Typography = Typography(
         fontWeight = FontWeight.Light,
         fontSize = 14.sp,
         lineHeight = 20.sp,
-        letterSpacing = 3.sp // TODO TextField sometimes crashes because it tries to lerp between sp and em.
+        letterSpacing = 2.5.sp // TODO TextField sometimes crashes because it tries to lerp between sp and em.
     ),
     subtitle2 = TextStyle( // Monospaced, i.e. apiKey
         fontWeight = FontWeight.Normal,

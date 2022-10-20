@@ -5,7 +5,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
-
+import androidx.compose.ui.text.TextStyle
 
 
 @Composable
@@ -24,6 +24,7 @@ fun ValueOrPercent(
     Text(
         text = if (showPercentages.value) formatPercent(percent) else formatDollar(value),
         color = color,
+        style = MaterialTheme.typography.h4,
         modifier = modifier
     )
 }
