@@ -31,10 +31,10 @@ import com.example.zygos.viewModel.*
 fun ChartScreen(
     ticker: State<String>,
     chartState: State<TimeSeriesGraphState<OhlcNamed>>,
-    chartRange: State<String>, // must pass state here for button group to calculate derivedStateOf
+    chartRange: State<TimeRange>, // must pass state here for button group to calculate derivedStateOf
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
-    onChartRangeSelected: (String) -> Unit = { },
+    onChartRangeSelected: (TimeRange) -> Unit = { },
     onTickerChanged: (String) -> Unit = { },
     onChangeColor: (String) -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
@@ -51,7 +51,7 @@ fun ChartScreen(
         keyboardController?.hide()
         focusManager.clearFocus(true)
     }
-    fun onChartRangeTap(selection: String) {
+    fun onChartRangeTap(selection: TimeRange) {
         keyboardController?.hide()
         focusManager.clearFocus(true)
         onChartRangeSelected(selection)
@@ -132,7 +132,7 @@ fun ChartScreen(
 
             item("graph_selector") {
                 TimeSeriesGraphSelector(
-                    options = chartRangeOptions,
+                    options = chartRangeValues,
                     currentSelection = chartRange,
                     onSelection = ::onChartRangeTap,
                     modifier = Modifier
@@ -183,7 +183,7 @@ fun PreviewChartScreen() {
             ChartScreen(
                 ticker = viewModel.chartTicker,
                 chartState = viewModel.chartState,
-                chartRange = viewModel.accountPerformanceTimeRange,
+                chartRange = viewModel.chartRange,
             )
         }
     }

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.zygos.ui.components.HasDisplayName
 import com.example.zygos.ui.components.ImmutableList
 import com.example.zygos.ui.theme.ZygosTheme
 
@@ -21,7 +22,6 @@ import com.example.zygos.ui.theme.ZygosTheme
  *
  * TODO: add plot style here too?
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TimeSeriesGraphSelector(
     options: ImmutableList<String>,
@@ -44,6 +44,33 @@ fun TimeSeriesGraphSelector(
         }
     }
 }
+
+@JvmName("TimeSeriesGraphSelector1")
+@Composable
+fun <T: HasDisplayName> TimeSeriesGraphSelector(
+    options: ImmutableList<T>,
+    currentSelection: State<T>, // must pass State here for derivedStateOf below
+    modifier: Modifier = Modifier,
+    onSelection: (T) -> Unit = { },
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        for (option in options.items) {
+            // enabled would be recalculated for each button, but only 2 of them need to recompose
+            val enabled by remember { derivedStateOf { option == currentSelection.value } }
+            CustomTextButton(
+                text = option.displayName,
+                enabled = enabled,
+                onSelection = { onSelection(option) },
+            )
+        }
+    }
+}
+
+
+
 
 /**
  * The normal TextButton has too much padding.

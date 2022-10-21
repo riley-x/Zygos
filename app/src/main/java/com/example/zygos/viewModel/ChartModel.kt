@@ -3,7 +3,6 @@ package com.example.zygos.viewModel
 import android.icu.util.Calendar
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.math.MathUtils
 import androidx.core.math.MathUtils.clamp
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.network.TdApi
@@ -22,19 +21,19 @@ const val chartGraphYPad = 0.1f
 const val chartGraphTickDivisionsX = 6
 const val chartGraphTickDivisionsY = 8
 
-enum class ChartRanges(displayName: String) {
-    FIVE_DAYS("5d"),
-    THREE_MONTHS("3m"),
-    ONE_YEAR("1y"),
-    FIVE_YEARS("5y"),
-    TWENTY_YEARS("20y")
-}
+val chartRangeValues = ImmutableList(listOf(
+    TimeRange.FIVE_DAYS,
+    TimeRange.THREE_MONTHS,
+    TimeRange.ONE_YEAR,
+    TimeRange.FIVE_YEARS,
+    TimeRange.TWENTY_YEARS,
+))
 
 
 class ChartModel(private val parent: ZygosViewModel) {
     val ticker = mutableStateOf("")
     val graphState = mutableStateOf(TimeSeriesGraphState<OhlcNamed>())
-    val range = mutableStateOf(chartRangeOptions.items.last())
+    val range = mutableStateOf(TimeRange.ONE_YEAR)
 
     /** Cached time ranges **/
     private var ohlc5day = listOf<TdOhlc>() // 30-min
@@ -52,7 +51,7 @@ class ChartModel(private val parent: ZygosViewModel) {
             graphState.value = getGraphState()
         }
     }
-    fun setRange(newRange: String) {
+    fun setRange(newRange: TimeRange) {
         range.value = newRange
         parent.viewModelScope.launch {
             graphState.value = getGraphState(newRange)
@@ -104,14 +103,14 @@ class ChartModel(private val parent: ZygosViewModel) {
 
 
 
-    private fun getTimeName(timestamp: Long, range: String): String =
+    private fun getTimeName(timestamp: Long, range: TimeRange): String =
         when (range) {
-            "5d" -> formatTimeDayOfWeek(timestamp)
-            "3m", "1y" -> formatDateNoYear(timestamp)
+            TimeRange.FIVE_DAYS -> formatTimeDayOfWeek(timestamp)
+            TimeRange.THREE_MONTHS, TimeRange.ONE_YEAR -> formatDateNoYear(timestamp)
             else -> formatDateNoDay(timestamp)
         }
 
-    private fun List<TdOhlc>.named(range: String): List<OhlcNamed> {
+    private fun List<TdOhlc>.named(range: TimeRange): List<OhlcNamed> {
         return map {
             OhlcNamed(
                 open = it.open,
@@ -124,9 +123,9 @@ class ChartModel(private val parent: ZygosViewModel) {
     }
 
 
-    private fun autoXTicks(ohlc: List<TdOhlc>, range: String): List<NamedValue> {
+    private fun autoXTicks(ohlc: List<TdOhlc>, range: TimeRange): List<NamedValue> {
         /** Special case for 3m, since there's no really good separator to use as labels **/
-        if (range == "3m") return IntRange(1, chartGraphTickDivisionsX - 1).map {
+        if (range == TimeRange.THREE_MONTHS) return IntRange(1, chartGraphTickDivisionsX - 1).map {
             val stepX = (ohlc.lastIndex.toFloat() / chartGraphTickDivisionsX).roundToInt()
             val index = clamp(stepX * it, 0, ohlc.lastIndex)
             NamedValue(
@@ -137,8 +136,8 @@ class ChartModel(private val parent: ZygosViewModel) {
 
         /** For the rest, look for when the time changes a date/month/year **/
         val separatorField = when (range) {
-            "5d" -> Calendar.DATE
-            "1y" -> Calendar.MONTH
+            TimeRange.FIVE_DAYS -> Calendar.DATE
+            TimeRange.ONE_YEAR -> Calendar.MONTH
             else -> Calendar.YEAR
         }
         val cal = Calendar.getInstance()
@@ -166,8 +165,8 @@ class ChartModel(private val parent: ZygosViewModel) {
             NamedValue(
                 value = it.toFloat(),
                 name = when (range) {
-                    "5d" -> formatDayOfWeekOnly(ohlc[it].datetime)
-                    "1y" -> formatMonthOnly(ohlc[it].datetime)
+                    TimeRange.FIVE_DAYS -> formatDayOfWeekOnly(ohlc[it].datetime)
+                    TimeRange.ONE_YEAR -> formatMonthOnly(ohlc[it].datetime)
                     else -> formatYearOnly(ohlc[it].datetime)
                 }
             )
@@ -178,14 +177,15 @@ class ChartModel(private val parent: ZygosViewModel) {
 
 
     private suspend fun getGraphState(
-        newRange: String = range.value
+        newRange: TimeRange = range.value
     ): TimeSeriesGraphState<OhlcNamed> {
         val ohlc = when (newRange) {
-            "5d" -> ohlc5day
-            "3m" -> ohlc1year.takeLast((ohlc1year.size + 3) / 4) // round up
-            "1y" -> ohlc1year
-            "5y" -> ohlc20year.takeLast((ohlc20year.size + 3) / 4) // round up
-            else -> ohlc20year
+            TimeRange.FIVE_DAYS -> ohlc5day
+            TimeRange.THREE_MONTHS -> ohlc1year.takeLast((ohlc1year.size + 3) / 4) // round up
+            TimeRange.ONE_YEAR -> ohlc1year
+            TimeRange.FIVE_YEARS -> ohlc20year.takeLast((ohlc20year.size + 3) / 4) // round up
+            TimeRange.TWENTY_YEARS -> ohlc20year
+            else -> throw UnsupportedOperationException("ChartModel::getGraphState() time range: $newRange")
         }
         if (ohlc.isEmpty()) return TimeSeriesGraphState()
 

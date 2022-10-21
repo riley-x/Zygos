@@ -158,7 +158,7 @@ class TestViewModel: ViewModel() {
             maxY = 25f,
         )
     )
-    val chartRange = mutableStateOf(chartRangeOptions.items.last())
+    val chartRange = mutableStateOf(TimeRange.ONE_YEAR)
 
     /** TransactionScreen **/
     val transactions = mutableStateListOf(

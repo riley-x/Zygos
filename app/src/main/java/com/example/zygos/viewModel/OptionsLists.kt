@@ -9,7 +9,6 @@ import com.example.zygos.ui.components.ImmutableList
  */
 
 val accountPerformanceRangeOptions = ImmutableList(listOf("1m", "3m", "1y", "5y", "All"))
-val chartRangeOptions = ImmutableList(listOf("5d", "3m", "1y", "5y", "20y"))
 
 val watchlistSortOptions = ImmutableList(listOf("Ticker", "% Change"))
 val watchlistDisplayOptions = ImmutableList(listOf("Change", "% Change", "Price"))
