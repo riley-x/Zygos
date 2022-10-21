@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.sharp.CandlestickChart
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
@@ -86,6 +88,7 @@ fun PositionDetailsScreen(
     colors: SnapshotStateMap<String, Color>,
     bottomPadding: Dp = 0.dp,
     onChangeColor: (String) -> Unit = { },
+    toChart: (String) -> Unit = { },
 ) {
     Column(
         modifier = Modifier
@@ -94,9 +97,19 @@ fun PositionDetailsScreen(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 10.dp).padding(horizontal = 20.dp)
+            modifier = Modifier
+                .padding(bottom = 10.dp)
+                .padding(horizontal = 20.dp)
         ) {
             Text(position.ticker, style = MaterialTheme.typography.h2, modifier = Modifier.weight(10f))
+
+            IconButton(
+                onClick = { toChart(position.ticker) },
+                modifier = Modifier.padding(end = 10.dp)
+            ) {
+                Icon(Icons.Sharp.CandlestickChart, "", Modifier.size(30.dp))
+            }
+
             Canvas(modifier = Modifier
                 .size(30.dp)
                 .clickable { onChangeColor(position.ticker) }

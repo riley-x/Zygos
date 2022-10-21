@@ -160,7 +160,7 @@ fun ZygosApp(
 
 
         /** Performance Screen Callbacks **/
-        fun onTickerSelected(ticker: String) {
+        fun toChart(ticker: String) {
             viewModel.chart.setTicker(ticker)
             navController.navigateSingleTopTo(ChartTab.route)
         }
@@ -268,7 +268,7 @@ fun ZygosApp(
                             accountPerformanceTimeRange = viewModel.equityHistory.timeRange,
                             watchlist = viewModel.watchlist.watchlist,
                             watchlistDisplayOption = viewModel.watchlist.displayOption,
-                            onTickerSelected = ::onTickerSelected,
+                            onTickerSelected = ::toChart,
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
                             onWatchlistDelete = viewModel.watchlist::delete,
                             onAddAllHoldingsToWatchlist = viewModel.watchlist::addAllFromHoldings,
@@ -304,6 +304,7 @@ fun ZygosApp(
                             colors = viewModel.colors.tickers,
                             bottomPadding = bottomPadding,
                             onChangeColor = ::toColorSelectorHoldings,
+                            toChart = ::toChart,
                         )
                     }
                 }
