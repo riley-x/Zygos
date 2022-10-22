@@ -6,6 +6,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -40,7 +41,7 @@ fun ZygosApp(
     ZygosTheme {
         LogCompositions("Zygos", "ZygosApp")
 
-//        val context = LocalContext.current.filesDir
+        val context = LocalContext.current
         LaunchedEffect(Unit) {
             viewModel.startup()
         }
@@ -171,7 +172,10 @@ fun ZygosApp(
             navController.navigateToPosition()
         }
 
-        /** Analytics Screen Callbacks **/
+        /** Settings Screen Callbacks **/
+        fun backupDatabase() {
+            viewModel.backupDatabase(context)
+        }
 
         /** Transaction Callbacks **/
         fun toTransactionAll() = navController.navigate(TransactionAllDestination.route) {
@@ -336,7 +340,7 @@ fun ZygosApp(
                             onTransactionClick = ::toTransactionDetails,
                             onTransactionSeeAll = ::toTransactionAll,
                             onAddTransaction = ::toTransactionDetails,
-                            onBackupDatabase = viewModel::backupDatabase,
+                            onBackupDatabase = ::backupDatabase,
                             accountSelectionBar = accountSelectionBar,
                         )
                     }

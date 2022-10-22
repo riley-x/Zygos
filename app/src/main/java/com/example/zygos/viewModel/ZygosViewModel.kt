@@ -3,9 +3,11 @@ package com.example.zygos.viewModel
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.FileUtils
 import android.util.Log
 import androidx.compose.runtime.*
+import androidx.core.content.FileProvider.getUriForFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -295,25 +297,37 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         return names
     }
 
-    fun backupDatabase() {
+    fun backupDatabase(context: Context) {
+        viewModelScope.launch {
 
-        /** Force synchronize the wal file **/
-        // https://stackoverflow.com/a/51560124/10988347
-        transactionDao.checkpoint()
+            val db = application.getDatabasePath("app_database")
+            val backup = File(application.cacheDir, "backup_database")
 
-        // https://stackoverflow.com/a/46344186/10988347
-        val db = application.getDatabasePath("app_database")
-        val backup = File(application.cacheDir, "backup_database")
-        db.inputStream().use { input ->
-            backup.outputStream().use { output ->
-                input.copyTo(output)
+            withContext(Dispatchers.IO) {
+                /** Force synchronize the wal file **/
+                // https://stackoverflow.com/a/51560124/10988347transactionDao.checkpoint()
+
+                // https://stackoverflow.com/a/46344186/10988347
+
+                db.inputStream().use { input ->
+                    backup.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
             }
-        }
 
-//        val sendIntent = Intent().apply {
-//            action = Intent.ACTION_SEND
-//        }
-//        val shareIntent = Intent.createChooser(sendIntent, "Backup Database")
-//        application.startActivity(shareIntent)
+            // content://com.example.zygos.fileprovider/cache/backup_database
+            val backupUri = getUriForFile(application, "com.example.zygos.fileprovider", backup)
+
+            val sendIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                type = "*/*"
+                // data = uri?
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                putExtra(Intent.EXTRA_STREAM, backupUri)
+            }
+            val shareIntent = Intent.createChooser(sendIntent, "Backup Database")
+            context.startActivity(shareIntent)
+        }
     }
 }
