@@ -36,16 +36,7 @@ fun TransactionCard(
     ) {
         Column {
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(start = 10.dp)
-            ) {
-                Text(
-                    text = "Transactions",
-                    style = MaterialTheme.typography.h3,
-                    modifier = Modifier.weight(1f)
-                )
-
+            CardTitle(title = "Transactions") {
                 IconButton(onClick = onAddTransaction) {
                     Icon(
                         imageVector = Icons.Sharp.Add,

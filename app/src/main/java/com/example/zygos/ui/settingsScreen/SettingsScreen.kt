@@ -29,6 +29,7 @@ fun SettingsScreen(
     onAddTransaction: () -> Unit = { },
     onTransactionClick: (Transaction) -> Unit = { },
     onTransactionSeeAll: () -> Unit = { },
+    onBackupDatabase: () -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
     LogCompositions("Zygos", "AnalyticsScreen")
@@ -55,6 +56,13 @@ fun SettingsScreen(
                     onTransactionClick = onTransactionClick,
                     onTransactionSeeAll = onTransactionSeeAll,
                     modifier = Modifier.padding(10.dp),
+                )
+            }
+
+            item(key = "backup database") {
+                BackupDatabaseCard(
+                    onClick = { },
+                    modifier = Modifier.padding(10.dp)
                 )
             }
         }

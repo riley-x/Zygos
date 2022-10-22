@@ -32,14 +32,7 @@ internal fun ApiKeysCard(
         modifier = modifier,
     ) {
         Column {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(start = 10.dp)
-                    .heightIn(min = 48.dp)
-            ) {
-                Text("API Keys", style = MaterialTheme.typography.h3)
-            }
+            CardTitle(title = "API Keys")
 
             CardRowDivider(color = MaterialTheme.colors.primary)
 
