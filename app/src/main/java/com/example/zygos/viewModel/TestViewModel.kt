@@ -218,6 +218,7 @@ class TestViewModel: ViewModel() {
     val apiKeys = mutableStateMapOf(
         "IEX" to "123456",
         "Alpha Vantage" to "asdfgh",
-        "Polygon" to "qwertyu"
+        "Polygon" to "qwertyu",
+        "TD Ameritrade" to "qwertyu"
     )
 }
