@@ -61,7 +61,7 @@ fun SettingsScreen(
 
             item(key = "backup database") {
                 BackupDatabaseCard(
-                    onClick = { },
+                    onClick = onBackupDatabase,
                     modifier = Modifier.padding(10.dp)
                 )
             }

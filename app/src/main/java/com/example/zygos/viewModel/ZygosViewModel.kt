@@ -1,18 +1,22 @@
 package com.example.zygos.viewModel
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
+import android.os.FileUtils
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.room.util.FileUtil
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
 import com.example.zygos.network.apiServices
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
 import kotlinx.coroutines.*
+import java.io.File
 
 
 const val performanceGraphYPad = 0.1f // fractional padding for each top/bottom
@@ -289,5 +293,27 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             names.addAll(it.value.optionNames())
         }
         return names
+    }
+
+    fun backupDatabase() {
+
+        /** Force synchronize the wal file **/
+        // https://stackoverflow.com/a/51560124/10988347
+        transactionDao.checkpoint()
+
+        // https://stackoverflow.com/a/46344186/10988347
+        val db = application.getDatabasePath("app_database")
+        val backup = File(application.cacheDir, "backup_database")
+        db.inputStream().use { input ->
+            backup.outputStream().use { output ->
+                input.copyTo(output)
+            }
+        }
+
+//        val sendIntent = Intent().apply {
+//            action = Intent.ACTION_SEND
+//        }
+//        val shareIntent = Intent.createChooser(sendIntent, "Backup Database")
+//        application.startActivity(shareIntent)
     }
 }

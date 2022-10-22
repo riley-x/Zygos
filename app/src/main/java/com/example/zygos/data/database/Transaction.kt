@@ -4,10 +4,11 @@ import android.util.Log
 import androidx.annotation.NonNull
 import androidx.room.*
 import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.example.zygos.ui.components.HasDisplayName
 import com.example.zygos.ui.components.ImmutableList
 import com.example.zygos.ui.components.allAccounts
-import java.util.*
+
 
 enum class TransactionType(override val displayName: String, val isOption: Boolean = false, val isShort: Boolean = false) : HasDisplayName {
     TRANSFER("Transfer"),
@@ -44,7 +45,8 @@ val allTransactionTypes = ImmutableList(TransactionType.values().toList())
  * @param priceUnderlying for options, price of the stock when the position was opened. Can be 0 for
  * old parthenos transactions, in which case price is only the extrinsic. TODO
  */
-@Entity(tableName = "transaction_table",  // transaction is a keyword!!!!!!!
+@Entity(
+    tableName = "transaction_table",  // transaction is a keyword!!!!!!!
 )
 data class Transaction(
     @PrimaryKey(autoGenerate = true) val transactionId: Long = 0, // 0 to auto generate a key
@@ -111,6 +113,13 @@ interface TransactionDao {
             sort = sort,
             ascending = ascending
         ))
+    }
+
+    @RawQuery
+    fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
+
+    fun checkpoint() {
+        checkpoint(SimpleSQLiteQuery("pragma wal_checkpoint(full)"));
     }
 }
 

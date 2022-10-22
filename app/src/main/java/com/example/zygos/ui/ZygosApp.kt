@@ -327,7 +327,7 @@ fun ZygosApp(
 
                 navigation(startDestination = SettingsTab.route, route = SettingsTab.graph) {
                     composable(route = SettingsTab.route) {
-                        LogCompositions("Zygos", "ZygosApp/Scaffold/AnalyticsTab.route")
+                        LogCompositions("Zygos", "ZygosApp/Scaffold/SettingsTab.route")
                         SettingsScreen(
                             apiKeys = viewModel.apiKeys,
                             transactions = viewModel.transactions.latest,
@@ -336,6 +336,7 @@ fun ZygosApp(
                             onTransactionClick = ::toTransactionDetails,
                             onTransactionSeeAll = ::toTransactionAll,
                             onAddTransaction = ::toTransactionDetails,
+                            onBackupDatabase = viewModel::backupDatabase,
                             accountSelectionBar = accountSelectionBar,
                         )
                     }
