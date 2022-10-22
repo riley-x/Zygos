@@ -2,6 +2,6 @@
 <resources>
 
     <style name="Theme.Zygos" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/darkblue_900</item>
+        <item name="android:statusBarColor">@color/black_90</item>
     </style>
 </resources>
