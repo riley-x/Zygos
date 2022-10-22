@@ -33,8 +33,6 @@ internal fun BackupDatabaseCard(
                     Icon(imageVector = Icons.Sharp.Share, contentDescription = null)
                 }
             }
-
-//            CardRowDivider(color = MaterialTheme.colors.primary)
         }
     }
 }
