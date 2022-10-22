@@ -39,8 +39,7 @@ fun ChartScreen(
     onChangeColor: (String) -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
-//    LogCompositions("Zygos", "ChartScreen")
-    // This recomposes everytime hover changes
+    LogCompositions("Zygos", "ChartScreen")
 
     /** Keyboard focus controls. Clears focus from the TextField in the ticker selector when you
      * tap elsewhere
@@ -57,25 +56,25 @@ fun ChartScreen(
         onChartRangeSelected(selection)
     }
 
-    var hoverTime by remember { mutableStateOf("") }
-    var hoverValues by remember { mutableStateOf("") }
+    var hoverTime = remember { mutableStateOf("") }
+    var hoverValues = remember { mutableStateOf("") }
 
     fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
         if (isHover && x >= 0 && x < chartState.value.values.size) {
-            hoverTime = chartState.value.values[x].name
+            hoverTime.value = chartState.value.values[x].name
             val open = formatDollarNoSymbol(chartState.value.values[x].open)
             val close = formatDollarNoSymbol(chartState.value.values[x].close)
             val high = formatDollarNoSymbol(chartState.value.values[x].high)
             val low = formatDollarNoSymbol(chartState.value.values[x].low)
             val maxLength = maxOf(open.length, close.length, high.length, low.length)
             // can set a flag here to disable the hoverTime if length is too long
-            hoverValues = "O: " + open.padStart(maxLength) +
+            hoverValues.value = "O: " + open.padStart(maxLength) +
                     "  H: " + high.padStart(maxLength) +
                     "\nC: " + close.padStart(maxLength) +
                     "  L: " + low.padStart(maxLength)
         } else {
-            hoverTime = ""
-            hoverValues = ""
+            hoverTime.value = ""
+            hoverValues.value = ""
         }
     }
 

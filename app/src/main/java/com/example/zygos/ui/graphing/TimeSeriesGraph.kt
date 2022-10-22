@@ -165,6 +165,7 @@ fun <T: HasName> TimeSeriesGraph(
         val startY = boxSize.height - labelXHeight - labelXOffsetPx
         val deltaY = -startY / (state.value.maxY - state.value.minY)
 
+        /** Note this doesn't recompose when changing the hover **/
         Canvas(modifier = modifier
             .onGloballyPositioned { boxSize = it.size }
             .pointerInteropFilter(

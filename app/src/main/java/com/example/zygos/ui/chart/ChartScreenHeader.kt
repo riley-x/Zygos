@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,8 +15,8 @@ import com.example.zygos.ui.theme.ZygosTheme
 @Composable
 fun ChartScreenHeader(
     ticker: String,
-    hoverTime: String,
-    hoverValues: String,
+    hoverTime: State<String>,
+    hoverValues: State<String>,
     modifier: Modifier = Modifier,
     onTickerChanged: (String) -> Unit = { },
 ) {
@@ -45,12 +45,12 @@ fun ChartScreenHeader(
                 .weight(2f)
         ) {
             Text(
-                text = hoverTime,
+                text = hoverTime.value,
                 style = MaterialTheme.typography.overline,
             )
             Spacer(Modifier.width(10.dp))
             Text(
-                text = hoverValues,
+                text = hoverValues.value,
                 style = MaterialTheme.typography.overline,
             )
         }
@@ -61,12 +61,14 @@ fun ChartScreenHeader(
 @Preview
 @Composable
 fun PreviewChartScreenHeader() {
+    val hoverTime = remember { mutableStateOf("9/27/22") }
+    val hoverValues = remember { mutableStateOf("O: 34.23  H: 36.43\nC: 35.02  L: 33.98") }
     ZygosTheme {
         Surface {
             ChartScreenHeader(
                 ticker = "MSFT",
-                hoverTime = "9/27/22",
-                hoverValues = "O: 34.23  H: 36.43\nC: 35.02  L: 33.98"
+                hoverTime = hoverTime,
+                hoverValues = hoverValues
             )
         }
     }
