@@ -56,8 +56,8 @@ fun ChartScreen(
         onChartRangeSelected(selection)
     }
 
-    var hoverTime = remember { mutableStateOf("") }
-    var hoverValues = remember { mutableStateOf("") }
+    val hoverTime = remember { mutableStateOf("") }
+    val hoverValues = remember { mutableStateOf("") }
 
     fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
         if (isHover && x >= 0 && x < chartState.value.values.size) {

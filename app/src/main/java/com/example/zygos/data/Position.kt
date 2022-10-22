@@ -1,6 +1,7 @@
 package com.example.zygos.data
 
 import android.icu.text.NumberFormat
+import android.util.Log
 import androidx.compose.runtime.Immutable
 import com.example.zygos.network.getTdOptionName
 
@@ -129,13 +130,19 @@ data class LotPosition(
         costBasis = collateral + purchaseValue
     }
 
-    override fun unrealized(prices: Map<String, Long>) =
-        ((prices[instrumentName] ?: priceOpen) - priceOpen) * shares * if (type.isShort) -1 else 1
-
+    override fun unrealized(prices: Map<String, Long>): Long {
+        if (type == PositionType.CASH) return 0
+        val price = prices[instrumentName]
+        if (price == null) Log.w("Zygos/LotPosition", "Couldn't find price for $instrumentName")
+        return ((price ?: priceOpen) - priceOpen) * shares * if (type.isShort) -1 else 1
+    }
     override fun returns(prices: Map<String, Long>) = realizedOpen + unrealized(prices)
-    override fun equity(prices: Map<String, Long>) =
-        if (type == PositionType.CASH) cashEffect
-        else (prices[instrumentName] ?: priceOpen) * shares * (if (type.isShort) -1 else 1)
+    override fun equity(prices: Map<String, Long>): Long {
+        if (type == PositionType.CASH) return cashEffect
+        val price = prices[instrumentName]
+        if (price == null) Log.w("Zygos/LotPosition", "Couldn't find price for $instrumentName")
+        return (price ?: priceOpen) * shares * (if (type.isShort) -1 else 1)
+    }
 
     override fun returnsPercent(prices: Map<String, Long>) =
         if (type == PositionType.CASH || costBasis == 0L) 0f

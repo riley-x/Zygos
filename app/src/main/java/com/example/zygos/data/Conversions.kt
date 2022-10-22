@@ -38,11 +38,12 @@ fun getTimestamp(date: Int): Long {
     return cal.timeInMillis
 }
 
-fun fromTimestamp(timestamp: Long): Int {
+fun Long.toIntDate(): Int {
     val cal = Calendar.getInstance()
-    cal.timeInMillis = timestamp
+    cal.timeInMillis = this
     return cal.toIntDate()
 }
+
 
 fun getDay(date: Int) = date % 100
 fun getMonth(date: Int) = (date / 100) % 100

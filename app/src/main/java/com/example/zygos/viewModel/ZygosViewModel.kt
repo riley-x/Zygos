@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.runtime.*
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -13,7 +12,6 @@ import com.example.zygos.data.*
 import com.example.zygos.network.apiServices
 import com.example.zygos.ui.components.allAccounts
 import com.example.zygos.ui.components.noAccountMessage
-import com.example.zygos.ui.graphing.TimeSeriesGraphState
 import kotlinx.coroutines.*
 
 
@@ -177,16 +175,13 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         val lotModel = lots.getOrPut(account) { LotModel(this) }
         colors.insertDefaults(lotModel.tickerLots.keys)
 
-        val tickers = lotModel.tickerLots.keys // TODO replace with all tickers
-        tickers.remove(CASH_TICKER)
-
         equityHistory.initialContributions = lotModel.cashPosition?.shares ?: 0L
         equityHistory.loadLaunched(account)
 
         loadPricedData(lotModel, true) // dummy data assuming 0 unrealized gains
 
         // TODO place this into a timer
-        if (market.updatePrices(tickers, lotModel.optionNames())) {
+        if (market.updatePrices(getAllTickers(), getAllOptionNames())) {
             loadPricedData(lotModel)
         }
 
@@ -222,7 +217,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             longPositions.loadLaunched(long, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
             shortPositions.loadLaunched(short, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
 
-            if (!isDummy) updateHistory()
+            if (!isDummy) updateEquityHistory()
         }
     }
 
@@ -257,7 +252,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
 
-    private fun updateHistory() {
+    private fun updateEquityHistory() {
         viewModelScope.launch {
             try {
                 val positions = mutableMapOf<String, List<Position>>()
@@ -286,5 +281,13 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
         tickers.remove(CASH_TICKER)
         return tickers
+    }
+
+    fun getAllOptionNames(): MutableSet<String> {
+        val names = mutableSetOf<String>()
+        lots.forEach {
+            names.addAll(it.value.optionNames())
+        }
+        return names
     }
 }

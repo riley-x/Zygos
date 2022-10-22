@@ -100,7 +100,7 @@ object TdApi {
         ).candles.map {
             Ohlc(
                 ticker = symbol,
-                date = fromTimestamp(it.datetime),
+                date = it.datetime.toIntDate(),
                 open = it.open.toLongDollar(),
                 high = it.high.toLongDollar(),
                 low = it.low.toLongDollar(),

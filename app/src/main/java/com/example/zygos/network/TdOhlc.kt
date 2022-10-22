@@ -1,9 +1,6 @@
 package com.example.zygos.network
 
 import androidx.compose.runtime.Immutable
-import com.example.zygos.data.fromTimestamp
-import com.example.zygos.ui.components.formatDateInt
-import com.example.zygos.viewModel.OhlcNamed
 
 
 data class TdPriceHistory(
