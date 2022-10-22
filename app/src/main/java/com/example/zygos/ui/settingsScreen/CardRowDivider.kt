@@ -1,4 +1,4 @@
-package com.example.zygos.ui.analytics
+package com.example.zygos.ui.settingsScreen
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider

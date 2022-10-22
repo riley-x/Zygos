@@ -32,10 +32,10 @@ object ChartTab : ZygosTab {
     override val graph = "chart_graph"
 }
 
-object AnalyticsTab : ZygosTab {
-    override val icon = Icons.Sharp.BubbleChart
-    override val route = "analytics"
-    override val graph = "analytics_graph"
+object SettingsTab : ZygosTab {
+    override val icon = Icons.Sharp.Settings
+    override val route = "settings"
+    override val graph = "settings_graph"
 }
 
 object PositionDetailsDestination {
@@ -60,4 +60,4 @@ object TransactionDetailsDestination {
 }
 
 
-val zygosTabs = listOf(PerformanceTab, HoldingsTab, ChartTab, AnalyticsTab)
+val zygosTabs = listOf(PerformanceTab, HoldingsTab, ChartTab, SettingsTab)

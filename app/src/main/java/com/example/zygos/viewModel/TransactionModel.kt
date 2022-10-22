@@ -13,7 +13,7 @@ import com.example.zygos.ui.components.noAccountMessage
 import kotlinx.coroutines.*
 
 /** TransactionScreen
- * Need two separate lists of transactions: one for the analytics screen, which always shows the
+ * Need two separate lists of transactions: one for the settingsScreen screen, which always shows the
  * latest transactions for a given account, and one for the all transactions screen, which can be
  * sorted and filtered.
  */

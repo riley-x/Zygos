@@ -17,7 +17,7 @@ import com.example.zygos.data.PricedPosition
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.network.ApiService
-import com.example.zygos.ui.analytics.AnalyticsScreen
+import com.example.zygos.ui.settingsScreen.SettingsScreen
 import com.example.zygos.ui.chart.ChartScreen
 import com.example.zygos.ui.colorSelector.ColorSelectorScreen
 import com.example.zygos.ui.components.*
@@ -325,10 +325,10 @@ fun ZygosApp(
                     }
                 }
 
-                navigation(startDestination = AnalyticsTab.route, route = AnalyticsTab.graph) {
-                    composable(route = AnalyticsTab.route) {
+                navigation(startDestination = SettingsTab.route, route = SettingsTab.graph) {
+                    composable(route = SettingsTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/AnalyticsTab.route")
-                        AnalyticsScreen(
+                        SettingsScreen(
                             apiKeys = viewModel.apiKeys,
                             transactions = viewModel.transactions.latest,
                             tickerColors = viewModel.colors.tickers,

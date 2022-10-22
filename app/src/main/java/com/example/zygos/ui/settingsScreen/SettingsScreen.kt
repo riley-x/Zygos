@@ -1,14 +1,10 @@
-package com.example.zygos.ui.analytics
+package com.example.zygos.ui.settingsScreen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.Add
-import androidx.compose.material.icons.sharp.AddCircleOutline
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
@@ -24,10 +20,9 @@ import com.example.zygos.network.apiServices
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.TestViewModel
-import kotlinx.coroutines.channels.ticker
 
 @Composable
-fun AnalyticsScreen(
+fun SettingsScreen(
     transactions: SnapshotStateList<Transaction>,
     tickerColors: SnapshotStateMap<String, Color>,
     apiKeys: SnapshotStateMap<String, String>,
@@ -107,11 +102,11 @@ fun AnalyticsScreen(
     showBackground = true,
 )
 @Composable
-fun PreviewAnalyticsScreen() {
+fun PreviewSettingsScreen() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
         Surface {
-            AnalyticsScreen(
+            SettingsScreen(
                 apiKeys = viewModel.apiKeys,
                 transactions = viewModel.transactions,
                 tickerColors = viewModel.tickerColors,
