@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.Transaction
+import com.example.zygos.data.toFloatDollar
 import com.example.zygos.ui.components.TickerListRow
 import com.example.zygos.ui.components.formatDollar
 import com.example.zygos.ui.theme.ZygosTheme
@@ -42,9 +43,12 @@ fun TransactionTickerRow(
         }
 
         Column(Modifier.weight(15f), horizontalAlignment = Alignment.End) {
-            Text(text = formatDollar(transaction.value / 10000f))
             Text(
-                text = formatDollar(transaction.price / 10000f),
+                text = formatDollar(transaction.value.toFloatDollar()),
+                style = MaterialTheme.typography.h4,
+            )
+            Text(
+                text = formatDollar(transaction.price.toFloatDollar()),
                 style = MaterialTheme.typography.subtitle1,
             )
         }
