@@ -50,7 +50,6 @@ data class Quote (
      * to be deleted still **/
     val lazyKey: Int,
     val ticker: String,
-    val color: Color,
     val price: Float,
     val change: Float,
     val percentChange: Float,

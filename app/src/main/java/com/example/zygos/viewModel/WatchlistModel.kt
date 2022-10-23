@@ -92,11 +92,10 @@ class WatchlistModel(private val parent: ZygosViewModel) {
     }
 
     @MainThread
-    private fun getQuote(ticker: String, tdQuote: TdQuote?, color: Color): Quote {
+    private fun getQuote(ticker: String, tdQuote: TdQuote?): Quote {
         return Quote(
             lazyKey = lastQuoteLazyKey++,
             ticker = ticker,
-            color = color,
             price = tdQuote?.lastPrice ?: 0f,
             change = tdQuote?.netChange ?: 0f,
             percentChange = tdQuote?.netPercentChangeInDouble?.div(100f) ?: 0f,
@@ -104,7 +103,7 @@ class WatchlistModel(private val parent: ZygosViewModel) {
     }
 
     @MainThread
-    suspend fun load(quotes: Map<String, TdQuote>, colors: Map<String, Color>) {
+    suspend fun load(quotes: Map<String, TdQuote>) {
         val tickerList = withContext(Dispatchers.IO) {
             parent.namesDao.getWatchlist()
         }
@@ -112,7 +111,6 @@ class WatchlistModel(private val parent: ZygosViewModel) {
             getQuote(
                 ticker = it.name,
                 tdQuote = quotes[it.name],
-                color = colors.getOrDefault(it.name, Color.White)
             )
         }
         doSort(quoteList)
@@ -129,7 +127,6 @@ class WatchlistModel(private val parent: ZygosViewModel) {
             getQuote(
                 ticker = ticker,
                 tdQuote = parent.market.stockQuotes[ticker],
-                color = parent.colors.tickers.getOrDefault(ticker, Color.White)
             )
         )
         parent.viewModelScope.launch {
@@ -143,7 +140,6 @@ class WatchlistModel(private val parent: ZygosViewModel) {
             getQuote(
                 ticker = it,
                 tdQuote = parent.market.stockQuotes[it],
-                color = parent.colors.tickers.getOrDefault(it, Color.White)
             )
         }
         parent.viewModelScope.launch {

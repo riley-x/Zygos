@@ -5,8 +5,10 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -22,7 +24,8 @@ import kotlin.math.roundToInt
 @Composable
 fun WatchlistRow(
     quote: Quote,
-    displayOption: String,
+    displayOption: State<String>,
+    colors: SnapshotStateMap<String, Color>,
     modifier: Modifier = Modifier,
     onDelete: (String) -> Unit = { },
 ) {
@@ -66,7 +69,7 @@ fun WatchlistRow(
 
         TickerListRow(
             ticker = quote.ticker,
-            color = quote.color,
+            color = colors.getOrDefault(quote.ticker, Color.White),
             modifier = Modifier
                 .offset { IntOffset(-swipeableState.offset.value.roundToInt(), 0) }
                 .background(MaterialTheme.colors.surface)
@@ -77,7 +80,7 @@ fun WatchlistRow(
             else if (quote.change == 0f) MaterialTheme.colors.onSurface
             else MaterialTheme.colors.error
 
-            when (displayOption) {
+            when (displayOption.value) {
                 "Change" -> Text(
                     formatDollar(quote.change),
                     color = color,
@@ -107,7 +110,11 @@ fun PreviewWatchlistRow() {
     ZygosTheme {
         Surface {
             Column {
-                WatchlistRow(quote = viewModel.watchlist[0], displayOption = "Change")
+                WatchlistRow(
+                    quote = viewModel.watchlist[0],
+                    displayOption = viewModel.watchlistDisplayOption,
+                    colors = viewModel.tickerColors,
+                )
 
                 Spacer(Modifier.height(30.dp))
 

@@ -11,8 +11,10 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,6 +38,7 @@ fun PerformanceScreen(
     accountPerformanceTimeRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     watchlist: SnapshotStateList<Quote>,
     watchlistDisplayOption: State<String>,
+    colors: SnapshotStateMap<String, Color>,
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
     onTickerSelected: (String) -> Unit = { },
@@ -201,7 +204,8 @@ fun PerformanceScreen(
 
                     WatchlistRow(
                         quote = ticker,
-                        displayOption = watchlistDisplayOption.value,
+                        displayOption = watchlistDisplayOption,
+                        colors = colors,
                         onDelete = onWatchlistDelete,
                         modifier = Modifier
                             .clickable { onTickerSelected(ticker.ticker) }
@@ -233,6 +237,7 @@ fun PreviewPerformanceScreen() {
                 accountPerformanceTimeRange = viewModel.accountPerformanceTimeRange,
                 watchlist = viewModel.watchlist,
                 watchlistDisplayOption = viewModel.watchlistDisplayOption,
+                colors = viewModel.tickerColors,
             )
         }
     }

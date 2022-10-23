@@ -272,6 +272,7 @@ fun ZygosApp(
                             accountPerformanceTimeRange = viewModel.equityHistory.timeRange,
                             watchlist = viewModel.watchlist.watchlist,
                             watchlistDisplayOption = viewModel.watchlist.displayOption,
+                            colors = viewModel.colors.tickers,
                             onTickerSelected = ::toChart,
                             onWatchlistOptionsClick = ::onWatchlistOptionsShow,
                             onWatchlistDelete = viewModel.watchlist::delete,
