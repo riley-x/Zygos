@@ -121,21 +121,24 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
 
         viewModelScope.launch {
-            /** Load colors **/
-            colors.load()
-            /** Load watchlist **/
-            watchlist.load(emptyMap(), colors.tickers)
+            watchlist.load(emptyMap())
         }
 
-        /** Load lots **/
+        /** Load in parallel everything that is needed before setAccount **/
         val jobs = mutableListOf<Job>()
+
+        /** Load lots **/
         for (acc in accounts) {
             val model = lots.getOrPut(acc) { LotModel(this) }
             jobs.add(model.loadLaunched(acc))
         }
-        jobs.joinAll() // need to block here before setAccount, which doesn't reload lots
+
+        /** Load colors. This is should block before setAccount because it calls
+         * colors.insertDefaults, which may override saved colors **/
+        jobs.add(viewModelScope.launch { colors.load() })
 
         /** Set UI state **/
+        jobs.joinAll() // need to block here before setAccount, which doesn't reload lots
         setAccount(allAccounts)
     }
 
@@ -203,7 +206,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         /** Load watchlist **/
         viewModelScope.launch {
-            watchlist.load(market.stockQuotes, colors.tickers)
+            watchlist.load(market.stockQuotes)
         }
 
         /** This check, the load launch, and the reset happen on the main thread, so there's no
