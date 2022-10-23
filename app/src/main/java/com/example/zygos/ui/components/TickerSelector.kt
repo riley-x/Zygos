@@ -122,11 +122,11 @@ fun CustomTextField(
             modifier
         }
 //            .background(colors.backgroundColor(enabled).value, shape)
-            .indicatorLine(enabled, isError, interactionSource, colors),
 //            .defaultMinSize( // Removed!
 //                minWidth = TextFieldDefaults.MinWidth,
 //                minHeight = TextFieldDefaults.MinHeight
 //            ),
+                ,
         onValueChange = onValueChange,
         enabled = enabled,
         readOnly = readOnly,
@@ -139,8 +139,7 @@ fun CustomTextField(
         singleLine = singleLine,
         maxLines = maxLines,
         decorationBox = @Composable { innerTextField ->
-            // places leading icon, text field with label and placeholder, trailing icon
-            TextFieldDefaults.TextFieldDecorationBox(
+            TextFieldDefaults.OutlinedTextFieldDecorationBox(
                 value = value,
                 visualTransformation = visualTransformation,
                 innerTextField = innerTextField,
@@ -153,9 +152,18 @@ fun CustomTextField(
                 isError = isError,
                 interactionSource = interactionSource,
                 colors = colors,
-                contentPadding = PaddingValues(start = 6.dp, end = 6.dp), // Edited!!!!!
+                contentPadding = PaddingValues(horizontal = 6.dp),
+                border = {
+                    TextFieldDefaults.BorderBox(
+                        enabled,
+                        isError,
+                        interactionSource,
+                        colors,
+                        shape
+                    )
+                }
             )
-        },
+        }
     )
 }
 

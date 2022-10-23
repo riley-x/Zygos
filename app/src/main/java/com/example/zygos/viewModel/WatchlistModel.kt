@@ -118,7 +118,7 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         doSort(quoteList)
     }
 
-    /** Called from composable callbacks **/
+    // TODO this should update the market prices at some point
     fun add(ticker: String) {
         parent.viewModelScope.launch(Dispatchers.IO) {
             parent.namesDao.add(Names(type = "watchlist", name = ticker))
@@ -160,5 +160,14 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         parent.viewModelScope.launch(Dispatchers.IO) {
             parent.namesDao.remove(Names("watchlist", ticker))
         }
+    }
+
+    @MainThread
+    fun contains(ticker: String): Boolean = watchlist.any { it.ticker == ticker }
+
+    @MainThread
+    fun toggle(ticker: String) {
+        if (contains(ticker)) delete(ticker)
+        else add(ticker)
     }
 }

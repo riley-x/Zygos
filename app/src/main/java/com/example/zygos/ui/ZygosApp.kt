@@ -318,10 +318,13 @@ fun ZygosApp(
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Chart.route")
                         ChartScreen(
                             ticker = viewModel.chart.ticker,
+                            colors = viewModel.colors.tickers,
+                            watchlist = viewModel.watchlist.watchlist,
                             chartState = viewModel.chart.graphState,
                             chartRange = viewModel.chart.range,
                             onChartRangeSelected = viewModel.chart::setRange,
                             onTickerChanged = viewModel.chart::setTicker,
+                            onToggleWatchlist = viewModel.watchlist::toggle,
                             onChangeColor = ::toColorSelectorChart,
                             accountSelectionBar = accountSelectionBar,
                             bottomPadding = bottomPadding,

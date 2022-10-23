@@ -102,7 +102,6 @@ class ChartModel(private val parent: ZygosViewModel) {
     }
 
 
-
     private fun getTimeName(timestamp: Long, range: TimeRange): String =
         when (range) {
             TimeRange.FIVE_DAYS -> formatTimeDayOfWeek(timestamp)

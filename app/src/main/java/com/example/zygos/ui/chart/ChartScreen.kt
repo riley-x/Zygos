@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -30,12 +33,15 @@ import com.example.zygos.viewModel.*
 @Composable
 fun ChartScreen(
     ticker: State<String>,
+    colors: SnapshotStateMap<String, Color>,
+    watchlist: SnapshotStateList<Quote>,
     chartState: State<TimeSeriesGraphState<OhlcNamed>>,
     chartRange: State<TimeRange>, // must pass state here for button group to calculate derivedStateOf
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
     onChartRangeSelected: (TimeRange) -> Unit = { },
     onTickerChanged: (String) -> Unit = { },
+    onToggleWatchlist: (String) -> Unit = { },
     onChangeColor: (String) -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
@@ -96,11 +102,14 @@ fun ChartScreen(
 
         /** Ticker selection bar, also chart hover text goes here to save space **/
         ChartScreenHeader(
-            ticker = ticker.value,
+            ticker = ticker,
+            colors = colors,
+            watchlist = watchlist,
             hoverTime = hoverTime,
             hoverValues = hoverValues,
             onTickerChanged = onTickerChanged,
-            modifier = Modifier.padding(start = 12.dp),
+            onToggleWatchlist = onToggleWatchlist,
+            onChangeColor = onChangeColor,
         )
 
         /** Main screen with chart and details **/
@@ -149,21 +158,21 @@ fun ChartScreen(
                 )
             }
 
-            item("select color button") {
-                TextButton(
-                    onClick = { onChangeColor(ticker.value) },
-                    border = BorderStroke(2.dp, MaterialTheme.colors.error),
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colors.error
-                    ),
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 4.dp)
-                        .recomposeHighlighter()
-                ) {
-                    Text("Change Color")
-                }
-            }
+//            item("select color button") {
+//                TextButton(
+//                    onClick = { onChangeColor(ticker.value) },
+//                    border = BorderStroke(2.dp, MaterialTheme.colors.error),
+//                    colors = ButtonDefaults.textButtonColors(
+//                        contentColor = MaterialTheme.colors.error
+//                    ),
+//                    modifier = Modifier
+//                        .align(Alignment.CenterHorizontally)
+//                        .padding(vertical = 4.dp)
+//                        .recomposeHighlighter()
+//                ) {
+//                    Text("Change Color")
+//                }
+//            }
         }
     }
 }
@@ -181,6 +190,8 @@ fun PreviewChartScreen() {
         Surface {
             ChartScreen(
                 ticker = viewModel.chartTicker,
+                colors = viewModel.tickerColors,
+                watchlist = viewModel.watchlist,
                 chartState = viewModel.chartState,
                 chartRange = viewModel.chartRange,
             )

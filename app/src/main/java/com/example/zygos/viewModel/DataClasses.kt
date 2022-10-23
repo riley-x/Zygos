@@ -56,4 +56,4 @@ data class Quote (
     val percentChange: Float,
 )
 
-
+fun List<Quote>.contains(ticker: String) = any { it.ticker == ticker }

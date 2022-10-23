@@ -139,7 +139,7 @@ class TestViewModel: ViewModel() {
 
 
     /** ChartScreen **/
-    val chartTicker = mutableStateOf("")
+    val chartTicker = mutableStateOf("MSFT")
     val chartState = mutableStateOf(
         TimeSeriesGraphState<OhlcNamed>(
             values = List(21) {
