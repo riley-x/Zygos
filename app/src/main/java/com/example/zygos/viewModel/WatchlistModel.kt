@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.database.Names
 import com.example.zygos.network.TdQuote
@@ -15,7 +14,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class WatchlistModel(private val parent: ZygosViewModel) {
-    val watchlist = mutableStateListOf<Quote>()
+    /** There should be one quote per ticker. Note the tickers are loaded from the database at
+     * startup but the quotes rely on market data. **/
+    internal val tickers = mutableSetOf<String>()
+    val quotes = mutableStateListOf<Quote>()
 
     /** This is required since the ticker rows in the watchlist remember the swipeable state. If you
      * use the ticker as the key, and delete a row then add it back, it'll remember the swipe state
@@ -42,7 +44,6 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         if (sortOption == opt) sortIsAscending = !sortIsAscending
         else sortOption = opt
     }
-
 
     private fun getSortedList(
         oldList: List<Quote>,
@@ -73,8 +74,8 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         val newList = withContext(Dispatchers.Default) {
             getSortedList(oldList, option, isAscending)
         }
-        watchlist.clear()
-        watchlist.addAll(newList)
+        quotes.clear()
+        quotes.addAll(newList)
     }
 
     @MainThread
@@ -82,10 +83,10 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         Log.d("Zygos/WatchlistModel/sort", "$sortOption $sortIsAscending, last: $lastSortOption $lastSortIsAscending")
         if (lastSortOption == sortOption) {
             if (lastSortIsAscending != sortIsAscending) {
-                watchlist.reverse()
+                quotes.reverse()
             }
         } else {
-            doSort(watchlist)
+            doSort(quotes)
         }
         lastSortIsAscending = sortIsAscending
         lastSortOption = sortOption
@@ -102,27 +103,39 @@ class WatchlistModel(private val parent: ZygosViewModel) {
         )
     }
 
+    suspend fun loadTickers() {
+        tickers.addAll(
+            withContext(Dispatchers.IO) {
+                parent.namesDao.getWatchlist().map { it.name }
+            }
+        )
+    }
+
     @MainThread
-    suspend fun load(quotes: Map<String, TdQuote>) {
-        val tickerList = withContext(Dispatchers.IO) {
-            parent.namesDao.getWatchlist()
+    suspend fun loadQuotes(marketQuotes: Map<String, TdQuote>) {
+        val option = sortOption
+        val isAscending = sortIsAscending
+        val newList = withContext(Dispatchers.Default) {
+            val quoteList = tickers.map {
+                getQuote(
+                    ticker = it,
+                    tdQuote = marketQuotes[it],
+                )
+            }
+            getSortedList(quoteList, option, isAscending)
         }
-        val quoteList = tickerList.map {
-            getQuote(
-                ticker = it.name,
-                tdQuote = quotes[it.name],
-            )
-        }
-        doSort(quoteList)
+        quotes.clear()
+        quotes.addAll(newList)
     }
 
     // TODO this should update the market prices at some point
     fun add(ticker: String) {
+        tickers.add(ticker)
         parent.viewModelScope.launch(Dispatchers.IO) {
             parent.namesDao.add(Names(type = "watchlist", name = ticker))
         }
 
-        val newList = watchlist.toMutableList()
+        val newList = quotes.toMutableList()
         newList.add(
             getQuote(
                 ticker = ticker,
@@ -152,14 +165,16 @@ class WatchlistModel(private val parent: ZygosViewModel) {
 
     @MainThread
     fun delete(ticker: String) {
-        watchlist.removeIf { it.ticker == ticker }
-        parent.viewModelScope.launch(Dispatchers.IO) {
-            parent.namesDao.remove(Names("watchlist", ticker))
+        if (tickers.remove(ticker)) {
+            quotes.removeIf { it.ticker == ticker }
+            parent.viewModelScope.launch(Dispatchers.IO) {
+                parent.namesDao.remove(Names("watchlist", ticker))
+            }
         }
     }
 
     @MainThread
-    fun contains(ticker: String): Boolean = watchlist.any { it.ticker == ticker }
+    fun contains(ticker: String): Boolean = tickers.contains(ticker)
 
     @MainThread
     fun toggle(ticker: String) {

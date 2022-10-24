@@ -119,10 +119,10 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         /** Get the axis positions **/
         val stepX = ((history.lastIndex - startIndex).toFloat() / performanceGraphTickDivisionsX).roundToInt()
         val ticksX = IntRange(1, performanceGraphTickDivisionsX - 1).map {
-            val index = clamp(stepX * it, 0, history.lastIndex)
+            val index = clamp(stepX * it, 0, history.lastIndex - startIndex)
             NamedValue(
                 value = index.toFloat(),
-                name = formatDateInt(history[index].date)
+                name = formatDateInt(history[startIndex + index].date)
             )
         }
         val ticksY = autoYTicks(

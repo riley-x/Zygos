@@ -112,6 +112,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         accounts.addAll(accs)
         accounts.add(allAccounts)
 
+        /** Load in parallel everything, and join at bottom **/
+        val jobs = mutableListOf<Job>()
+
         /** Load API keys **/
         apiServices.forEach {
             val key = preferences?.getString(it.preferenceKey, "") ?: ""
@@ -120,12 +123,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             }
         }
 
-        viewModelScope.launch {
-            watchlist.load(emptyMap())
-        }
-
-        /** Load in parallel everything that is needed before setAccount **/
-        val jobs = mutableListOf<Job>()
+        jobs.add(viewModelScope.launch {
+            watchlist.loadTickers()
+        })
 
         /** Load lots **/
         for (acc in accounts) {
@@ -187,9 +187,11 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         equityHistory.initialContributions = lotModel.cashPosition?.shares ?: 0L
         equityHistory.loadLaunched(account)
 
-        loadPricedData(lotModel, true) // dummy data assuming 0 unrealized gains
+        loadPricedData(lotModel, true)
+        // dummy data assuming 0 unrealized gains. Because the market API might take a long time or
+        // fail, and don't want to display a blank screen
 
-        // TODO place this into a timer
+        // TODO place this into a timer or refresh button or something
         if (market.updatePrices(getAllTickers(), getAllOptionNames())) {
             loadPricedData(lotModel)
         }
@@ -206,7 +208,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
         /** Load watchlist **/
         viewModelScope.launch {
-            watchlist.load(market.stockQuotes)
+            watchlist.loadQuotes(market.stockQuotes)
         }
 
         /** This check, the load launch, and the reset happen on the main thread, so there's no
@@ -281,6 +283,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
     }
 
+    /** Get all the stock tickers for a batch quote. Options are not included here **/
     fun getAllTickers(): MutableSet<String> {
         val tickers = mutableSetOf<String>()
         lots.forEach {
@@ -289,6 +292,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
             }
         }
         tickers.remove(CASH_TICKER)
+        tickers.addAll(watchlist.tickers)
         return tickers
     }
 
