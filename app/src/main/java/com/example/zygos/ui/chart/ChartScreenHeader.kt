@@ -13,6 +13,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,7 +29,8 @@ fun ChartScreenHeader(
     colors: SnapshotStateMap<String, Color>,
     watchlist: SnapshotStateList<Quote>,
     hoverTime: State<String>,
-    hoverValues: State<String>,
+    hoverValue1: State<String>,
+    hoverValue2: State<String>,
     modifier: Modifier = Modifier,
     onTickerChanged: (String) -> Unit = { },
     onToggleWatchlist: (String) -> Unit = { },
@@ -61,7 +63,7 @@ fun ChartScreenHeader(
                 .fillMaxHeight()
         ) {
             val showSelectors by remember { derivedStateOf {
-                hoverValues.value.isBlank() && ticker.value.isNotBlank()
+                hoverValue1.value.isBlank() && ticker.value.isNotBlank()
             } }
 
             if (showSelectors) {
@@ -87,15 +89,50 @@ fun ChartScreenHeader(
                 Text(
                     text = hoverTime.value,
                     style = MaterialTheme.typography.overline,
-                    modifier = modifier.align(Alignment.Bottom)
+                    modifier = Modifier.align(Alignment.Bottom)
                 )
                 Spacer(Modifier.width(10.dp))
-                Text(
-                    text = hoverValues.value,
-                    style = MaterialTheme.typography.overline,
-                    modifier = modifier.align(Alignment.Bottom)
-                )
+                Column(
+                    verticalArrangement = Arrangement.Bottom,
+                    modifier = Modifier.fillMaxHeight()
+                ) {
+                    Text(
+                        text = hoverValue1.value,
+                        style = MaterialTheme.typography.overline,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                    Text(
+                        text = hoverValue2.value,
+                        style = MaterialTheme.typography.overline,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1,
+                    )
+                }
+
             }
+        }
+    }
+}
+
+
+
+@Preview
+@Composable
+private fun PreviewNoHover() {
+    val viewModel = viewModel<TestViewModel>()
+    val hoverTime = remember { mutableStateOf("") }
+    val hoverValue1 = remember { mutableStateOf("") }
+    ZygosTheme {
+        Surface {
+            ChartScreenHeader(
+                ticker = viewModel.chartTicker,
+                colors = viewModel.tickerColors,
+                watchlist = viewModel.watchlist,
+                hoverTime = hoverTime,
+                hoverValue1 = hoverValue1,
+                hoverValue2 = hoverValue1,
+            )
         }
     }
 }
@@ -106,7 +143,8 @@ fun ChartScreenHeader(
 private fun PreviewHover() {
     val viewModel = viewModel<TestViewModel>()
     val hoverTime = remember { mutableStateOf("9/27/22") }
-    val hoverValues = remember { mutableStateOf("O: 34.23  H: 36.43\nC: 35.02  L: 33.98") }
+    val hoverValue1 = remember { mutableStateOf("O: 34.23  H: 36.43") }
+    val hoverValue2 = remember { mutableStateOf("C: 35.02  L: 33.98") }
     ZygosTheme {
         Surface {
             ChartScreenHeader(
@@ -114,18 +152,22 @@ private fun PreviewHover() {
                 colors = viewModel.tickerColors,
                 watchlist = viewModel.watchlist,
                 hoverTime = hoverTime,
-                hoverValues = hoverValues
+                hoverValue1 = hoverValue1,
+                hoverValue2 = hoverValue2,
             )
         }
     }
 }
 
+
+
 @Preview
 @Composable
-private fun PreviewNoHover() {
+private fun PreviewOverflowHover() {
     val viewModel = viewModel<TestViewModel>()
-    val hoverTime = remember { mutableStateOf("") }
-    val hoverValues = remember { mutableStateOf("") }
+    val hoverTime = remember { mutableStateOf("9/27/22") }
+    val hoverValue1 = remember { mutableStateOf("O: 405,234.23  H: 692,136.43") }
+    val hoverValue2 = remember { mutableStateOf("C: 520,335.02  L: 345,533.98") }
     ZygosTheme {
         Surface {
             ChartScreenHeader(
@@ -133,7 +175,8 @@ private fun PreviewNoHover() {
                 colors = viewModel.tickerColors,
                 watchlist = viewModel.watchlist,
                 hoverTime = hoverTime,
-                hoverValues = hoverValues
+                hoverValue1 = hoverValue1,
+                hoverValue2 = hoverValue2,
             )
         }
     }

@@ -63,7 +63,8 @@ fun ChartScreen(
     }
 
     val hoverTime = remember { mutableStateOf("") }
-    val hoverValues = remember { mutableStateOf("") }
+    val hoverValue1 = remember { mutableStateOf("") }
+    val hoverValue2 = remember { mutableStateOf("") }
 
     fun onGraphHover(isHover: Boolean, x: Int, y: Float) {
         if (isHover && x >= 0 && x < chartState.value.values.size) {
@@ -74,13 +75,12 @@ fun ChartScreen(
             val low = formatDollarNoSymbol(chartState.value.values[x].low)
             val maxLength = maxOf(open.length, close.length, high.length, low.length)
             // can set a flag here to disable the hoverTime if length is too long
-            hoverValues.value = "O: " + open.padStart(maxLength) +
-                    "  H: " + high.padStart(maxLength) +
-                    "\nC: " + close.padStart(maxLength) +
-                    "  L: " + low.padStart(maxLength)
+            hoverValue1.value = "O: " + open.padStart(maxLength) + "  H: " + high.padStart(maxLength)
+            hoverValue2.value = "C: " + close.padStart(maxLength) + "  L: " + low.padStart(maxLength)
         } else {
             hoverTime.value = ""
-            hoverValues.value = ""
+            hoverValue1.value = ""
+            hoverValue2.value = ""
         }
     }
 
@@ -106,7 +106,8 @@ fun ChartScreen(
             colors = colors,
             watchlist = watchlist,
             hoverTime = hoverTime,
-            hoverValues = hoverValues,
+            hoverValue1 = hoverValue1,
+            hoverValue2 = hoverValue2,
             onTickerChanged = onTickerChanged,
             onToggleWatchlist = onToggleWatchlist,
             onChangeColor = onChangeColor,

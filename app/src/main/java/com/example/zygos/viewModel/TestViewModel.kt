@@ -40,14 +40,14 @@ class TestViewModel: ViewModel() {
     val accountPerformanceTimeRange = mutableStateOf(accountPerformanceRangeOptions.items.last())
 
     val watchlist = mutableStateListOf(
-        Quote(0, "t1", Color.Blue,  123.23f,  21.20f, 0.123f),
-        Quote(1, "t2", Color.Black, 1263.23f, 3.02f,  -0.123f),
-        Quote(2, "t3", Color.Green, 1923.23f, 120.69f,0.263f),
-        Quote(3, "t4", Color.Cyan,  1423.23f, 0.59f,  1.23f),
-        Quote(4, "t5", Color.Blue,  123.23f,  21.20f, 0.123f),
-        Quote(5, "t6", Color.Black, 1263.23f, 3.02f,  -0.123f),
-        Quote(6, "t7", Color.Green, 1923.23f, 120.69f,0.263f),
-        Quote(7, "t8", Color.Cyan,  1423.23f, 0.59f,  1.23f),
+        Quote(0, "t1", 123.23f,  21.20f, 0.123f),
+        Quote(1, "t2", 1263.23f, 3.02f,  -0.123f),
+        Quote(2, "t3", 1923.23f, 120.69f,0.263f),
+        Quote(3, "t4", 1423.23f, 0.59f,  1.23f),
+        Quote(4, "t5", 123.23f,  21.20f, 0.123f),
+        Quote(5, "t6", 1263.23f, 3.02f,  -0.123f),
+        Quote(6, "t7", 1923.23f, 120.69f,0.263f),
+        Quote(7, "t8", 1423.23f, 0.59f,  1.23f),
     )
 
     // These variables are merely the ui state of the options selection menu
