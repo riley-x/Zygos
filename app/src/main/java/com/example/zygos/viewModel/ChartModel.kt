@@ -2,6 +2,7 @@ package com.example.zygos.viewModel
 
 import android.icu.util.Calendar
 import android.util.Log
+import androidx.annotation.MainThread
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.math.MathUtils.clamp
 import androidx.lifecycle.viewModelScope
@@ -33,7 +34,7 @@ val chartRangeValues = ImmutableList(listOf(
 
 class ChartModel(private val parent: ZygosViewModel) {
     val ticker = mutableStateOf("")
-    val fundamental = mutableStateOf(TdFundamental())
+    val fundamental = mutableStateOf(Fundamental())
     val graphState = mutableStateOf(TimeSeriesGraphState<OhlcNamed>())
     val range = mutableStateOf(TimeRange.ONE_YEAR)
 
@@ -42,6 +43,7 @@ class ChartModel(private val parent: ZygosViewModel) {
     private var ohlc1year = listOf<TdOhlc>() // daily
     private var ohlc20year = listOf<TdOhlc>() // monthly
 
+    @MainThread
     fun setTicker(newTicker: String) {
         if (ticker.value == newTicker) return
         ticker.value = newTicker
@@ -52,7 +54,17 @@ class ChartModel(private val parent: ZygosViewModel) {
             fetchOhlcs(newTicker)
             graphState.value = getGraphState()
         }
+        parent.viewModelScope.launch {
+            val tdKey = parent.apiKeys[tdService.name]
+            if (tdKey.isNullOrBlank()) return@launch
+            fundamental.value = TdApi.getFundamental(
+                apiKey = tdKey,
+                symbol = newTicker,
+            )
+        }
     }
+
+    @MainThread
     fun setRange(newRange: TimeRange) {
         range.value = newRange
         parent.viewModelScope.launch {

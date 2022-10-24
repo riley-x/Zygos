@@ -6,6 +6,7 @@ import android.icu.util.TimeZone
 import android.util.Log
 import com.example.zygos.data.*
 import com.example.zygos.data.database.Ohlc
+import com.example.zygos.viewModel.Fundamental
 import com.example.zygos.viewModel.PREFERENCE_TD_API_KEY_KEY
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -70,7 +71,7 @@ interface TdService {
     suspend fun getFundamental(
         @Query("apikey") apiKey: String,
         @Query("symbol") symbol: String,
-    ): TdInstrument
+    ): Map<String, TdInstrument>
 }
 
 object TdApi {
@@ -170,13 +171,14 @@ object TdApi {
     suspend fun getFundamental(
         apiKey: String,
         symbol: String,
-    ): TdFundamental {
-        val instrument = tdService.getFundamental(
-            apiKey = apiKey,
-            symbol = symbol,
-        )
-        return instrument.fundamental.copy(
-            description = instrument.description
+    ): Fundamental {
+        return Fundamental(
+            tdService.getFundamental(
+                apiKey = apiKey,
+                symbol = symbol,
+            ).getOrElse(symbol) {
+                throw RuntimeException("Zygos/TdService/getFundamental() unable to find $symbol in the returned map")
+            }
         )
     }
 }

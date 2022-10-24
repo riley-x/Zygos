@@ -1,6 +1,7 @@
 package com.example.zygos.network
 
 import androidx.compose.runtime.Immutable
+import com.squareup.moshi.Json
 
 
 @Immutable
@@ -28,5 +29,7 @@ data class TdFundamental (
     val operatingMarginTTM: Float = 0f,
     val quickRatio: Float = 0f,
     val currentRatio: Float = 0f,
-    val description: String = "",
+//    @Transient @Json(ignore = true) val description: String? = "",
+// For some reason the above doesn't ignore the field at all :(
+// Actually this probably works fine, bug was in the Instrument
 )

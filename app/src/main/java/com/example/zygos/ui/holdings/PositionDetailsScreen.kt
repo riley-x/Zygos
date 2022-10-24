@@ -28,11 +28,13 @@ import com.example.zygos.data.PricedPosition
 import com.example.zygos.viewModel.TestViewModel
 
 
+/** No multiple receivers in Kotlin yet, so must use factory pattern **/
 private fun RowScope.defaultMod() = Modifier
     .weight(10f)
     .padding(bottom = 20.dp)
 
 /** This functions draws the details for the top-level position only **/
+// TODO why does this not have a Column? but it works still?
 @Composable
 private fun PositionDetails(
     position: PricedPosition

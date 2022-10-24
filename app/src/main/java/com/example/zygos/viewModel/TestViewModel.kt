@@ -143,13 +143,13 @@ class TestViewModel: ViewModel() {
     val chartTicker = mutableStateOf("MSFT")
     val chartRange = mutableStateOf(TimeRange.ONE_YEAR)
     val chartShowHistory = mutableStateOf(false)
-    val chartFundamental = mutableStateOf(TdFundamental(
+    val chartFundamental = mutableStateOf(Fundamental(
         symbol = "MSFT",
         high52 = 349.67f,
         low52 = 219.13f,
         dividendAmount = 2.72f,
         dividendYield = 1.12f,
-        dividendDate = "2022-11-16 00:00:00.000",
+        dividendDate = "2022-11-16",
         peRatio = 25.10389f,
         pcfRatio = 20.7081f,
         netProfitMarginTTM = 36.68634f,

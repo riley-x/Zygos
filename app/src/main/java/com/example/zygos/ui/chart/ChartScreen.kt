@@ -36,7 +36,7 @@ fun ChartScreen(
     ticker: State<String>,
     colors: SnapshotStateMap<String, Color>,
     watchlist: SnapshotStateList<Quote>, // used only for knowing what type of button to show for add/remove from watchlist
-    tickerFundamental: State<TdFundamental>,
+    tickerFundamental: State<Fundamental>,
     chartState: State<TimeSeriesGraphState<OhlcNamed>>,
     chartRange: State<TimeRange>, // must pass state here for button group to calculate derivedStateOf
     modifier: Modifier = Modifier,
@@ -103,23 +103,26 @@ fun ChartScreen(
     ) {
         accountSelectionBar()
 
-        /** Ticker selection bar, also chart hover text goes here to save space **/
-        ChartScreenHeader(
-            ticker = ticker,
-            colors = colors,
-            watchlist = watchlist,
-            hoverTime = hoverTime,
-            hoverValue1 = hoverValue1,
-            hoverValue2 = hoverValue2,
-            isHistoryShown = remember { derivedStateOf { false } }, // TODO from history vector?
-            onTickerChanged = onTickerChanged,
-            onToggleWatchlist = onToggleWatchlist,
-            onToggleHistory = onToggleHistory,
-            onChangeColor = onChangeColor,
-        )
 
         /** Main screen with chart and details **/
         LazyColumn {
+
+            item("header") {
+                /** Ticker selection bar, also chart hover text goes here to save space **/
+                ChartScreenHeader(
+                    ticker = ticker,
+                    colors = colors,
+                    watchlist = watchlist,
+                    hoverTime = hoverTime,
+                    hoverValue1 = hoverValue1,
+                    hoverValue2 = hoverValue2,
+                    isHistoryShown = remember { derivedStateOf { false } }, // TODO from history vector?
+                    onTickerChanged = onTickerChanged,
+                    onToggleWatchlist = onToggleWatchlist,
+                    onToggleHistory = onToggleHistory,
+                    onChangeColor = onChangeColor,
+                )
+            }
 
             item("graph") {
                 TimeSeriesGraph(
@@ -161,6 +164,13 @@ fun ChartScreen(
                     thickness = 1.dp,
                     modifier = Modifier
                         .padding(start = 12.dp, end = 12.dp, top = 2.dp, bottom = 20.dp)
+                )
+            }
+
+            item("fundamentals") {
+                ChartDetails(
+                    data = tickerFundamental.value,
+                    modifier = Modifier.padding(horizontal = 20.dp)
                 )
             }
 

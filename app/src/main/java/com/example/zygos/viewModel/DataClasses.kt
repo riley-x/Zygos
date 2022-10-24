@@ -3,6 +3,7 @@ package com.example.zygos.viewModel
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import com.example.zygos.data.*
+import com.example.zygos.network.TdInstrument
 import com.example.zygos.network.TdQuote
 import com.example.zygos.ui.components.formatDateInt
 
@@ -56,3 +57,43 @@ data class Quote (
 )
 
 fun List<Quote>.contains(ticker: String) = any { it.ticker == ticker }
+
+
+@Immutable
+data class Fundamental (
+    val symbol: String = "",
+    val high52: Float = 0f,
+    val low52: Float = 0f,
+    val dividendAmount: Float = 0f,
+    val dividendYield: Float = 0f,
+    val dividendDate: String = "",
+    val peRatio: Float = 0f,
+    val pcfRatio: Float = 0f,
+    val netProfitMarginTTM: Float = 0f,
+    val operatingMarginTTM: Float = 0f,
+    val quickRatio: Float = 0f,
+    val currentRatio: Float = 0f,
+    val description: String = "",
+) {
+    companion object Factory {
+        operator fun invoke(
+            tdInstrument: TdInstrument,
+        ): Fundamental {
+            return Fundamental(
+                symbol = tdInstrument.fundamental.symbol,
+                high52 = tdInstrument.fundamental.high52,
+                low52 = tdInstrument.fundamental.low52,
+                dividendAmount = tdInstrument.fundamental.dividendAmount,
+                dividendYield = tdInstrument.fundamental.dividendYield / 100f,
+                dividendDate = tdInstrument.fundamental.dividendDate.substringBefore(" "),
+                peRatio = tdInstrument.fundamental.peRatio,
+                pcfRatio = tdInstrument.fundamental.pcfRatio,
+                netProfitMarginTTM = tdInstrument.fundamental.netProfitMarginTTM,
+                operatingMarginTTM = tdInstrument.fundamental.operatingMarginTTM,
+                quickRatio = tdInstrument.fundamental.quickRatio,
+                currentRatio = tdInstrument.fundamental.currentRatio,
+                description = tdInstrument.description,
+            )
+        }
+    }
+}
