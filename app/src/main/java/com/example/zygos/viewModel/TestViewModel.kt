@@ -140,6 +140,8 @@ class TestViewModel: ViewModel() {
 
     /** ChartScreen **/
     val chartTicker = mutableStateOf("MSFT")
+    val chartRange = mutableStateOf(TimeRange.ONE_YEAR)
+    val chartShowHistory = mutableStateOf(false)
     val chartState = mutableStateOf(
         TimeSeriesGraphState<OhlcNamed>(
             values = List(21) {
@@ -158,7 +160,6 @@ class TestViewModel: ViewModel() {
             maxY = 25f,
         )
     )
-    val chartRange = mutableStateOf(TimeRange.ONE_YEAR)
 
     /** TransactionScreen **/
     val transactions = mutableStateListOf(

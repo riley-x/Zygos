@@ -42,6 +42,7 @@ fun ChartScreen(
     onChartRangeSelected: (TimeRange) -> Unit = { },
     onTickerChanged: (String) -> Unit = { },
     onToggleWatchlist: (String) -> Unit = { },
+    onToggleHistory: () -> Unit = { },
     onChangeColor: (String) -> Unit = { },
     accountSelectionBar: @Composable () -> Unit = { },
 ) {
@@ -108,8 +109,10 @@ fun ChartScreen(
             hoverTime = hoverTime,
             hoverValue1 = hoverValue1,
             hoverValue2 = hoverValue2,
+            isHistoryShown = remember { derivedStateOf { false } }, // TODO from history vector?
             onTickerChanged = onTickerChanged,
             onToggleWatchlist = onToggleWatchlist,
+            onToggleHistory = onToggleHistory,
             onChangeColor = onChangeColor,
         )
 

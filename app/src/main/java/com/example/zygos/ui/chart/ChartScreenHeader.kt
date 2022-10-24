@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.AddCircleOutline
+import androidx.compose.material.icons.sharp.ReceiptLong
 import androidx.compose.material.icons.sharp.RemoveCircleOutline
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -31,9 +32,11 @@ fun ChartScreenHeader(
     hoverTime: State<String>,
     hoverValue1: State<String>,
     hoverValue2: State<String>,
+    isHistoryShown: State<Boolean>,
     modifier: Modifier = Modifier,
     onTickerChanged: (String) -> Unit = { },
     onToggleWatchlist: (String) -> Unit = { },
+    onToggleHistory: () -> Unit = { },
     onChangeColor: (String) -> Unit = { },
 ) {
     // Ticker selection bar, also chart hover text goes here to save space
@@ -75,6 +78,16 @@ fun ChartScreenHeader(
                     Icon(
                         imageVector = watchlistIcon,
                         contentDescription = null
+                    )
+                }
+
+                IconButton(onClick = onToggleHistory) {
+                    Icon(
+                        imageVector = Icons.Sharp.ReceiptLong,
+                        contentDescription = null,
+                        tint =
+                        if (isHistoryShown.value) MaterialTheme.colors.primary
+                        else MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled)
                     )
                 }
 
@@ -129,6 +142,7 @@ private fun PreviewNoHover() {
                 ticker = viewModel.chartTicker,
                 colors = viewModel.tickerColors,
                 watchlist = viewModel.watchlist,
+                isHistoryShown = viewModel.chartShowHistory,
                 hoverTime = hoverTime,
                 hoverValue1 = hoverValue1,
                 hoverValue2 = hoverValue1,
@@ -151,6 +165,7 @@ private fun PreviewHover() {
                 ticker = viewModel.chartTicker,
                 colors = viewModel.tickerColors,
                 watchlist = viewModel.watchlist,
+                isHistoryShown = viewModel.chartShowHistory,
                 hoverTime = hoverTime,
                 hoverValue1 = hoverValue1,
                 hoverValue2 = hoverValue2,
@@ -174,6 +189,7 @@ private fun PreviewOverflowHover() {
                 ticker = viewModel.chartTicker,
                 colors = viewModel.tickerColors,
                 watchlist = viewModel.watchlist,
+                isHistoryShown = viewModel.chartShowHistory,
                 hoverTime = hoverTime,
                 hoverValue1 = hoverValue1,
                 hoverValue2 = hoverValue2,
