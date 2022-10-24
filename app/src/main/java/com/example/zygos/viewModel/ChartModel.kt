@@ -57,10 +57,15 @@ class ChartModel(private val parent: ZygosViewModel) {
         parent.viewModelScope.launch {
             val tdKey = parent.apiKeys[tdService.name]
             if (tdKey.isNullOrBlank()) return@launch
-            fundamental.value = TdApi.getFundamental(
-                apiKey = tdKey,
-                symbol = newTicker,
-            )
+            fundamental.value = try {
+                TdApi.getFundamental(
+                    apiKey = tdKey,
+                    symbol = newTicker,
+                )
+            } catch (e: Exception) {
+                Log.w("Zygos/ChartModel", e.stackTraceToString())
+                Fundamental()
+            }
         }
     }
 

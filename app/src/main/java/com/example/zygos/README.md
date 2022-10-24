@@ -37,6 +37,29 @@ This app uses a single view model of class `ZygosViewModel`.
 
 ### Network Layer
 
+The network layer handles all API calls. It uses Retrofit for sending HTTP requests and Moshi to
+deserialize JSON responses. At the moment (2022-10-23), currently using TD Ameritrade's API for the
+majority of fetches, and Alpha Vantage only for checking if the market has closed today for updating
+equity history (see `viewModel/EquityHistoryModel`). 
+
+The `*Service` interfaces, one for each API, create the HTTP requests. The `*Api` objects create
+the service with retrofit and house the singleton access to it. Convenience wrappers around the
+retrofit calls are also placed here. Note that Moshi is integrated in the retrofit builder variable defined
+at global scope. 
+
+Network access should be done in a dispatched IO thread. For example,
+```kotlin
+viewModelScope.async(Dispatchers.IO) {
+  try {
+    val quote = TdApi.tdService.getQuote(
+      symbol = ticker,
+      apiKey = tdKey,
+    )
+  } catch (e: Exception) {
+    Log.w("Zygos", e.stackTraceToString())
+  }
+}
+```
 
 ### Data Layer
 

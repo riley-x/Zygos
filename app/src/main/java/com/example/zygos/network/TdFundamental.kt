@@ -19,7 +19,7 @@ data class TdFundamental (
     val low52: Float = 0f,
     val dividendAmount: Float = 0f,
     val dividendYield: Float = 0f,
-    val dividendDate: String = "",
+    val dividendDate: String = "", // this is the ex date
     val peRatio: Float = 0f,
 //    val pegRatio: Float = 0f,
     val pcfRatio: Float = 0f,
