@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.zygos.network.TdFundamental
 import com.example.zygos.ui.components.*
 import com.example.zygos.ui.graphing.TimeSeriesGraph
 import com.example.zygos.ui.graphing.TimeSeriesGraphSelector
@@ -34,7 +35,8 @@ import com.example.zygos.viewModel.*
 fun ChartScreen(
     ticker: State<String>,
     colors: SnapshotStateMap<String, Color>,
-    watchlist: SnapshotStateList<Quote>,
+    watchlist: SnapshotStateList<Quote>, // used only for knowing what type of button to show for add/remove from watchlist
+    tickerFundamental: State<TdFundamental>,
     chartState: State<TimeSeriesGraphState<OhlcNamed>>,
     chartRange: State<TimeRange>, // must pass state here for button group to calculate derivedStateOf
     modifier: Modifier = Modifier,
@@ -194,6 +196,7 @@ fun PreviewChartScreen() {
         Surface {
             ChartScreen(
                 ticker = viewModel.chartTicker,
+                tickerFundamental = viewModel.chartFundamental,
                 colors = viewModel.tickerColors,
                 watchlist = viewModel.watchlist,
                 chartState = viewModel.chartState,

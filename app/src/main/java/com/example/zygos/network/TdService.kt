@@ -65,6 +65,12 @@ interface TdService {
         @Query("startDate") startDate: Long, // in millis
         @Query("endDate") endDate: Long, // in millis
     ): TdPriceHistory
+
+    @GET("v1/instruments?projection=fundamental")
+    suspend fun getFundamental(
+        @Query("apikey") apiKey: String,
+        @Query("symbol") symbol: String,
+    ): TdInstrument
 }
 
 object TdApi {
@@ -159,6 +165,19 @@ object TdApi {
             startDate = startDate,
             endDate = endDate,
         ).candles
+    }
+
+    suspend fun getFundamental(
+        apiKey: String,
+        symbol: String,
+    ): TdFundamental {
+        val instrument = tdService.getFundamental(
+            apiKey = apiKey,
+            symbol = symbol,
+        )
+        return instrument.fundamental.copy(
+            description = instrument.description
+        )
     }
 }
 

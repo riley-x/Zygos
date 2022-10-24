@@ -319,6 +319,7 @@ fun ZygosApp(
                         LogCompositions("Zygos", "ZygosApp/Scaffold/Chart.route")
                         ChartScreen(
                             ticker = viewModel.chart.ticker,
+                            tickerFundamental = viewModel.chart.fundamental,
                             colors = viewModel.colors.tickers,
                             watchlist = viewModel.watchlist.watchlist,
                             chartState = viewModel.chart.graphState,

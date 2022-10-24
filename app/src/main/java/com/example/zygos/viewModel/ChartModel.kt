@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.math.MathUtils.clamp
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.network.TdApi
+import com.example.zygos.network.TdFundamental
 import com.example.zygos.network.TdOhlc
 import com.example.zygos.network.tdService
 import com.example.zygos.ui.components.*
@@ -32,6 +33,7 @@ val chartRangeValues = ImmutableList(listOf(
 
 class ChartModel(private val parent: ZygosViewModel) {
     val ticker = mutableStateOf("")
+    val fundamental = mutableStateOf(TdFundamental())
     val graphState = mutableStateOf(TimeSeriesGraphState<OhlcNamed>())
     val range = mutableStateOf(TimeRange.ONE_YEAR)
 

@@ -10,6 +10,7 @@ import com.example.zygos.data.PricedPosition
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.database.TransactionType
 import com.example.zygos.data.toLongDollar
+import com.example.zygos.network.TdFundamental
 import com.example.zygos.network.TdOhlc
 import com.example.zygos.network.TdQuote
 import com.example.zygos.ui.graphing.TimeSeriesGraphState
@@ -142,6 +143,21 @@ class TestViewModel: ViewModel() {
     val chartTicker = mutableStateOf("MSFT")
     val chartRange = mutableStateOf(TimeRange.ONE_YEAR)
     val chartShowHistory = mutableStateOf(false)
+    val chartFundamental = mutableStateOf(TdFundamental(
+        symbol = "MSFT",
+        high52 = 349.67f,
+        low52 = 219.13f,
+        dividendAmount = 2.72f,
+        dividendYield = 1.12f,
+        dividendDate = "2022-11-16 00:00:00.000",
+        peRatio = 25.10389f,
+        pcfRatio = 20.7081f,
+        netProfitMarginTTM = 36.68634f,
+        operatingMarginTTM = 42.00434f,
+        quickRatio = 1.74525f,
+        currentRatio = 1.78461f,
+        description = "Microsoft Corporation - Common Stock",
+    ))
     val chartState = mutableStateOf(
         TimeSeriesGraphState<OhlcNamed>(
             values = List(21) {
