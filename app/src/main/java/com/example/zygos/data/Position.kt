@@ -1,9 +1,9 @@
 package com.example.zygos.data
 
-import android.icu.text.NumberFormat
 import android.util.Log
 import androidx.compose.runtime.Immutable
 import com.example.zygos.network.getTdOptionName
+import kotlin.math.abs
 
 
 enum class PositionType(val displayName: String, val isOption: Boolean = false, val isShort: Boolean = false, val isSpread: Boolean = false) {
@@ -29,26 +29,41 @@ enum class PositionType(val displayName: String, val isOption: Boolean = false, 
  * Summarizes the current holdings and returns of a lot (or multiple lots combined together).
  * Fields that depend on the current market price, like unrealized, are implemented as functions.
  *
- * @param shares is always positive
+ * @property instrumentName A name to lookup the current price with from a map of prices. This can
+ * be set to some arbitrary display name for compound positions, use instead the individual sub-
+ * positions.
  *
- * @param costBasis Used for % return calculation, the amount of cash needed to open the position.
+ *
+ * @property shares is always positive
+ *
+ *
+ * @property cashEffect is the change in the cash balance caused by this position. It is negative
+ * for BTO. This probably isn't necessary anymore since the CASH lot in the database stores the sum
+ * of cash effects from all transactions.
+ * @property costBasis Used for % return calculation, the amount of cash needed to open the position.
  * For long positions this is essentially [shares] * [priceOpen], but can be different due to
- * rounding and fees. For short position this includes the cash collateral needed.
- * @param taxBasis Actual basis used for taxes. Usually the same but could be adjusted for wash sales.
- * @param feesAndRounding All other quantities are divisible by [shares]. This field keeps track of
- * all rounding errors and fees. Note the fees are not split by share amount if this position is
- * half-closed, and are kept until the entire position is fully closed.
- * @param realizedOpen Realized returns from open positions, i.e. dividends. Note STO proceeds and
+ * rounding and fees. For short position this includes the cash collateral needed. Uniquely for
+ * covered calls, which need 0 cash collateral, this will be abs([cashEffect]). The % return is
+ * somewhat meaningless in this case, but there's nothing really better to use.
+ * @property taxBasis Actual basis used for taxes. Usually the same but could be adjusted for wash
+ * sales. TODO unimplemented right now.
+ * @property feesAndRounding All other quantities are divisible by [shares]. This field keeps track
+ * of all rounding errors and fees. Note the fees are not split by share amount if this position is
+ * half-closed, and are kept until the entire position is fully closed. This is usually positive to
+ * indicate the amount of fees charged.
+ *
+ *
+ * @property realizedOpen Realized returns from open positions, i.e. dividends. Note STO proceeds are
  * not included here, see [cashEffect] instead. These returns are included in % return calculations.
- * @param realizedClosed Realized returns from closed positions. These returns are not included in
+ * @property realizedClosed Realized returns from closed positions. These returns are not included in
  * % return calculations.
  *
- * @param collateral For short positions, amount of cash collateral.
- * @param instrumentName A name to lookup the current price with from a map of prices. This is set
  *
- * @param subPositions Constituent positions, if any. For example a stock position can consist of
+ * @property collateral For cash-secured short positions, amount of cash collateral.
+ *
+ *
+ * @property subPositions Constituent positions, if any. For example a stock position can consist of
  * many lot positions.
- * to some display name for compound positions, use instead the individual sub-positions.
  */
 @Immutable
 interface Position {
@@ -95,7 +110,9 @@ interface Position {
 }
 
 
-
+/**
+ * This is the base position class, representing a single lot. [subPositions] must be empty.
+ */
 @Immutable
 data class LotPosition(
     /** Identifiers **/
@@ -127,7 +144,7 @@ data class LotPosition(
     init {
         val purchaseValue = feesAndRounding + shares * priceOpen * if (type.isShort) -1 else 1
         cashEffect = realized - purchaseValue
-        costBasis = collateral + purchaseValue
+        costBasis = abs(collateral + purchaseValue) // for covered calls, the arg may be negative
     }
 
     override fun unrealized(prices: Map<String, Long>): Long {
@@ -167,6 +184,18 @@ private fun<T> List<Position>.ifAllEqual(fn: Position.() -> T, default: T): T =
     else default
 
 
+/**
+ * This class represents a combined position. For example, it could aggregate multiple stock lots,
+ * or combine two option legs into a spread. Most of the fields are fixed based on the [subPositions],
+ * and are evaluated below with [ifAllEqual] or [sumOf]. Spreads may edit some of the option
+ * description fields.
+ *
+ * Note that for the priced functions like [unrealized], this class merely sums the values from
+ * [subPositions]. So the [instrumentName] set here is never used for indexing the price maps.
+ *
+ * @param realizedClosedExtra Additional realized returns from closed lots, that is not included in
+ * any of the [subPositions]
+ */
 @Immutable
 data class AggregatePosition (
     val realizedClosedExtra: Long,
