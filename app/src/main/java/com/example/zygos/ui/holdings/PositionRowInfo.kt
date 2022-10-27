@@ -18,6 +18,7 @@ import com.example.zygos.ui.components.*
 private fun ValuePair(
     value: Float,
     percent: Float,
+    isColor: Boolean,
     showPercentages: State<Boolean>,
     subValue: Float,
     modifier: Modifier = Modifier,
@@ -26,7 +27,7 @@ private fun ValuePair(
         horizontalAlignment = Alignment.End,
         modifier = modifier
     ) {
-        ValueOrPercent(value = value, percent = percent, showPercentages = showPercentages, isColor = false)
+        ValueOrPercent(value = value, percent = percent, showPercentages = showPercentages, isColor = isColor)
         Text(
             text = if (value.isNaN()) "" else formatDollarNoSymbol(subValue),
             color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium),
@@ -35,7 +36,9 @@ private fun ValuePair(
     }
 }
 
-
+/**
+ * Default right-aligned text for both [HoldingsRow] and [HoldingsSubRow]
+ */
 @Composable
 fun PositionRowInfo(
     position: PricedPosition,
@@ -47,26 +50,34 @@ fun PositionRowInfo(
         HoldingsListDisplayOptions.EQUITY -> ValuePair(
             value = position.equity,
             percent = position.equityPercent,
+            isColor = false,
             showPercentages = showPercentages,
             subValue = position.mark,
             modifier = modifier,
-        ) // TODO equity %
-        HoldingsListDisplayOptions.RETURNS_TOTAL -> ValueOrPercent(
+        )
+        HoldingsListDisplayOptions.RETURNS_TOTAL -> ValuePair(
             value = position.returnsTotal,
             percent = position.returnsPercent,
+            isColor = true,
             showPercentages = showPercentages,
+            subValue = position.mark,
             modifier = modifier
         )
-        HoldingsListDisplayOptions.RETURNS_TODAY -> ValueOrPercent(
+        HoldingsListDisplayOptions.RETURNS_TODAY -> ValuePair(
             value = position.returnsToday,
             percent = position.returnsTodayPercent,
+            isColor = true,
             showPercentages = showPercentages,
+            subValue = position.mark,
             modifier = modifier
         )
     }
 }
 
 
+/**
+ * Details shown to the right of the ticker in both [HoldingsRow] and [HoldingsSubRow]
+ */
 @Composable
 fun PositionRowSubInfo(
     position: PricedPosition,
