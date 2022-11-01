@@ -225,8 +225,9 @@ fun ZygosApp(
         val zygosHeader: @Composable () -> Unit = { ZygosHeader(
             accounts = viewModel.accounts,
             currentAccount = viewModel.currentAccount,
+            lastUpdate = viewModel.market.lastUpdate,
             onAccountSelected = viewModel::setAccount,
-            onAddAccount = ::onAddAccountClick,
+            onRefresh = viewModel::loadPricedData,
         ) }
 
 

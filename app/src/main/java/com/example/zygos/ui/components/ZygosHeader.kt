@@ -3,7 +3,7 @@ package com.example.zygos.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.AddCircleOutline
+import androidx.compose.material.icons.sharp.Refresh
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.zygos.ui.theme.ZygosTheme
+import java.util.*
 
 val accountHeaderHorizontalPadding = 6.dp
 const val noAccountMessage = "No Accounts"
@@ -20,10 +21,11 @@ const val allAccounts = "All Accounts"
 @Composable
 fun ZygosHeader(
     currentAccount: String,
+    lastUpdate: State<Long>,
     accounts: SnapshotStateList<String>,
     modifier: Modifier = Modifier,
     onAccountSelected: (String) -> Unit = { },
-    onAddAccount: () -> Unit = { },
+    onRefresh: () -> Unit = { },
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -95,9 +97,16 @@ fun ZygosHeader(
                 }
             }
 
-            IconButton(onClick = onAddAccount) {
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(formatDate(lastUpdate.value), style = MaterialTheme.typography.overline)
+                Text(formatTimeSeconds(lastUpdate.value), style = MaterialTheme.typography.overline)
+            }
+
+            IconButton(onClick = onRefresh) {
                 Icon(
-                    imageVector = Icons.Sharp.AddCircleOutline,
+                    imageVector = Icons.Sharp.Refresh,
                     contentDescription = null,
                 )
             }
@@ -116,16 +125,19 @@ private fun Preview() {
     val accounts2 = remember { mutableStateListOf(
         "No Accounts"
     ) }
+    val lastUpdate = remember { mutableStateOf(Calendar.getInstance().timeInMillis) }
     ZygosTheme {
         Column {
             ZygosHeader(
                 accounts = accounts,
                 currentAccount = accounts[0],
+                lastUpdate = lastUpdate,
             )
             Spacer(modifier = Modifier.height(20.dp))
             ZygosHeader(
                 accounts = accounts2,
                 currentAccount = accounts2[0],
+                lastUpdate = lastUpdate,
             )
         }
     }

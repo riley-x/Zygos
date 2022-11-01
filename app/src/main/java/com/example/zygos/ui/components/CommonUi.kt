@@ -84,6 +84,10 @@ fun formatMonthOnly(timestamp: Long): String {
 fun formatYearOnly(timestamp: Long): String {
     return DateFormat.format("yyyy", timestamp).toString()
 }
+@Stable
+fun formatTimeSeconds(timestamp: Long): String {
+    return DateFormat.format("h:mm:ss", timestamp).toString()
+}
 
 @Composable
 fun TitleValue(
