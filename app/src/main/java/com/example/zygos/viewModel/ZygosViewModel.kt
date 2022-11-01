@@ -140,6 +140,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         /** Set UI state **/
         jobs.joinAll() // need to block here before setAccount, which doesn't reload lots
         setAccount(allAccounts)
+        loadPricedData()
     }
 
 
@@ -172,13 +173,9 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         }
     }
 
-
     /** Sets the current account to display, loading the data elements into the ui state variables.
      * This should be run on the main thread, but in a coroutine. **/
     internal suspend fun loadAccount(account: String) {
-        /** Guards **/
-        longPositions.isLoading = true // these are reset by the respective loads
-        shortPositions.isLoading = true // they need to be here because the lots load blocks
 
         transactions.loadLaunched(account)
         val lotModel = lots.getOrPut(account) { LotModel(this) }
@@ -187,48 +184,61 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         equityHistory.initialContributions = lotModel.cashPosition?.shares ?: 0L
         equityHistory.loadLaunched(account)
 
-        loadPricedData(lotModel, true)
+        loadPricedData(true)
         // dummy data assuming 0 unrealized gains. Because the market API might take a long time or
         // fail, and don't want to display a blank screen
-
-        // TODO place this into a timer or refresh button or something
-        if (market.updatePrices(getAllTickers(), getAllOptionNames())) {
-            loadPricedData(lotModel)
-        }
-
-        /** Logs **/
-        Log.i("Zygos/ZygosViewModel/loadAccount", "transactions (possibly stale): ${transactions.all.size}") // since the transactions are launched, this could be stale
-
-
-        // Don't actually need to block, the state list update is scheduled in a coroutine already
-//        jobs.joinAll()
     }
 
-    private fun loadPricedData(lotModel: LotModel, isDummy: Boolean = false) {
+    // TODO place this into a timer or refresh button or something
+    fun loadPricedData(isDummy: Boolean = false) {
+        /** Guards **/
+        longPositions.isLoading = true // these are reset by the respective loads
+        shortPositions.isLoading = true // they need to be here because the lots load blocks
 
-        /** Load watchlist **/
         viewModelScope.launch {
-            watchlist.loadQuotes(market.stockQuotes)
-        }
+            /** Load prices **/
+            if (!market.updatePrices(getAllTickers(), getAllOptionNames())) {
+                longPositions.isLoading = false // show stale data, but stop the loading indicator
+                shortPositions.isLoading = false
+                return@launch
+            }
 
-        /** This check, the load launch, and the reset happen on the main thread, so there's no
-         * way they can conflict. However, need to copy the lists since both the loads below and
-         * the loads in lotModel happen on dispatched threads
-         */
-        if (!lotModel.isLoading) {
-            Log.i("Zygos/ZygosViewModel/loadAccount", "ticker lots: ${lotModel.tickerLots.size}")
-            Log.i("Zygos/ZygosViewModel/loadAccount", "long lots: ${lotModel.longPositions.size}")
-            lotModel.logPositions()
+            /** Load watchlist **/
+            viewModelScope.launch {
+                watchlist.loadQuotes(market.stockQuotes)
+            }
 
-            val long = if (lotModel.cashPosition != null) lotModel.longPositions + listOf(lotModel.cashPosition!!) else lotModel.longPositions.toList()
-            val short = lotModel.shortPositions.toList()
+            /** This check, the load launch, and the reset happen on the main thread, so there's no
+             * way they can conflict. However, need to copy the lists since both the loads below and
+             * the loads in lotModel happen on dispatched threads
+             */
+            val lotModel = lots.getOrPut(currentAccount) { LotModel(this@ZygosViewModel) }
+            if (!lotModel.isLoading) {
 
-            equityHistory.setCurrent(long + short, market)
+                val long =
+                    if (lotModel.cashPosition != null) lotModel.longPositions + listOf(lotModel.cashPosition!!)
+                    else lotModel.longPositions.toList()
+                val short = lotModel.shortPositions.toList()
 
-            longPositions.loadLaunched(long, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
-            shortPositions.loadLaunched(short, market.markPrices, market.closePrices, market.percentChanges, equityHistory.current)
+                equityHistory.setCurrent(long + short, market)
 
-            if (!isDummy) updateEquityHistory()
+                longPositions.loadLaunched(
+                    positions = long,
+                    markPrices = market.markPrices,
+                    closePrices = market.closePrices,
+                    percentChanges = market.percentChanges,
+                    totalEquity = equityHistory.current.value
+                )
+                shortPositions.loadLaunched(
+                    positions = short,
+                    markPrices = market.markPrices,
+                    closePrices = market.closePrices,
+                    percentChanges = market.percentChanges,
+                    totalEquity = equityHistory.current.value
+                )
+
+                if (!isDummy) updateEquityHistory()
+            }
         }
     }
 

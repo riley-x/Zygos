@@ -244,6 +244,7 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
         }
 
         /** Reload UI State **/
+        // TODO this sometimes doesn't work because the database might be mid-write still
         loadLaunched(parent.currentAccount)
     }
 
