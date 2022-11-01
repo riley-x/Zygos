@@ -37,7 +37,7 @@ fun SettingsScreen(
     LogCompositions("Zygos", "AnalyticsScreen")
     // TODO: Maybe this screen is a good place for dividend and option summaries
 
-    Column(modifier.padding(bottomPadding)) {
+    Column(modifier.padding(bottom = bottomPadding)) {
         accountSelectionBar()
 
         LazyColumn {

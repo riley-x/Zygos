@@ -343,6 +343,7 @@ fun ZygosApp(
                             apiKeys = viewModel.apiKeys,
                             transactions = viewModel.transactions.latest,
                             tickerColors = viewModel.colors.tickers,
+                            bottomPadding = bottomPadding,
                             onAddAccount = ::onAddAccountClick,
                             onApiKeyClick = ::onEditApiKeyOpen,
                             onTransactionClick = ::toTransactionDetails,

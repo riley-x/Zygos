@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.data.toFloatDollar
 import com.example.zygos.ui.components.TickerListRow
+import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.formatDollar
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.TestViewModel
@@ -39,7 +40,7 @@ fun TransactionTickerRow(
 
         Column(Modifier.weight(15f)) {
             Text(text = transaction.type.toString())
-            Text(text = if (transaction.shares != 0L) transaction.shares.toString() else "")
+            Text(text = formatDateInt(transaction.date))
         }
 
         Column(Modifier.weight(15f), horizontalAlignment = Alignment.End) {
