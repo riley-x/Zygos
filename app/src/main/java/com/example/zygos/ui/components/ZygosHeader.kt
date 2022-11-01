@@ -18,7 +18,7 @@ const val allAccounts = "All Accounts"
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AccountSelectionHeader(
+fun ZygosHeader(
     currentAccount: String,
     accounts: SnapshotStateList<String>,
     modifier: Modifier = Modifier,
@@ -109,7 +109,7 @@ fun AccountSelectionHeader(
 
 @Preview
 @Composable
-fun AccountSelectionHeaderPreview() {
+private fun Preview() {
     val accounts = remember { mutableStateListOf(
         "Robinhood", "Arista", "TD Ameritrade", "Alhena", "All Accounts"
     ) }
@@ -118,12 +118,12 @@ fun AccountSelectionHeaderPreview() {
     ) }
     ZygosTheme {
         Column {
-            AccountSelectionHeader(
+            ZygosHeader(
                 accounts = accounts,
                 currentAccount = accounts[0],
             )
             Spacer(modifier = Modifier.height(20.dp))
-            AccountSelectionHeader(
+            ZygosHeader(
                 accounts = accounts2,
                 currentAccount = accounts2[0],
             )

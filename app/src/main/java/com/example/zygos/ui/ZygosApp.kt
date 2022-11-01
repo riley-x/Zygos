@@ -222,7 +222,7 @@ fun ZygosApp(
         }
 
 
-        val accountSelectionBar: @Composable () -> Unit = { AccountSelectionHeader(
+        val zygosHeader: @Composable () -> Unit = { ZygosHeader(
             accounts = viewModel.accounts,
             currentAccount = viewModel.currentAccount,
             onAccountSelected = viewModel::setAccount,
@@ -278,7 +278,7 @@ fun ZygosApp(
                             onWatchlistDelete = viewModel.watchlist::delete,
                             onAddAllHoldingsToWatchlist = viewModel.watchlist::addAllFromHoldings,
                             onAccountPerformanceRangeSelected = viewModel.equityHistory::updateTimeRange,
-                            accountSelectionBar = accountSelectionBar,
+                            accountSelectionBar = zygosHeader,
                             bottomPadding = bottomPadding,
                         )
                     }
@@ -298,7 +298,7 @@ fun ZygosApp(
                             onPositionClick = ::onHoldingsPositionSelected,
                             holdingsListLongOptionsCallback = ::onHoldingsListLongOptionsShow,
                             holdingsListShortOptionsCallback = ::onHoldingsListShortOptionsShow,
-                            accountSelectionBar = accountSelectionBar,
+                            accountSelectionBar = zygosHeader,
                             bottomPadding = bottomPadding,
                         )
                     }
@@ -328,7 +328,7 @@ fun ZygosApp(
                             onTickerChanged = viewModel.chart::setTicker,
                             onToggleWatchlist = viewModel.watchlist::toggle,
                             onChangeColor = ::toColorSelectorChart,
-                            accountSelectionBar = accountSelectionBar,
+                            accountSelectionBar = zygosHeader,
                             bottomPadding = bottomPadding,
                         )
                     }
@@ -342,12 +342,13 @@ fun ZygosApp(
                             apiKeys = viewModel.apiKeys,
                             transactions = viewModel.transactions.latest,
                             tickerColors = viewModel.colors.tickers,
+                            onAddAccount = ::onAddAccountClick,
                             onApiKeyClick = ::onEditApiKeyOpen,
                             onTransactionClick = ::toTransactionDetails,
                             onTransactionSeeAll = ::toTransactionAll,
                             onAddTransaction = ::toTransactionDetails,
                             onBackupDatabase = ::backupDatabase,
-                            accountSelectionBar = accountSelectionBar,
+                            accountSelectionBar = zygosHeader,
                         )
                     }
                     composable(route = TransactionAllDestination.route) {
@@ -360,7 +361,7 @@ fun ZygosApp(
                             onTransactionClick = ::toTransactionDetails,
                             transactionsListOptionsCallback = ::onTransactionsListOptionsShow,
                             onRecalculateAll = ::onRecalculateAllLotsClick,
-                            accountSelectionBar = accountSelectionBar,
+                            accountSelectionBar = zygosHeader,
                         )
                     }
                     composable(route = TransactionDetailsDestination.route) {
