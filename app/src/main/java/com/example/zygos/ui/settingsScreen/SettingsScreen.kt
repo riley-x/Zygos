@@ -20,11 +20,13 @@ import com.example.zygos.viewModel.TestViewModel
 
 @Composable
 fun SettingsScreen(
+    apiKeys: SnapshotStateMap<String, String>,
+    accounts: SnapshotStateList<String>,
     transactions: SnapshotStateList<Transaction>,
     tickerColors: SnapshotStateMap<String, Color>,
-    apiKeys: SnapshotStateMap<String, String>,
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
+    onAddAccount: () -> Unit = { },
     onApiKeyClick: (ApiService) -> Unit = { },
     onAddTransaction: () -> Unit = { },
     onTransactionClick: (Transaction) -> Unit = { },
@@ -44,6 +46,14 @@ fun SettingsScreen(
                 ApiKeysCard(
                     apiKeys = apiKeys,
                     onApiKeyClick = onApiKeyClick,
+                    modifier = Modifier.padding(10.dp)
+                )
+            }
+
+            item(key = "accounts") {
+                AccountsCard(
+                    accounts = accounts,
+                    onAddAccount = onAddAccount,
                     modifier = Modifier.padding(10.dp)
                 )
             }
@@ -81,6 +91,7 @@ fun PreviewSettingsScreen() {
     ZygosTheme {
         Surface {
             SettingsScreen(
+                accounts = viewModel.accounts,
                 apiKeys = viewModel.apiKeys,
                 transactions = viewModel.transactions,
                 tickerColors = viewModel.tickerColors,

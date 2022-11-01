@@ -338,6 +338,7 @@ fun ZygosApp(
                     composable(route = SettingsTab.route) {
                         LogCompositions("Zygos", "ZygosApp/Scaffold/SettingsTab.route")
                         SettingsScreen(
+                            accounts = viewModel.accounts,
                             apiKeys = viewModel.apiKeys,
                             transactions = viewModel.transactions.latest,
                             tickerColors = viewModel.colors.tickers,
