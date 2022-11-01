@@ -3,15 +3,12 @@ package com.example.zygos.viewModel
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.net.Uri
-import android.os.FileUtils
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.core.content.FileProvider.getUriForFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.room.util.FileUtil
 import com.example.zygos.ZygosApplication
 import com.example.zygos.data.*
 import com.example.zygos.network.apiServices
@@ -183,9 +180,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
         equityHistory.initialContributions = lotModel.cashPosition?.shares ?: 0L
         equityHistory.loadLaunched(account)
 
-        loadPricedData(true)
-        // dummy data assuming 0 unrealized gains. Because the market API might take a long time or
-        // fail, and don't want to display a blank screen
+        loadPricedData(false)
     }
 
     // TODO place this into a timer or refresh button or something
@@ -193,17 +188,19 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
      * This is the main function that loads market prices and all UI state variables that depend on
      * live market prices.
      */
-    fun loadPricedData(isDummy: Boolean = false) {
+    fun loadPricedData(refreshMarketPrices: Boolean = true) {
         viewModelScope.launch {
             /** Guards **/
             longPositions.isLoading = true // these are reset by the respective loads
             shortPositions.isLoading = true // they need to be here because the lots load blocks
 
             /** Load prices **/
-            if (!market.updatePrices(getAllTickers(), getAllOptionNames())) {
-                longPositions.isLoading = false // show stale data, but stop the loading indicator
-                shortPositions.isLoading = false
-                return@launch
+            if (refreshMarketPrices) {
+                if (!market.updatePrices(getAllTickers(), getAllOptionNames())) {
+                    longPositions.isLoading = false // show stale data, but stop the loading indicator
+                    shortPositions.isLoading = false
+                    return@launch
+                }
             }
 
             /** Load watchlist **/
@@ -240,7 +237,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
                     totalEquity = equityHistory.current.value
                 )
 
-                if (!isDummy) updateEquityHistory()
+                if (refreshMarketPrices) updateEquityHistory()
             }
         }
     }

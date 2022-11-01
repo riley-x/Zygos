@@ -101,7 +101,7 @@ fun ZygosHeader(
                 horizontalAlignment = Alignment.End
             ) {
                 Text(formatDate(lastUpdate.value), style = MaterialTheme.typography.overline)
-                Text(formatTimeSeconds(lastUpdate.value), style = MaterialTheme.typography.overline)
+                Text(formatTime24hr(lastUpdate.value), style = MaterialTheme.typography.overline)
             }
 
             IconButton(onClick = onRefresh) {
