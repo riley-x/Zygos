@@ -95,9 +95,8 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
 
 
 
-    /** Main startup sequence that loads all data!
-     * This should be called from a LaunchedEffect(Unit). UI will update as each state variable
-     * gets updated.
+    /** This functions runs once at startup, and should only be called from a LaunchedEffect(Unit)
+     * in the main app. UI will update as each state variable gets updated; there is no splash screen.
      */
     suspend fun startup() {
         val localFileDir = application.filesDir ?: return
@@ -137,7 +136,7 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
          * colors.insertDefaults, which may override saved colors **/
         jobs.add(viewModelScope.launch { colors.load() })
 
-        /** Set UI state **/
+        /** Initialize everything else via setAccount and loadPricedData, defaulting to all accounts **/
         jobs.joinAll() // need to block here before setAccount, which doesn't reload lots
         setAccount(allAccounts)
         loadPricedData()
@@ -190,12 +189,16 @@ class ZygosViewModel(private val application: ZygosApplication) : ViewModel() {
     }
 
     // TODO place this into a timer or refresh button or something
+    /**
+     * This is the main function that loads market prices and all UI state variables that depend on
+     * live market prices.
+     */
     fun loadPricedData(isDummy: Boolean = false) {
-        /** Guards **/
-        longPositions.isLoading = true // these are reset by the respective loads
-        shortPositions.isLoading = true // they need to be here because the lots load blocks
-
         viewModelScope.launch {
+            /** Guards **/
+            longPositions.isLoading = true // these are reset by the respective loads
+            shortPositions.isLoading = true // they need to be here because the lots load blocks
+
             /** Load prices **/
             if (!market.updatePrices(getAllTickers(), getAllOptionNames())) {
                 longPositions.isLoading = false // show stale data, but stop the loading indicator

@@ -27,6 +27,12 @@ import com.example.zygos.viewModel.TestViewModel
 import kotlin.reflect.KProperty1
 
 
+/**
+ * This is the screen shown to add/update a transaction.
+ *
+ * @param initialTransaction All fields are initialized to the values from this transaction. If type
+ * != [TransactionType.NONE], assumes we are updating an existing transaction.
+ */
 @Composable
 fun TransactionDetailsScreen(
     initialTransaction: State<Transaction>,
@@ -129,7 +135,7 @@ fun TransactionDetailsScreen(
         ) {
             DropdownSelector(
                 currentValue = account.value,
-                allValues = ImmutableList(accounts.toList()),
+                allValues = ImmutableList(accounts.filter { it != allAccounts }.toList()),
                 label = "Account",
                 onSelection = { account.value = it },
                 modifier = Modifier.fillMaxWidth()
