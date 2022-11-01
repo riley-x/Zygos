@@ -2,9 +2,7 @@ package com.example.zygos.viewModel
 
 import android.icu.util.Calendar
 import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.core.math.MathUtils.clamp
 import androidx.lifecycle.viewModelScope
 import com.example.zygos.data.*
@@ -26,15 +24,16 @@ class EquityHistoryModel(private val parent: ZygosViewModel) {
     var initialContributions = 0L
 
     /** These are used by the performance screen **/
-    var current by mutableStateOf(0L)
-    var changeToday by mutableStateOf(0L)
-    var changePercent by mutableStateOf(0f)
+    var current = mutableStateOf(0L)
+    var changeToday = mutableStateOf(0L)
+    var changePercent = mutableStateOf(0f)
 
 
     fun setCurrent(positions: List<Position>, market: MarketModel) {
-        current = positions.sumOf { it.equity(market.markPrices) }
-        changeToday = positions.sumOf { it.returnsPeriod(market.closePrices, market.markPrices) }
-        changePercent = if (current - changeToday == 0L) 0f else changeToday.toFloat() / (current - changeToday)
+        current.value = positions.sumOf { it.equity(market.markPrices) }
+        changeToday.value = positions.sumOf { it.returnsPeriod(market.closePrices, market.markPrices) }
+        val yesterday = current.value - changeToday.value
+        changePercent.value = if (yesterday == 0L) 0f else changeToday.value.toFloat() / yesterday
     }
 
 

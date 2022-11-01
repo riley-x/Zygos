@@ -28,12 +28,11 @@ import com.example.zygos.ui.graphing.lineGraph
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.*
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PerformanceScreen(
-    currentEquity: Long,
-    currentChange: Long,
-    currentChangePercent: Float,
+    currentEquity: State<Long>,
+    currentChange: State<Long>,
+    currentChangePercent: State<Float>,
     accountPerformanceState: State<TimeSeriesGraphState<TimeSeries>>,
     accountPerformanceTimeRange: State<String>, // must pass state here for button group to calculate derivedStateOf
     watchlist: SnapshotStateList<Quote>,
@@ -81,7 +80,7 @@ fun PerformanceScreen(
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = formatDollar(currentEquity.toFloatDollar()),
+                        text = formatDollar(currentEquity.value.toFloatDollar()),
                         style = MaterialTheme.typography.h2,
                         color = MaterialTheme.colors.onSurface, // this is necessary for some reason
                         modifier = Modifier.weight(10f),
@@ -89,15 +88,15 @@ fun PerformanceScreen(
                     Column(
                         horizontalAlignment = Alignment.End,
                     ) {
-                        val isPositive by remember { derivedStateOf { currentChange >= 0 } }
+                        val isPositive by remember { derivedStateOf { currentChange.value >= 0 } }
                         val color = if (isPositive) MaterialTheme.colors.primary
                         else MaterialTheme.colors.error
                         Text(
-                            text = formatDollar(currentChange.toFloatDollar()),
+                            text = formatDollar(currentChange.value.toFloatDollar()),
                             color = color
                         )
                         Text(
-                            text = formatPercent(currentChangePercent),
+                            text = formatPercent(currentChangePercent.value),
                             color = color
                         )
                     }
@@ -227,12 +226,15 @@ fun PerformanceScreen(
 @Composable
 fun PreviewPerformanceScreen() {
     val viewModel = viewModel<TestViewModel>()
+    val currentEquity = remember { mutableStateOf(1000000L) }
+    val currentChange = remember { mutableStateOf(100000L) }
+    val currentChangePercent = remember { mutableStateOf(0.1f) }
     ZygosTheme {
         Surface {
             PerformanceScreen(
-                1000000,
-                100000,
-                .1f,
+                currentEquity,
+                currentChange,
+                currentChangePercent,
                 accountPerformanceState = viewModel.accountPerformanceState,
                 accountPerformanceTimeRange = viewModel.accountPerformanceTimeRange,
                 watchlist = viewModel.watchlist,
