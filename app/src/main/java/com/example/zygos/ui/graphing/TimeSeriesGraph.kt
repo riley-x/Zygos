@@ -145,7 +145,7 @@ fun <T: HasName> TimeSeriesGraph(
         val labelXOffsetPx = with(LocalDensity.current) { labelXTopPad.toPx() }
 
         /** Hover vars **/
-        var boxSize by remember { mutableStateOf(IntSize(10, 10)) } // 960 x 1644
+        var boxSize by remember { mutableStateOf(IntSize(960, 960)) } // 960 x 1644
         val disallowIntercept = RequestDisallowInterceptTouchEvent()
         var hoverXUser by remember { mutableStateOf(-1) }
         var hoverYPx by remember { mutableStateOf(-1f) }
@@ -179,14 +179,18 @@ fun <T: HasName> TimeSeriesGraph(
                     motionEvent.action == MotionEvent.ACTION_DOWN
                 ) {
                     disallowIntercept(true)
-                    val userX = clamp((motionEvent.x / deltaX + minX).roundToInt(), 0, state.value.values.lastIndex)
+                    val userX = clamp(
+                        (motionEvent.x / deltaX + minX).roundToInt(),
+                        0,
+                        state.value.values.lastIndex
+                    )
                     val userY = (motionEvent.y - startY) / deltaY + state.value.minY
                     hoverXUser = userX
                     hoverYPx = motionEvent.y
                     onHover(true, userX, userY)
                 } else {
                     disallowIntercept(false)
-                    onHover(false,0, 0f)
+                    onHover(false, 0, 0f)
                     hoverXUser = -1
                     hoverYPx = -1f
                 }
@@ -282,14 +286,15 @@ fun <T: HasName> TimeSeriesGraph(
 
 @Preview(
     widthDp = 360,
-    heightDp = 400,
+    heightDp = 360,
 )
 @Composable
 fun TimeSeriesGraphPreview() {
     val viewModel = viewModel<TestViewModel>()
     ZygosTheme {
         TimeSeriesGraph<TimeSeries>(
-            state = viewModel.accountPerformanceState
+            state = viewModel.accountPerformanceState,
+            grapher = lineGraph(),
         )
     }
 }

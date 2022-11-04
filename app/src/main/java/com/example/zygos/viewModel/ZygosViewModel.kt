@@ -23,6 +23,9 @@ const val performanceGraphTickDivisionsX = 4 // the number of ticks shown is thi
 const val performanceGraphTickDivisionsY = 5 // the number of ticks shown is this - 1
 
 
+/**
+ * This is needed to pass the application instance to the view model, so it can access the Room DAOs
+ */
 class ZygosViewModelFactory(
     private val application: ZygosApplication
 ) : ViewModelProvider.Factory {
