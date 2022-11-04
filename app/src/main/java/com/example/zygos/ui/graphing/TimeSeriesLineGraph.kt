@@ -57,6 +57,7 @@ fun <T> lineGraph(
             color = color,
             style = Stroke(
                 width = size,
+                miter = if (values.size > 100) 0f else 4f,
             )
         )
     }
@@ -64,7 +65,7 @@ fun <T> lineGraph(
 
 @Preview(
     widthDp = 360,
-    heightDp = 400,
+    heightDp = 360,
 )
 @Composable
 fun TimeSeriesLineGraphPreview() {
@@ -73,7 +74,6 @@ fun TimeSeriesLineGraphPreview() {
         TimeSeriesGraph(
             grapher = lineGraph(),
             state = viewModel.accountPerformanceState,
-            modifier = Modifier.size(300.dp, 400.dp)
         )
     }
 }
