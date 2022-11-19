@@ -32,7 +32,6 @@ fun TickerListRow(
 ) {
     Row(
         modifier = modifier
-            .recomposeHighlighter()
             .height(tickerListHeight),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -10,7 +10,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.zygos.data.database.Transaction
 import com.example.zygos.ui.components.formatDateInt
 import com.example.zygos.ui.components.formatDollar
-import com.example.zygos.ui.components.recomposeHighlighter
 import com.example.zygos.ui.theme.ZygosTheme
 import com.example.zygos.viewModel.TestViewModel
 
@@ -21,7 +20,6 @@ fun TransactionRow(
 ) {
     Column(
         modifier = modifier
-            .recomposeHighlighter()
     ) {
         val style = MaterialTheme.typography.body2
 

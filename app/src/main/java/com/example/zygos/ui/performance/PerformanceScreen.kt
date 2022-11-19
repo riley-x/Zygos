@@ -51,7 +51,6 @@ fun PerformanceScreen(
 
     Column(
         modifier = modifier
-            .recomposeHighlighter()
             .padding(bottom = bottomPadding)
             .fillMaxSize(),
     ) {
@@ -142,7 +141,6 @@ fun PerformanceScreen(
                     thickness = 1.dp,
                     modifier = Modifier
                         .padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 2.dp)
-                        .recomposeHighlighter()
                 )
             }
 

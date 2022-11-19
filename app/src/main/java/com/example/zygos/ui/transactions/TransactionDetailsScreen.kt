@@ -126,7 +126,6 @@ fun TransactionDetailsScreen(
     Surface(
         modifier = modifier
             .fillMaxSize()
-            .recomposeHighlighter()
     ) {
         Column(
             modifier = Modifier

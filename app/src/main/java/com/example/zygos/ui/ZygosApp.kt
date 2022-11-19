@@ -253,6 +253,9 @@ fun ZygosApp(
             },
             modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
         ) { innerPadding ->
+            /** If you try to pad the NavHost, there will be a flicker when the soft keyboard animates
+             * open. Instead, need to pad the columns inside each screen composable.
+             */
             val bottomPadding = if (WindowInsets.isImeVisible) 0.dp else innerPadding.calculateBottomPadding()
             /** Pick the tab to show **/
             NavHost(
@@ -396,7 +399,6 @@ fun ZygosApp(
             sheetElevation = 0.dp,
             sheetState = listOptionsSheetState,
             sheetContent = bottomSheetContent,
-            modifier = Modifier.recomposeHighlighter(),
         ) { }
         if (listOptionsSheetIsClosing) {
             // For some reason this can't be placed into the bottomSheet callback. Calling the viewModel
