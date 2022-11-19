@@ -23,23 +23,25 @@ fun ListTitleBar(
     onOptionsButtonClick: () -> Unit = { },
     extraButtons: @Composable RowScope.() -> Unit = { },
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.h3,
-            modifier = Modifier.weight(10f),
-        )
-        extraButtons()
-        IconButton(onClick = { onOptionsButtonClick() }) {
-            Icon(
-                imageVector = Icons.Sharp.MoreVert,
-                contentDescription = null,
+    Surface(modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier.weight(10f),
             )
+            extraButtons()
+            IconButton(onClick = { onOptionsButtonClick() }) {
+                Icon(
+                    imageVector = Icons.Sharp.MoreVert,
+                    contentDescription = null,
+                )
+            }
         }
     }
+
 }
 
 @Preview
