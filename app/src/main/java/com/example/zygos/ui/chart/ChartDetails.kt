@@ -46,8 +46,8 @@ fun ChartDetails(
             TitleValue("P/CF", "${data.pcfRatio}", defaultMod())
         }
         Row {
-            TitleValue("Profit Margin", formatDollar(data.netProfitMarginTTM), defaultMod())
-            TitleValue("Operating Margin", formatDollar(data.operatingMarginTTM), defaultMod())
+            TitleValue("Profit Margin", formatPercent(data.netProfitMarginTTM / 100f), defaultMod())
+            TitleValue("Operating Margin", formatPercent(data.operatingMarginTTM / 100f), defaultMod())
         }
         Row {
             TitleValue("Quick Ratio", "${data.quickRatio}", defaultMod())
